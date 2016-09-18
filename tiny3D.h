@@ -207,6 +207,7 @@ typedef struct {
     matrix_t transform;
     float w, h;
 } transform_t;
+
 //  1). transform_update (world * view * projection
 //  2). transform_init (ts, width, height)
 //  3). transform_apply
