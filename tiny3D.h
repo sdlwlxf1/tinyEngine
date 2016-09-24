@@ -7,6 +7,8 @@ typedef struct {
 } vector_t;
 typedef vector_t point_t;
 
+int CMID(int x, int min, int max) { return (x < min) ? min : ((x > max) ? max : x); }
+
 float interp(float a, float b, float t) {
     return b + (a - b) * t;
 }
@@ -258,6 +260,7 @@ typedef struct { vertex_t v, v1, v2; } edge_t;
 typedef struct { float top, bottom; edge_t left, right; } trapezoid_t;
 typedef struct { vertex_t v, step; int x, y, w; } scanline_t;
 
+// 注意是除坐标意外颜色和纹理索引除以w
 void vertex_rhw_init(vertex_t *v) {
     float rhw = 1.0f / v->pos->w;
     v->rhw = rhw;
@@ -303,6 +306,92 @@ void vertex_add(vertex_t *y, const vertex_t *x) {
     y->color.g += x->color.g;
     y->color.b += x->color.b;
     y->rhw += x->rhw;
+}
+
+// 根据三角形生成 0-2 个梯形，并且返回合法梯形的数量
+int trapezoid_init_triangle(trapezoid_t *trap, const vertex_t *p1, 
+	const vertex_t *p2, const vertex_t *p3) {
+	const vertex_t *p;
+	float k, x;
+
+	if (p1->pos.y > p2->pos.y) p = p1, p1 = p2, p2 = p;
+	if (p1->pos.y > p3->pos.y) p = p1, p1 = p3, p3 = p;
+	if (p2->pos.y > p3->pos.y) p = p2, p2 = p3, p3 = p;
+	if (p1->pos.y == p2->pos.y && p1->pos.y == p3->pos.y) return 0;
+	if (p1->pos.x == p2->pos.x && p1->pos.x == p3->pos.x) return 0;
+
+	if (p1->pos.y == p2->pos.y) {	// triangle down
+		if (p1->pos.x > p2->pos.x) p = p1, p1 = p2, p2 = p;
+		trap[0].top = p1->pos.y;
+		trap[0].bottom = p3->pos.y;
+		trap[0].left.v1 = *p1;
+		trap[0].left.v2 = *p3;
+		trap[0].right.v1 = *p2;
+		trap[0].right.v2 = *p3;
+		return (trap[0].top < trap[0].bottom)? 1 : 0;
+	}
+
+	if (p2->pos.y == p3->pos.y) {	// triangle up
+		if (p2->pos.x > p3->pos.x) p = p2, p2 = p3, p3 = p;
+		trap[0].top = p1->pos.y;
+		trap[0].bottom = p3->pos.y;
+		trap[0].left.v1 = *p1;
+		trap[0].left.v2 = *p2;
+		trap[0].right.v1 = *p1;
+		trap[0].right.v2 = *p3;
+		return (trap[0].top < trap[0].bottom)? 1 : 0;
+	}
+
+	trap[0].top = p1->pos.y;
+	trap[0].bottom = p2->pos.y;
+	trap[1].top = p2->pos.y;
+	trap[1].bottom = p3->pos.y;
+
+	k = (p3->pos.y - p1->pos.y) / (p2->pos.y - p1->pos.y);
+	x = p1->pos.x + (p2->pos.x - p1->pos.x) * k;
+
+	if (x <= p3->pos.x) {		// triangle left
+		trap[0].left.v1 = *p1;
+		trap[0].left.v2 = *p2;
+		trap[0].right.v1 = *p1;
+		trap[0].right.v2 = *p3;
+		trap[1].left.v1 = *p2;
+		trap[1].left.v2 = *p3;
+		trap[1].right.v1 = *p1;
+		trap[1].right.v2 = *p3;
+	}	else {					// triangle right
+		trap[0].left.v1 = *p1;
+		trap[0].left.v2 = *p3;
+		trap[0].right.v1 = *p1;
+		trap[0].right.v2 = *p2;
+		trap[1].left.v1 = *p1;
+		trap[1].left.v2 = *p3;
+		trap[1].right.v1 = *p2;
+		trap[1].right.v2 = *p3;
+	}
+
+	return 2;
+}
+
+// 按照 Y 坐标计算出左右两条边纵坐标等于 Y 的顶点
+void trapezoid_edge_interp(trapezoid_t *trap, float y) {
+	float s1 = trap->left.v2.pos.y - trap->left.v1.pos.y;
+	float s2 = trap->right.v2.pos.y - trap->right.v1.pos.y;
+	float t1 = (y - trap->left.v1.pos.y) / s1;
+	float t2 = (y - trap->right.v1.pos.y) / s2;
+	vertex_interp(&trap->left.v, &trap->left.v1, &trap->left.v2, t1);
+	vertex_interp(&trap->right.v, &trap->right.v1, &trap->right.v2, t2);
+}
+
+// 根据左右两边的端点，初始化计算出扫描线的起点和步长
+void trapezoid_init_scan_line(const trapezoid_t *trap, scanline_t *scanline, int y) {
+	float width = trap->right.v.pos.x - trap->left.v.pos.x;
+	scanline->x = (int)(trap->left.v.pos.x + 0.5f);
+	scanline->w = (int)(trap->right.v.pos.x + 0.5f) - scanline->x;
+	scanline->y = y;
+	scanline->v = trap->left.v;
+	if (trap->left.v.pos.x >= trap->right.v.pos.x) scanline->w = 0;
+	vertex_division(&scanline->step, &trap->left.v, &trap->right.v, width);
 }
 
 typedef struct {
@@ -448,4 +537,114 @@ void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 
     }
 }
 
+IUINT32 device_texture_read(const device_t *device, float u, float v) {
+    int x, y;
+    u = u * device->max_u;
+    v = v * device->max_v;
+    x = (int)(u + 0.5f);
+    y = (int)(v + 0.5f);
+    x = CMID(x, 0, device->tex_width - 1);
+    y = CMID(y, 0, device->tex_height - 1);
+    return device->texture[y][x];
+}
 
+// now is the core realize for rendering, so just do it.
+void device_draw_scanline(device_t *device, scanline_t *scanline) {
+    IUINT32 *framebuffer = device->framebuffer[scanline->y];
+    float *zbuffer = device->zbuffer[scanline->y];
+    int x = scanline->x;
+    int width = device->width;
+    int render_state = device->render_state;
+    int count = scanline->w;
+    for(; count > 0 && x < width; x++, count--) {
+        if(x >= 0) {
+            float rhw = scanline->rhw;
+            if(rhw >= zbuffer[x]) {
+                float w = 1.0f / rhw;
+                zbuffer[x] = rhw;
+                if(render_state & RENDER_STATE_COLOR) {
+                    float r = scanline->v.color.r * w;
+                    float g = scanline->v.color.g * w;
+                    float b = scanline->v.color.b * w;
+                    int R = (int)(r * 255.0f);
+                    int G = (int)(g * 255.0f);
+                    int B = (int)(b * 255.0f);
+                    R = CMID(R, 0, 255);
+                    G = CMID(G, 0, 255);
+                    B = CMID(B, 0, 255);
+                    framebuffer[x] = (R << 16) | (G << 8) | B;
+                }
+                if(render_state & RENDER_STATE_TEXTURE) {
+                    float u = scanline->v.tc.u * w;
+                    float v = scanline->v.tc.v * w;
+                    IUINT32 cc = device_texture_read(device, u, v);
+                    framebuffer[x] = cc;
+                }
+            }
+        }
+        vextex_add(&scanline->v, &scanline->step);
+    }
+}
+
+// core render function
+void device_render_trap(device_t *device, trapezoid_t *trap) {
+    scanline_t scanline;
+    int j, top, bottom;
+    top = (int)(trap->top + 0.5f);
+    bottom = (int)(trap->bottom + 0.5f);
+    for(j = top; j < bottom; j++) {
+        if(j >= 0 && j < device->height) {
+            trapezoid_edge_interp(trap, (float)j + 0.5f);
+            trapezoid_init_scan_line(device, &scanline);
+            device_draw_scanline(device, &scanline);
+        }
+        if(j >= device->height)
+            break;
+    }
+}
+
+void device_draw_primitive(device *device, const vertex_t *v1,
+    const vertex_t *v2, const vertex_t *v3) {
+    point_t p1, p2, p3, c1, c2, c3;
+    int render_state = device->render_state;
+
+    transform_apply(&device->transform, &c1, &v1->pos);
+    transform_apply(&device->transform, &c2, &v2->pos);
+    transform_apply(&device->transform, &c3, &v3->pos);
+
+    if (transform_check_cvv(&c1) != 0) return;
+    if (transform_check_cvv(&c2) != 0) return;
+    if (transform_check_cvv(&c3) != 0) return;
+
+    transform_homogenize(&device->transform, &p1, &c1);
+    transform_homogenize(&device->transform, &p2, &c2);
+    transform_homogenize(&device->transform, &p3, &c3);
+
+    if (render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
+        vertex_t t1 = *v1, t2 = *v2, t3 = *v3;
+        trapezoid_t traps[2];
+        int n;
+
+        t1.pos = p1;
+        t2.pos = p2;
+        t3.pos = p3;
+        t1.pos.w = c1.w;
+        t2.pos.w = c2.w;
+        t3.pos.w = c3.w;
+
+        vertex_rhw_init(&t1);
+        vertex_rhw_init(&t2);
+        vertex_rhw_init(&t3);
+
+        n = trapezoid_init_trangle(traps, &t1, &t2, &t3);
+
+        if(n >= 1) device_render_trap(device, &traps[0]);
+        if(n >= 2) device_render_trap(device, &traps[1]);
+    }
+
+    if(render_state & RENDER_STATE_WIREFRAME) {
+        device_draw_line(device, (int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, device->foreground);
+        device_draw_line(device, (int)p1.x, (int)p1.y, (int)p3.x, (int)p3.y, device->foreground);
+        device_draw_line(device, (int)p3.x, (int)p3.y, (int)p2.x, (int)p2.y, device->foreground);
+    }
+}
