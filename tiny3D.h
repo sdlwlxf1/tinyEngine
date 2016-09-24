@@ -306,26 +306,26 @@ void vertex_add(vertex_t *y, const vertex_t *x) {
 }
 
 typedef struct {
-	transform_t transform;      // ×ø±ê±ä»»Æ÷
-	int width;                  // ´°¿Ú¿í¶È
-	int height;                 // ´°¿Ú¸ß¶È
-	IUINT32 **framebuffer;      // ÏñËØ»º´æ£ºframebuffer[y] ´ú±íµÚ yĞĞ
-	float **zbuffer;            // Éî¶È»º´æ£ºzbuffer[y] ÎªµÚ yĞĞÖ¸Õë
-	IUINT32 **texture;          // ÎÆÀí£ºÍ¬ÑùÊÇÃ¿ĞĞË÷Òı
-	int tex_width;              // ÎÆÀí¿í¶È
-	int tex_height;             // ÎÆÀí¸ß¶È
-	float max_u;                // ÎÆÀí×î´ó¿í¶È£ºtex_width - 1
-	float max_v;                // ÎÆÀí×î´ó¸ß¶È£ºtex_height - 1
-	int render_state;           // äÖÈ¾×´Ì¬
-	IUINT32 background;         // ±³¾°ÑÕÉ«
-	IUINT32 foreground;         // Ïß¿òÑÕÉ«
+	transform_t transform;      // åæ ‡å˜æ¢å™¨
+	int width;                  // çª—å£å®½åº¦
+	int height;                 // çª—å£é«˜åº¦
+	IUINT32 **framebuffer;      // åƒç´ ç¼“å­˜ï¼šframebuffer[y] ä»£è¡¨ç¬¬ yè¡Œ
+	float **zbuffer;            // æ·±åº¦ç¼“å­˜ï¼šzbuffer[y] ä¸ºç¬¬ yè¡ŒæŒ‡é’ˆ
+	IUINT32 **texture;          // çº¹ç†ï¼šåŒæ ·æ˜¯æ¯è¡Œç´¢å¼•
+	int tex_width;              // çº¹ç†å®½åº¦
+	int tex_height;             // çº¹ç†é«˜åº¦
+	float max_u;                // çº¹ç†æœ€å¤§å®½åº¦ï¼štex_width - 1
+	float max_v;                // çº¹ç†æœ€å¤§é«˜åº¦ï¼štex_height - 1
+	int render_state;           // æ¸²æŸ“çŠ¶æ€
+	IUINT32 background;         // èƒŒæ™¯é¢œè‰²
+	IUINT32 foreground;         // çº¿æ¡†é¢œè‰²
 }	device_t;
 
-#define RENDER_STATE_WIREFRAME      1		// äÖÈ¾Ïß¿ò
-#define RENDER_STATE_TEXTURE        2		// äÖÈ¾ÎÆÀí
-#define RENDER_STATE_COLOR          4		// äÖÈ¾ÑÕÉ«
+#define RENDER_STATE_WIREFRAME      1		// æ¸²æŸ“çº¿æ¡†
+#define RENDER_STATE_TEXTURE        2		// æ¸²æŸ“çº¹ç†
+#define RENDER_STATE_COLOR          4		// æ¸²æŸ“é¢œè‰²
 
-// Éè±¸³õÊ¼»¯£¬fbÎªÍâ²¿Ö¡»º´æ£¬·Ç NULL ½«ÒıÓÃÍâ²¿Ö¡»º´æ£¨Ã¿ĞĞ 4×Ö½Ú¶ÔÆë£©
+// è®¾å¤‡åˆå§‹åŒ–ï¼Œfbä¸ºå¤–éƒ¨å¸§ç¼“å­˜ï¼Œé NULL å°†å¼•ç”¨å¤–éƒ¨å¸§ç¼“å­˜ï¼ˆæ¯è¡Œ 4å­—èŠ‚å¯¹é½ï¼‰
 void device_init(device_t *device, int width, int height, void *fb) {
 	int need = sizeof(void*) * (height * 2 + 1024) + width * height * 8;
 	char *ptr = (char*)malloc(need + 64);
@@ -376,7 +376,7 @@ void device_set_texture(device_t *device, void *bits, long pitch, int w, int h) 
 	char *ptr = (char*)bits;
 	int j;
 	assert(w <= 1024 && h <= 1024);
-	for (j = 0; j < h; ptr += pitch, j++) 	// ÖØĞÂ¼ÆËãÃ¿ĞĞÎÆÀíµÄÖ¸Õë
+	for (j = 0; j < h; ptr += pitch, j++) 	// é‡æ–°è®¡ç®—æ¯è¡Œçº¹ç†çš„æŒ‡é’ˆ
 		device->texture[j] = (IUINT32*)ptr;
 	device->tex_width = w;
 	device->tex_height = h;
@@ -404,3 +404,48 @@ void device_pixel(device_t *device, int x, int y, IUINT32 color) {
 		device->framebuffer[y][x] = color;
 	}
 }
+
+/*
+    m = dy / dx
+    å¦‚æœ(Îµ + m) < 0.5 (æˆ–è¡¨ç¤ºä¸º2*(Îµ + m) < 1)
+        Îµ = Îµ + m
+    å…¶ä»–æƒ…å†µ
+        Îµ = Îµ + m â€“ 1
+å°†ä¸Šè¿°å…¬å¼éƒ½ä¹˜ä»¥dx, å¹¶å°†Îµ*dxç”¨æ–°ç¬¦å·Î¾è¡¨ç¤ºï¼Œå¯å¾—
+    å¦‚æœ2*(Î¾ + dy) < dx
+        Î¾ = Î¾ + dy
+    å…¶ä»–æƒ…å†µ
+        Î¾ = Î¾ + dy â€“ dx
+*/
+void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 c) {
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int ux = ((dx > 0) << 1) - 1;
+    int uy = ((dy > 0) << 1) - 1;
+    int x = x1, y = y1, eps;
+
+    eps = 0; dx = abs(dx); dy = abs(dy);
+    if(dx > dy)
+    {
+        for(x = x1; x != x2 + ux; x += ux)
+        {
+            device_pixel(device, x, y, c);
+            eps += dy;
+            if((eps << 1) >= dx)
+                y += uy;
+                eps -= dx;
+        }
+    } else {
+        for(y = y1; y != y2 + uy; y += uy)
+        {
+            device_pixel(device, x, y, c);
+            eps += dx;
+            if((eps << 1) >= dy) {
+                x += ux;
+                eps -= dy;
+            }
+        }
+    }
+}
+
+
