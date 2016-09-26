@@ -1,4 +1,6 @@
 // this tiny game engine is rendered by CPU. I make it for learing the pipline and rasterization. This is the first step to realise my own game engine. so just do it!
+#include "math.h"
+
 // modules:
 // 1. math library
 //  1). vector
