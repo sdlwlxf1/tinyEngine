@@ -1,6 +1,8 @@
 // this tiny game engine is rendered by CPU. I make it for learing the pipline and rasterization. This is the first step to realise my own game engine. so just do it!
 #include "math.h"
 
+typedef unsigned int IUINT32;
+
 // modules:
 // 1. math library
 //  1). vector
@@ -86,9 +88,12 @@ void matrix_scale(matrix_t *m, float k) {
             m->m[i][j] *= k;
 }
 //      5)). apply v = v * m
-void matrix_apply(vector_t *v1, const vector_t *v2, const matrix_t *m) {
-    for(int j = 0; j < 4; j++)
-        v1[j] = v2[0] * m->m[0][j] + v2[1] * m->m[1][j] + v2[2] * m->[2][j] + v2[3] * m->m[3][j];
+void matrix_apply(vector_t *y, const vector_t *x, const matrix_t *m) {
+    float X = x->x, Y = x->y, Z = x->z, W = x->w;
+    y->x = X * m->m[0][0] + Y * m->m[1][0] + Z * m->m[2][0] + W * m->m[3][0];
+    y->y = X * m->m[0][1] + Y * m->m[1][1] + Z * m->m[2][1] + W * m->m[3][1];
+    y->z = X * m->m[0][2] + Y * m->m[1][2] + Z * m->m[2][2] + W * m->m[3][2];
+    y->w = X * m->m[0][3] + Y * m->m[1][3] + Z * m->m[2][3] + W * m->m[3][3];
 }
 //      6)). set_identity
 void matrix_set_identity(matrix_t *m) {
@@ -115,17 +120,15 @@ void matrix_set_translate(matrix_t *m, float dx, float dy, float dz) {
 //      9)). set_scale
 void matrix_set_scale(matrix_t *m, float sx, float sy, float sz) {
     matrix_set_identity(m);
-    m->m[0][0] = dx;
-    m->m[1][1] = dy;
-    m->m[2][2] = dz;
+    m->m[0][0] = sx;
+    m->m[1][1] = sy;
+    m->m[2][2] = sz;
 }
 //      10)).set_rotate m, x, y, z, theta
 // x*x*(1-cos0)+cos0    x*y*(1-cos0)+z*sin0   x*z*(1-cos0)-y*sin0
 // x*y*(1-cos0)-z*sin0  y*y*(1-cos0)+cos0     y*z*(1-cos0)+x*sin0
 // x*z*(1-cos0)+y*sin0  y*z*(1-cos0)-x*sin0   z*z*(1-cos0)+cos0
 void matrix_set_rotate(matrix_t *m, const vector_t *v, float theta) {
-    assert(fabs(v*v - 1.0f) < .01f);
-
     float s = sin(theta);
     float c = cos(theta);
 
@@ -221,15 +224,15 @@ void transform_update(transform_t *ts) {
 //  2). transform_init (ts, width, height)
 void transform_init(transform_t *ts, int width, int height) {
     float aspect = (float)width / (float)height;
-    matrix_identity(&ts->world);
-    matrix_identity(&ts->view);
+    matrix_set_identity(&ts->world);
+    matrix_set_identity(&ts->view);
     matrix_set_perspective(&ts->projection, 3.1415926 * 0.5f, aspect, 1.0f, 500.0f);
     ts->w = (float)width;
     ts->h = (float)height;
     transform_update(ts);
 }
 //  3). transform_apply
-void transform_apply(transform_t *ts, vector_t *y, vector_t *x) {
+void transform_apply(const transform_t *ts, vector_t *y, const vector_t *x) {
     matrix_apply(y, x, &ts->transform);
 }
 //  4). transform_check_cvv(v)
@@ -245,7 +248,7 @@ int transform_check_cvv(const vector_t *v) {
     return check;
 }
 //  5). transform_homogenize(ts, y, x)
-void transform_homogenize(const transform_t *ts, vector *y, const vector *x) {
+void transform_homogenize(const transform_t *ts, vector_t *y, const vector_t *x) {
     float rhw = 1.0f / x->w;
     y->x = (x->x * rhw + 1.0f) * 0.5f * ts->w;
     y->y = (1.0f - x->y * rhw) * 0.5f * ts->h;
@@ -264,7 +267,7 @@ typedef struct { vertex_t v, step; int x, y, w; } scanline_t;
 
 // 注意是除坐标意外颜色和纹理索引除以w
 void vertex_rhw_init(vertex_t *v) {
-    float rhw = 1.0f / v->pos->w;
+    float rhw = 1.0f / v->pos.w;
     v->rhw = rhw;
     v->tc.u *= rhw;
     v->tc.v *= rhw;
@@ -422,7 +425,6 @@ void device_init(device_t *device, int width, int height, void *fb) {
 	char *ptr = (char*)malloc(need + 64);
 	char *framebuf, *zbuf;
 	int j;
-	assert(ptr);
 	device->framebuffer = (IUINT32**)ptr;
     ptr += sizeof(void*) * height;
     
@@ -466,7 +468,6 @@ void device_destroy(device_t *device) {
 void device_set_texture(device_t *device, void *bits, long pitch, int w, int h) {
 	char *ptr = (char*)bits;
 	int j;
-	assert(w <= 1024 && h <= 1024);
 	for (j = 0; j < h; ptr += pitch, j++) 	// 重新计算每行纹理的指针
 		device->texture[j] = (IUINT32*)ptr;
 	device->tex_width = w;
@@ -560,7 +561,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline) {
     int count = scanline->w;
     for(; count > 0 && x < width; x++, count--) {
         if(x >= 0) {
-            float rhw = scanline->rhw;
+            float rhw = scanline->v.rhw;
             if(rhw >= zbuffer[x]) {
                 float w = 1.0f / rhw;
                 zbuffer[x] = rhw;
@@ -584,7 +585,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline) {
                 }
             }
         }
-        vextex_add(&scanline->v, &scanline->step);
+        vertex_add(&scanline->v, &scanline->step);
     }
 }
 
@@ -597,7 +598,7 @@ void device_render_trap(device_t *device, trapezoid_t *trap) {
     for(j = top; j < bottom; j++) {
         if(j >= 0 && j < device->height) {
             trapezoid_edge_interp(trap, (float)j + 0.5f);
-            trapezoid_init_scan_line(device, &scanline);
+            trapezoid_init_scan_line(trap, &scanline, j);
             device_draw_scanline(device, &scanline);
         }
         if(j >= device->height)
@@ -605,7 +606,7 @@ void device_render_trap(device_t *device, trapezoid_t *trap) {
     }
 }
 
-void device_draw_primitive(device *device, const vertex_t *v1,
+void device_draw_primitive(device_t *device, const vertex_t *v1,
     const vertex_t *v2, const vertex_t *v3) {
     point_t p1, p2, p3, c1, c2, c3;
     int render_state = device->render_state;
@@ -638,7 +639,7 @@ void device_draw_primitive(device *device, const vertex_t *v1,
         vertex_rhw_init(&t2);
         vertex_rhw_init(&t3);
 
-        n = trapezoid_init_trangle(traps, &t1, &t2, &t3);
+        n = trapezoid_init_triangle(traps, &t1, &t2, &t3);
 
         if(n >= 1) device_render_trap(device, &traps[0]);
         if(n >= 2) device_render_trap(device, &traps[1]);

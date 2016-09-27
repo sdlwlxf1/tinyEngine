@@ -6,6 +6,7 @@ and may not be redistributed without written permission.*/
 #include <stdio.h>
 #include <string>
 #include <cmath>
+#include "tiny3D.h"
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
@@ -29,7 +30,7 @@ SDL_Window* gWindow = NULL;
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
-bool init()
+bool init(int width, int height, const char *title)
 {
 	//Initialization flag
 	bool success = true;
@@ -49,7 +50,7 @@ bool init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -132,65 +133,153 @@ void close()
 //	return newTexture;
 //}
 
+//=====================================================================
+// 主程序
+//=====================================================================
+vertex_t mesh[8] = {
+    { {  1, -1,  1, 1 }, { 0, 0 }, { 1.0f, 0.2f, 0.2f }, 1 },
+    { { -1, -1,  1, 1 }, { 0, 1 }, { 0.2f, 1.0f, 0.2f }, 1 },
+    { { -1,  1,  1, 1 }, { 1, 1 }, { 0.2f, 0.2f, 1.0f }, 1 },
+    { {  1,  1,  1, 1 }, { 1, 0 }, { 1.0f, 0.2f, 1.0f }, 1 },
+    { {  1, -1, -1, 1 }, { 0, 0 }, { 1.0f, 1.0f, 0.2f }, 1 },
+    { { -1, -1, -1, 1 }, { 0, 1 }, { 0.2f, 1.0f, 1.0f }, 1 },
+    { { -1,  1, -1, 1 }, { 1, 1 }, { 1.0f, 0.3f, 0.3f }, 1 },
+    { {  1,  1, -1, 1 }, { 1, 0 }, { 0.2f, 1.0f, 0.3f }, 1 },
+};
+
+void draw_plane(device_t *device, int a, int b, int c, int d) {
+    vertex_t p1 = mesh[a], p2 = mesh[b], p3 = mesh[c], p4 = mesh[d];
+    p1.tc.u = 0, p1.tc.v = 0, p2.tc.u = 0, p2.tc.v = 1;
+    p3.tc.u = 1, p3.tc.v = 1, p4.tc.u = 1, p4.tc.v = 0;
+    device_draw_primitive(device, &p1, &p2, &p3);
+    device_draw_primitive(device, &p3, &p4, &p1);
+}
+
+void draw_box(device_t *device, float theta) {
+    matrix_t m;
+    vector_t v = {-1, -0.5, 1, 1};
+    matrix_set_rotate(&m, &v, theta);
+    device->transform.world = m;
+    transform_update(&device->transform);
+    draw_plane(device, 0, 1, 2, 3);
+    draw_plane(device, 4, 5, 6, 7);
+    draw_plane(device, 0, 4, 5, 1);
+    draw_plane(device, 1, 5, 6, 2);
+    draw_plane(device, 2, 6, 7, 3);
+    draw_plane(device, 3, 7, 4, 0);
+}
+
+void camera_at_zero(device_t *device, float x, float y, float z) {
+    point_t eye = { x, y, z, 1 }, at = { 0, 0, 0, 1 }, up = { 0, 0, 1, 1 };
+    matrix_set_lookat(&device->transform.view, &eye, &at, &up);
+    transform_update(&device->transform);
+}
+
+void init_texture(device_t *device) {
+    static IUINT32 texture[256][256];
+    int i, j;
+    for (j = 0; j < 256; j++) {
+        for (i = 0; i < 256; i++) {
+            int x = i / 32, y = j / 32;
+            texture[j][i] = ((x + y) & 1)? 0xffffff : 0x3fbcef;
+        }
+    }
+    device_set_texture(device, texture, 256 * 4, 256, 256);
+}
+
+int screen_keys[512];	// 当前键盘按下状态
+
 int main( int argc, char* args[] )
 {
-	//Start up SDL and create window
-	if( !init() )
-	{
-		printf( "Failed to initialize!\n" );
-	}
-	else
-	{
-		//Load media
-		if( !loadMedia() )
-		{
-			printf( "Failed to load media!\n" );
-		}
-		else
-		{	
-			//Main loop flag
-			bool quit = false;
+    //Start up SDL and create window
+    if( !init(SCREEN_WIDTH, SCREEN_HEIGHT, "lixuefeng") )
+    {
+        printf( "Failed to initialize!\n" );
+    }
+    else
+    {
+        //Load media
+        if( !loadMedia() )
+        {
+            printf( "Failed to load media!\n" );
+        }
+        else
+        {
+            //Main loop flag
+            bool quit = false;
+            
+            device_t device;
+            int states[] = { RENDER_STATE_TEXTURE, RENDER_STATE_COLOR, RENDER_STATE_WIREFRAME };
+            int indicator = 0;
+            int kbhit = 0;
+            float alpha = 1;
+            float pos = 3.5;
+            
+            memset(screen_keys, 0, sizeof(int) * 512);
+            device_init(&device, 800, 600, NULL);
+            camera_at_zero(&device, 3, 0, 0);
+            
+            init_texture(&device);
+            device.render_state = RENDER_STATE_TEXTURE;
+            
+            //Event handler
+            SDL_Event e;
+            
+            //While application is running
+            while( !quit )
+            {
+                //Handle events on queue
+                while( SDL_PollEvent( &e ) != 0 )
+                {
+                    //User requests quit
+                    if( e.type == SDL_QUIT )
+                    {
+                        quit = true;
+                    }
+                    //User presses a key
+                    else if( e.type == SDL_KEYDOWN )
+                    {
+                        screen_keys[e.key.keysym.scancode] = 1;
+                    }
+                    else if(e.type == SDL_KEYUP)
+                    {
+                        screen_keys[e.key.keysym.scancode] = 0;
+                    }
+                }
+                
+                if (screen_keys[SDL_SCANCODE_UP]) pos -= 0.01f;
+                if (screen_keys[SDL_SCANCODE_DOWN]) pos += 0.01f;
+                if (screen_keys[SDL_SCANCODE_LEFT]) alpha += 0.01f;
+                if (screen_keys[SDL_SCANCODE_RIGHT]) alpha -= 0.01f;
+                
+                if (screen_keys[SDL_SCANCODE_SPACE]) {
+                    if (kbhit == 0) {
+                        kbhit = 1;
+                        if (++indicator >= 3) indicator = 0;
+                        device.render_state = states[indicator];
+                    }
+                }   else {
+                    kbhit = 0;
+                }
+                
+                //Clear screen
+                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+                SDL_RenderClear( gRenderer );
+                
+                device_clear(&device, 1);
+                camera_at_zero(&device, pos, 0, 0);
+                
+                draw_box(&device, alpha);
 
-			//Event handler
-			SDL_Event e;
-
-			//While application is running
-			while( !quit )
-			{
-				//Handle events on queue
-				while( SDL_PollEvent( &e ) != 0 )
-				{
-					//User requests quit
-					if( e.type == SDL_QUIT )
-					{
-						quit = true;
-					}
-				}
-
-				//Clear screen
-				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-				SDL_RenderClear( gRenderer );
-
-				//Render red filled quad
-				SDL_Rect fillRect = { SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
-				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0x00, 0x00, 0xFF );		
-				SDL_RenderFillRect( gRenderer, &fillRect );
-
-				//Render green outlined quad
-				SDL_Rect outlineRect = { SCREEN_WIDTH / 6, SCREEN_HEIGHT / 6, SCREEN_WIDTH * 2 / 3, SCREEN_HEIGHT * 2 / 3 };
-				SDL_SetRenderDrawColor( gRenderer, 0x00, 0xFF, 0x00, 0xFF );		
-				SDL_RenderDrawRect( gRenderer, &outlineRect );
-				
-				//Draw blue horizontal line
-				SDL_SetRenderDrawColor( gRenderer, 0x00, 0x00, 0xFF, 0xFF );		
-				SDL_RenderDrawLine( gRenderer, 0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2 );
-
-				//Draw vertical line of yellow dots
-				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0x00, 0xFF );
-				for( int i = 0; i < SCREEN_HEIGHT; i += 4 )
-				{
-					SDL_RenderDrawPoint( gRenderer, SCREEN_WIDTH / 2, i );
-				}
+                for(int i = 0; i < SCREEN_WIDTH; i++)
+                {
+                    for(int j = 0; j < SCREEN_HEIGHT; j++)
+                    {
+                        IUINT32 color = device.framebuffer[j][i];
+                        SDL_SetRenderDrawColor( gRenderer, (0xff<<16&color)>>16, (0xff<<8&color)>>8, 0xff&color, (0xff<<24&color)>>24);
+                        SDL_RenderDrawPoint( gRenderer, i, j);
+                    }
+                }
 
 				//Update screen
 				SDL_RenderPresent( gRenderer );
@@ -203,3 +292,4 @@ int main( int argc, char* args[] )
 
 	return 0;
 }
+
