@@ -6,6 +6,7 @@ and may not be redistributed without written permission.*/
 #include <stdio.h>
 #include <string>
 #include <cmath>
+//#include "mini3d.c"
 #include "tiny3D.h"
 
 //Screen dimension constants
@@ -157,9 +158,9 @@ void draw_plane(device_t *device, int a, int b, int c, int d) {
 
 void draw_box(device_t *device, float theta) {
     matrix_t m;
-//    vector_t v = {-1, -0.5, 1, 1};
-//    matrix_set_rotate(&m, &v, theta);
-    matrix_set_rotate(&m, -1, -0.5, 1, theta);
+    vector_t v = {-1, -0.5, 1, 1};
+    matrix_set_rotate(&m, &v, theta);
+    //matrix_set_rotate(&m, -1, -0.5, 1, theta);
     device->transform.world = m;
     transform_update(&device->transform);
     draw_plane(device, 0, 1, 2, 3);
