@@ -543,50 +543,6 @@ void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 
     }
 }
 
-//// 绘制线段
-//void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 c) {
-//    int x, y, rem = 0;
-//    if (x1 == x2 && y1 == y2) {
-//        device_pixel(device, x1, y1, c);
-//    }	else if (x1 == x2) {
-//        int inc = (y1 <= y2)? 1 : -1;
-//        for (y = y1; y != y2; y += inc) device_pixel(device, x1, y, c);
-//        device_pixel(device, x2, y2, c);
-//    }	else if (y1 == y2) {
-//        int inc = (x1 <= x2)? 1 : -1;
-//        for (x = x1; x != x2; x += inc) device_pixel(device, x, y1, c);
-//        device_pixel(device, x2, y2, c);
-//    }	else {
-//        int dx = (x1 < x2)? x2 - x1 : x1 - x2;
-//        int dy = (y1 < y2)? y2 - y1 : y1 - y2;
-//        if (dx >= dy) {
-//            if (x2 < x1) x = x1, y = y1, x1 = x2, y1 = y2, x2 = x, y2 = y;
-//            for (x = x1, y = y1; x <= x2; x++) {
-//                device_pixel(device, x, y, c);
-//                rem += dy;
-//                if (rem >= dx) {
-//                    rem -= dx;
-//                    y += (y2 >= y1)? 1 : -1;
-//                    device_pixel(device, x, y, c);
-//                }
-//            }
-//            device_pixel(device, x2, y2, c);
-//        }	else {
-//            if (y2 < y1) x = x1, y = y1, x1 = x2, y1 = y2, x2 = x, y2 = y;
-//            for (x = x1, y = y1; y <= y2; y++) {
-//                device_pixel(device, x, y, c);
-//                rem += dx;
-//                if (rem >= dy) {
-//                    rem -= dy;
-//                    x += (x2 >= x1)? 1 : -1;
-//                    device_pixel(device, x, y, c);
-//                }
-//            }
-//            device_pixel(device, x2, y2, c);
-//        }
-//    }
-//}
-
 IUINT32 device_texture_read(const device_t *device, float u, float v) {
     int x, y;
     u = u * device->max_u;
@@ -657,6 +613,23 @@ void device_draw_primitive(device_t *device, const vertex_t *v1,
     const vertex_t *v2, const vertex_t *v3) {
     point_t p1, p2, p3, c1, c2, c3;
     int render_state = device->render_state;
+    
+//    // 使用法向量
+//    matrix_apply(&c1, &v1->pos, &device->transform.world);
+//    matrix_apply(&c2, &v2->pos, &device->transform.world);
+//    matrix_apply(&c3, &v3->pos, &device->transform.world);
+//    
+//    matrix_apply(&p1, &c1, &device->transform.view);
+//    matrix_apply(&p2, &c2, &device->transform.view);
+//    matrix_apply(&p3, &c3, &device->transform.view);
+//    
+//    vector_t v21, v32;
+//    vector_sub(&v21, &p2, &p1);
+//    vector_sub(&v32, &p3, &p2);
+//    vector_t normal;
+//    vector_crossproduct(&normal, &v21, &v32);
+//    if(vector_dotproduct(&normal, &p2) >= 0)
+//        return;
 
     transform_apply(&device->transform, &c1, &v1->pos);
     transform_apply(&device->transform, &c2, &v2->pos);
@@ -665,11 +638,19 @@ void device_draw_primitive(device_t *device, const vertex_t *v1,
     if (transform_check_cvv(&c1) != 0) return;
     if (transform_check_cvv(&c2) != 0) return;
     if (transform_check_cvv(&c3) != 0) return;
-
+    
     transform_homogenize(&device->transform, &p1, &c1);
     transform_homogenize(&device->transform, &p2, &c2);
     transform_homogenize(&device->transform, &p3, &c3);
-
+    
+    // 背面剔除
+    vector_t v21, v32;
+    vector_sub(&v21, &p2, &p1);
+    vector_sub(&v32, &p3, &p2);
+    // 计算叉积
+    if(v21.x * v32.y - v32.x * v21.y <= 0)
+        return;
+    
     if (render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
         vertex_t t1 = *v1, t2 = *v2, t3 = *v3;
         trapezoid_t traps[2];

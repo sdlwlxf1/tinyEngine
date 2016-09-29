@@ -138,14 +138,14 @@ void close()
 // 主程序
 //=====================================================================
 vertex_t mesh[8] = {
-    { {  1, -1,  1, 1 }, { 0, 0 }, { 1.0f, 0.2f, 0.2f }, 1 },
-    { { -1, -1,  1, 1 }, { 0, 1 }, { 0.2f, 1.0f, 0.2f }, 1 },
-    { { -1,  1,  1, 1 }, { 1, 1 }, { 0.2f, 0.2f, 1.0f }, 1 },
-    { {  1,  1,  1, 1 }, { 1, 0 }, { 1.0f, 0.2f, 1.0f }, 1 },
-    { {  1, -1, -1, 1 }, { 0, 0 }, { 1.0f, 1.0f, 0.2f }, 1 },
-    { { -1, -1, -1, 1 }, { 0, 1 }, { 0.2f, 1.0f, 1.0f }, 1 },
-    { { -1,  1, -1, 1 }, { 1, 1 }, { 1.0f, 0.3f, 0.3f }, 1 },
-    { {  1,  1, -1, 1 }, { 1, 0 }, { 0.2f, 1.0f, 0.3f }, 1 },
+    { {  -1, -1, -1, 1 }, { 0, 0 }, { 1.0f, 0.2f, 0.2f }, 1 },
+    { { 1, -1, -1, 1 }, { 0, 1 }, { 0.2f, 1.0f, 0.2f }, 1 },
+    { { -1,  1, -1, 1 }, { 1, 1 }, { 0.2f, 0.2f, 1.0f }, 1 },
+    { {  1,  1, -1, 1 }, { 1, 0 }, { 1.0f, 0.2f, 1.0f }, 1 },
+    { { -1, -1,  1, 1 }, { 0, 0 }, { 1.0f, 1.0f, 0.2f }, 1 },
+    { { 1, -1,  1, 1 }, { 0, 1 }, { 0.2f, 1.0f, 1.0f }, 1 },
+    { { -1,  1,  1, 1 }, { 1, 1 }, { 1.0f, 0.3f, 0.3f }, 1 },
+    { { 1,  1,  1, 1 }, { 1, 0 }, { 0.2f, 1.0f, 0.3f }, 1 },
 };
 
 void draw_plane(device_t *device, int a, int b, int c, int d) {
@@ -158,21 +158,21 @@ void draw_plane(device_t *device, int a, int b, int c, int d) {
 
 void draw_box(device_t *device, float theta) {
     matrix_t m;
-    vector_t v = {-1, -0.5, 1, 1};
+    vector_t v = {0, 1, 1, 0};
     matrix_set_rotate(&m, &v, theta);
-    //matrix_set_rotate(&m, -1, -0.5, 1, theta);
+    //matrix_set_rotate(&m, 1, 0, 1, theta);
     device->transform.world = m;
     transform_update(&device->transform);
-    draw_plane(device, 0, 1, 2, 3);
-    draw_plane(device, 4, 5, 6, 7);
-    draw_plane(device, 0, 4, 5, 1);
-    draw_plane(device, 1, 5, 6, 2);
+    draw_plane(device, 0, 2, 3, 1);
+    draw_plane(device, 0, 4, 6, 2);
+    draw_plane(device, 0, 1, 5, 4);
+    draw_plane(device, 4, 5, 7, 6);
+    draw_plane(device, 1, 3, 7, 5);
     draw_plane(device, 2, 6, 7, 3);
-    draw_plane(device, 3, 7, 4, 0);
 }
 
 void camera_at_zero(device_t *device, float x, float y, float z) {
-    point_t eye = { x, y, z, 1 }, at = { 0, 0, 0, 1 }, up = { 0, 0, 1, 1 };
+    point_t eye = { x, y, z, 1 }, at = { 0, 0, 0, 1 }, up = { 0, 1, 0, 1 };
     matrix_set_lookat(&device->transform.view, &eye, &at, &up);
     transform_update(&device->transform);
 }
@@ -218,8 +218,8 @@ int main( int argc, char* args[] )
             float pos = 3.5;
             
             memset(screen_keys, 0, sizeof(int) * 512);
-            device_init(&device, 800, 600, NULL);
-            camera_at_zero(&device, 3, 0, 0);
+            device_init(&device, SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
+            camera_at_zero(&device, 0, 0, -1);
             
             init_texture(&device);
             device.render_state = RENDER_STATE_TEXTURE;
@@ -249,10 +249,10 @@ int main( int argc, char* args[] )
                     }
                 }
                 
-                if (screen_keys[SDL_SCANCODE_UP]) pos -= 0.01f;
-                if (screen_keys[SDL_SCANCODE_DOWN]) pos += 0.01f;
-                if (screen_keys[SDL_SCANCODE_LEFT]) alpha += 0.01f;
-                if (screen_keys[SDL_SCANCODE_RIGHT]) alpha -= 0.01f;
+                if (screen_keys[SDL_SCANCODE_UP]) pos -= 0.04f;
+                if (screen_keys[SDL_SCANCODE_DOWN]) pos += 0.04f;
+                if (screen_keys[SDL_SCANCODE_LEFT]) alpha += 0.04f;
+                if (screen_keys[SDL_SCANCODE_RIGHT]) alpha -= 0.04f;
                 
                 if (screen_keys[SDL_SCANCODE_SPACE]) {
                     if (kbhit == 0) {
@@ -269,7 +269,7 @@ int main( int argc, char* args[] )
                 SDL_RenderClear( gRenderer );
                 
                 device_clear(&device, 1);
-                camera_at_zero(&device, pos, 0, 0);
+                camera_at_zero(&device, 0, 0, pos);
                 
                 draw_box(&device, alpha);
 
