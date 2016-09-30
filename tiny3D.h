@@ -35,6 +35,20 @@ void vector_sub(vector_t *c, const vector_t *a, const vector_t *b) {
     c->z = a->z - b->z; 
     c->w = 1.0f;
 }
+//      4)). scale
+void vector_scale(vector_t *v, float k) {
+    v->x *= k;
+    v->y *= k;
+    v->z *= k;
+    v->w *= k;
+}
+//      4)). inverse
+void vector_inverse(vector_t *v) {
+    v->x = -v->x;
+    v->y = -v->y;
+    v->z = -v->z;
+    v->w = -v->w;
+}
 //      4)). dotproduct
 float vector_dotproduct(const vector_t *a, const vector_t *b) {
     return a->x * b->x + a->y * b->y + a->z * b->z;
@@ -52,6 +66,18 @@ void vector_interp(vector_t *c, const vector_t *a, const vector_t *b, float t) {
     c->y = interp(a->y, b->y, t);
     c->z = interp(a->z, b->z, t);
     c->w = 1.0f;
+}
+void vector_clone(vector_t *dest, const vector_t *src) {
+    dest->x = src->x;
+    dest->y = src->y;
+    dest->z = src->z;
+    dest->w = src->w;
+}
+//      6)). reflect
+void vector_reflect(vector_t *r, const vector_t *v, const vector_t *n) {
+    vector_clone(r, n);
+    vector_scale(r,  -2 * vector_dotproduct(v, n));
+    vector_add(r, r, v);
 }
 //      7)). normalize
 void vector_normalize(vector_t *v) {
@@ -89,6 +115,46 @@ void matrix_scale(matrix_t *m, float k) {
         for(int j = 0; j < 4; j++)
             m->m[i][j] *= k;
 }
+//      5)). inverse
+void matrix_inverse(matrix_t *m) {
+    float t[3][6];
+    int i, j, k;
+    float f;
+
+    for(i = 0; i < 3; i++)
+        for(j = 0; j < 6; j++) {
+            if(j < 3)
+                t[i][j] = m->m[i][j];
+            else if(j == i + 3)
+                t[i][j] = 1;
+            else
+                t[i][j] = 0;
+        }
+
+    for(i = 0; i < 3; i++) {
+        f = t[i][i];
+        for(j = 0; j < 6; j++)
+            t[i][j] /= f;
+        for(j = 0; j < 3; j++) {
+            if(j != i) {
+                f = t[j][i];
+                for(k = 0; k < 6; k++)
+                    t[j][k] = t[j][k] - t[i][k] * f;
+            }
+        }
+    }
+
+    for(i = 0; i < 3; i++)
+        for(j = 3; j < 6; j++)
+            m->m[i][j-3] = t[i][j];
+}
+
+//      6)). transpose
+void matrix_transpose(matrix_t *m) {
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++)
+            m->m[i][j] = m->m[j][i];
+}
 //      5)). apply v = v * m
 void matrix_apply(vector_t *y, const vector_t *x, const matrix_t *m) {
     float X = x->x, Y = x->y, Z = x->z, W = x->w;
@@ -96,6 +162,13 @@ void matrix_apply(vector_t *y, const vector_t *x, const matrix_t *m) {
     y->y = X * m->m[0][1] + Y * m->m[1][1] + Z * m->m[2][1] + W * m->m[3][1];
     y->z = X * m->m[0][2] + Y * m->m[1][2] + Z * m->m[2][2] + W * m->m[3][2];
     y->w = X * m->m[0][3] + Y * m->m[1][3] + Z * m->m[2][3] + W * m->m[3][3];
+}
+//      7)). clone 
+void matrix_clone(matrix_t *dest, const matrix_t *src) {
+    int i, j;
+    for(i = 0; i < 4; i++)
+        for(j = 0; j < 4; j++)
+            dest->m[i][j] = src->m[i][j];
 }
 //      6)). set_identity
 void matrix_set_identity(matrix_t *m) {
@@ -260,12 +333,102 @@ void transform_homogenize(const transform_t *ts, vector_t *y, const vector_t *x)
 
 // 3. geometry calculation (vertex, scanline, border check, rect and so on)
 typedef struct { float r, g, b; } color_t;
+//      4)). product
+void color_product(color_t *c, const color_t *a, const color_t *b) {
+    c->r = a->r * b->r;
+    c->g = a->g * b->g;
+    c->b = a->b * b->b;
+}
+void color_scale(color_t *c, float k) {
+    c->r *= k;
+    c->g *= k;
+    c->b *= k;
+}
+void color_add(color_t *c, const color_t *a, const color_t *b) {
+    c->r = a->r + b->r;
+    c->g = a->g + b->g;
+    c->b = a->b + b->b;
+}
 typedef struct { float u, v; } texcoord_t;
-typedef struct { point_t pos; texcoord_t tc; color_t color; float rhw; } vertex_t;
+typedef struct { point_t pos; texcoord_t tc; color_t color; float rhw; vector_t normal; } vertex_t;
 
 typedef struct { vertex_t v, v1, v2; } edge_t;
 typedef struct { float top, bottom; edge_t left, right; } trapezoid_t;
 typedef struct { vertex_t v, step; int x, y, w; } scanline_t;
+
+typedef struct {
+    color_t ambi;
+    color_t diff;
+    color_t spec;
+    float shininess;
+} material_t;
+material_t material;
+
+typedef struct {
+    point_t pos;
+    float constant;
+    float linear;
+    float quadratic;
+    color_t ambi;
+    color_t diff;
+    color_t spec;
+} pointlight_t;
+#define NR_POINT_LIGHTS 4
+pointlight_t pointLights[NR_POINT_LIGHTS];
+int pointSum = 0;
+
+void calc_pointlight(color_t *color, const pointlight_t *light, const vector_t *normal, const vector_t *fpos, const vector_t *viewdir) {
+    vector_t lightDir;
+    vector_sub(&lightDir, &light->pos, fpos);
+    float distance = vector_length(&lightDir);
+    vector_normalize(&lightDir);
+    float diff = fmaxf(vector_dotproduct(normal, &lightDir), 0.0f);
+    vector_t vec;
+    vector_inverse(&lightDir);
+    vector_reflect(&vec, &lightDir, normal);
+    float spec = powf(fmaxf(vector_dotproduct(viewdir, &vec), 0.0f), material.shininess);
+    float attenuation = 1.0f / (light->constant + light->linear * distance + light->quadratic * (distance * distance));
+    
+    color_t c;
+    color_product(&c, &light->ambi, &material.ambi);
+    color_scale(&c, attenuation);
+    color_add(color, color, &c);
+    color_product(&c, &light->diff, &material.diff);
+    color_scale(&c, diff * attenuation);
+    color_add(color, color, &c);
+    color_product(&c, &light->diff, &material.diff);
+    color_scale(&c, spec * attenuation);
+    color_add(color, color, &c);
+}
+
+typedef struct {
+    vector_t dir;
+    color_t ambi;
+    color_t diff;
+    color_t spec;
+} dirlight_t;
+dirlight_t dirLight;
+
+void calc_dirlight(color_t *color, const dirlight_t *light, const vector_t *normal, const vector_t *viewdir) {
+    vector_t lightDir = light->dir;
+    vector_inverse(&lightDir);
+    vector_normalize(&lightDir);
+    float diff = fmaxf(vector_dotproduct(normal, &lightDir), 0.0f);
+    vector_t vec;
+    vector_inverse(&lightDir);
+    vector_reflect(&vec, &lightDir, normal);
+    float spec = powf(fmaxf(vector_dotproduct(viewdir, &vec), 0.0f), material.shininess);
+    
+    color_t temp;
+    color_product(&temp, &light->ambi, &material.ambi);
+    color_add(color, color, &temp);
+    color_product(&temp, &light->diff, &material.diff);
+    color_scale(&temp, diff);
+    color_add(color, color, &temp);
+    color_product(&temp, &light->diff, &material.diff);
+    color_scale(&temp, spec);
+    color_add(color, color, &temp);
+}
 
 // 注意是除坐标意外颜色和纹理索引除以w
 void vertex_rhw_init(vertex_t *v) {
@@ -568,6 +731,21 @@ void device_draw_scanline(device_t *device, scanline_t *scanline) {
             if(rhw >= zbuffer[x]) {
                 float w = 1.0f / rhw;
                 zbuffer[x] = rhw;
+                color_t color;
+                vector_t normal;
+                point_t fragPos;
+                point_t viewPos;
+                vector_t viewdir;
+                vector_sub(&viewdir, &viewPos, &fragPos);
+                calc_dirlight(&color, &dirLight, &normal, &viewdir);
+                color_t temp;
+                int i = 0;
+                for(i = 0; i < NR_POINT_LIGHTS; i++)
+                {
+                    calc_pointlight(&temp, &pointLights[i], &normal, &fragPos, &viewdir);
+                    color_add(&color, &color, &temp);
+                }
+                
                 if(render_state & RENDER_STATE_COLOR) {
                     float r = scanline->v.color.r * w;
                     float g = scanline->v.color.g * w;
@@ -609,8 +787,8 @@ void device_render_trap(device_t *device, trapezoid_t *trap) {
     }
 }
 
-void device_draw_primitive(device_t *device, const vertex_t *v1,
-    const vertex_t *v2, const vertex_t *v3) {
+void device_draw_primitive(device_t *device, vertex_t *v1,
+    vertex_t *v2, vertex_t *v3) {
     point_t p1, p2, p3, c1, c2, c3;
     int render_state = device->render_state;
     
@@ -634,6 +812,16 @@ void device_draw_primitive(device_t *device, const vertex_t *v1,
     transform_apply(&device->transform, &c1, &v1->pos);
     transform_apply(&device->transform, &c2, &v2->pos);
     transform_apply(&device->transform, &c3, &v3->pos);
+    
+    // 法向量乘正规矩阵
+    matrix_t nm;
+    matrix_clone(&nm, &device->transform.world);
+    matrix_inverse(&nm);
+    matrix_inverse(&nm);
+    matrix_transpose(&nm);
+    matrix_apply(&v1->normal, &v1->normal, &nm);
+    matrix_apply(&v2->normal, &v2->normal, &nm);
+    matrix_apply(&v3->normal, &v3->normal, &nm);
 
     if (transform_check_cvv(&c1) != 0) return;
     if (transform_check_cvv(&c2) != 0) return;
