@@ -171,8 +171,11 @@ void draw_box(device_t *device, float theta) {
     draw_plane(device, 2, 6, 7, 3);
 }
 
+
+
 void camera_at_zero(device_t *device, float x, float y, float z) {
     point_t eye = { x, y, z, 1 }, at = { 0, 0, 0, 1 }, up = { 0, 1, 0, 1 };
+    viewPos = eye;
     matrix_set_lookat(&device->transform.view, &eye, &at, &up);
     transform_update(&device->transform);
 }
@@ -223,6 +226,14 @@ int main( int argc, char* args[] )
             
             init_texture(&device);
             device.render_state = RENDER_STATE_TEXTURE;
+            
+            dirLight = {1.0f, 5.0f, 7.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+            
+            int i = 0;
+            for(i = 0; i < NR_POINT_LIGHTS; i++)
+            {
+                pointLights[i] = {0.0f, 2.0f, 3.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            }
             
             //Event handler
             SDL_Event e;
