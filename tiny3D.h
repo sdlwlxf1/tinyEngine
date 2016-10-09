@@ -806,7 +806,6 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const point_t 
                 point_t barycenter;
                 computeBarycentricCoords3d(&barycenter, t, &scanline->v.pos);
                 
-                
                 point_t fragPos = {0.0f, 0.0f, 0.0f, 1.0f};
                 point_t ptemp = vt[0].pos;
                 vector_scale(&ptemp, barycenter.x);
@@ -840,30 +839,29 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const point_t 
                     color_add(&color, &color, &temp);
                 }
                 
-                int R = (int)(color.r * 255.0f);
-                int G = (int)(color.g * 255.0f);
-                int B = (int)(color.b * 255.0f);
+                float r = 0.0f;
+                float g = 0.0f;
+                float b = 0.0f;
                 
                 if(render_state & RENDER_STATE_COLOR) {
-                    float r = scanline->v.color.r * w;
-                    float g = scanline->v.color.g * w;
-                    float b = scanline->v.color.b * w;
-                    R += (int)(r * 255.0f);
-                    G += (int)(g * 255.0f);
-                    B += (int)(b * 255.0f);
+                    r = scanline->v.color.r * w * 255.0f;
+                    g = scanline->v.color.g * w * 255.0f;
+                    b = scanline->v.color.b * w * 255.0f;
                 }
                 if(render_state & RENDER_STATE_TEXTURE) {
                     float u = scanline->v.tc.u * w;
                     float v = scanline->v.tc.v * w;
                     color_t cc = device_texture_read(device, u, v);
-                    R += (int)cc.r;
-                    G += (int)cc.g;
-                    B += (int)cc.b;
+                    r = cc.r;
+                    g = cc.g;
+                    b = cc.b;
                 }
-                
-                R = CMID(R, 0, 255);
-                G = CMID(G, 0, 255);
-                B = CMID(B, 0, 255);
+                r = r * color.r;
+                g = g * color.g;
+                b = b * color.b;
+                int R = CMID((int)r, 0, 255);
+                int G = CMID((int)g, 0, 255);
+                int B = CMID((int)b, 0, 255);
                 
                 framebuffer[x] = (R << 16) | (G << 8) | B;
             }
@@ -919,7 +917,6 @@ void device_draw_primitive(device_t *device, vertex_t *v1,
     matrix_t nm;
     matrix_clone(&nm, &device->transform.world);
     matrix_inverse(&nm);
-    matrix_inverse(&nm);
     matrix_transpose(&nm);
     matrix_apply(&v1->normal, &v1->normal, &nm);
     matrix_apply(&v2->normal, &v2->normal, &nm);
@@ -933,13 +930,13 @@ void device_draw_primitive(device_t *device, vertex_t *v1,
     transform_homogenize(&device->transform, &p2, &c2);
     transform_homogenize(&device->transform, &p3, &c3);
     
-    // 背面剔除
-    vector_t v21, v32;
-    vector_sub(&v21, &p2, &p1);
-    vector_sub(&v32, &p3, &p2);
-    // 计算叉积
-    if(v21.x * v32.y - v32.x * v21.y <= 0)
-        return;
+//    // 背面剔除
+//    vector_t v21, v32;
+//    vector_sub(&v21, &p2, &p1);
+//    vector_sub(&v32, &p3, &p2);
+//    // 计算叉积
+//    if(v21.x * v32.y - v32.x * v21.y <= 0)
+//        return;
     
     if (render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
         vertex_t t[3];
