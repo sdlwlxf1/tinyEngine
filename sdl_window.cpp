@@ -137,7 +137,7 @@ void close()
 //=====================================================================
 // 主程序
 //=====================================================================
-vertex_t mesh[48] = {
+vertex_t mesh[36] = {
 //    { {  -1, -1, -1, 1 }, { 0, 0 }, { 1.0f, 0.2f, 0.2f }, 1 , { -1, -1, -1, 0}},
 //    { { 1, -1, -1, 1 }, { 0, 1 }, { 0.2f, 1.0f, 0.2f }, 1 ,{ 1, -1, -1, 0 }},
 //    { { -1,  1, -1, 1 }, { 1, 1 }, { 0.2f, 0.2f, 1.0f }, 1 ,{ -1,  1, -1, 0 }},
@@ -149,10 +149,10 @@ vertex_t mesh[48] = {
     
     // Positions                  // Texture Coords  //color           //rhw // Normals
     {{-0.5f, -0.5f, -0.5f, 1.0f},{ 0.0f,  0.0f},{ 1.0f, 0.2f, 0.2f }, 1 , { 0.0f,  0.0f,-1.0f,0.0f}},
-    {{0.5f, -0.5f, -0.5f, 1.0f}, {1.0f,  0.0f}, { 1.0f, 0.2f, 0.2f }, 1 , {0.0f,  0.0f,-1.0f ,0.0f}},
+    {{-0.5f,  0.5f, -0.5f, 1.0f},{ 0.0f,  1.0f},{ 1.0f, 0.2f, 0.2f }, 1 , { 0.0f,  0.0f,-1.0f,0.0f}},
     {{0.5f,  0.5f, -0.5f, 1.0f}, {1.0f,  1.0f}, { 1.0f, 0.2f, 0.2f }, 1 , {0.0f,  0.0f,-1.0f ,0.0f}},
     {{0.5f,  0.5f, -0.5f, 1.0f}, { 1.0f,  1.0f}, { 1.0f, 0.2f, 0.2f }, 1 , {0.0f,  0.0f,-1.0f,0.0f}},
-    {{-0.5f,  0.5f, -0.5f, 1.0f},{ 0.0f,  1.0f},{ 1.0f, 0.2f, 0.2f }, 1 , { 0.0f,  0.0f,-1.0f,0.0f}},
+    {{0.5f, -0.5f, -0.5f, 1.0f}, {1.0f,  0.0f}, { 1.0f, 0.2f, 0.2f }, 1 , {0.0f,  0.0f,-1.0f ,0.0f}},
     {{-0.5f, -0.5f, -0.5f, 1.0f},{ 0.0f,  0.0f},{ 1.0f, 0.2f, 0.2f }, 1 , { 0.0f,  0.0f,-1.0f,0.0f}},
     
     {{-0.5f, -0.5f,  0.5f, 1.0f},{ 0.0f,  0.0f},{ 0.2f, 1.0f, 0.2f }, 1 , { 0.0f,  0.0f, 1.0f,0.0f}},
@@ -170,10 +170,10 @@ vertex_t mesh[48] = {
     {{-0.5f,  0.5f,  0.5f,1.0f},{ 1.0f,  0.0f},{ 0.2f, 0.2f, 1.0f }, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
     
     {{0.5f,  0.5f,  0.5f,1.0f}, { 1.0f,  0.0f}, { 1.0f, 0.2f, 1.0f }, 1 , {1.0f,  0.0f,  0.0f,0.0f}},
-    {{0.5f,  0.5f, -0.5f,1.0f},{ 1.0f,  1.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
-    {{0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
-    {{0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
     {{0.5f, -0.5f,  0.5f,1.0f},{ 0.0f,  0.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
+    {{0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
+    {{0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
+    {{0.5f,  0.5f, -0.5f,1.0f},{ 1.0f,  1.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
     {{0.5f,  0.5f,  0.5f,1.0f},{ 1.0f,  0.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
     
     {{-0.5f, -0.5f, -0.5f,1.0f},{  0.0f,  1.0f},{ 1.0f, 1.0f, 0.2f }, 1 , {  0.0f, -1.0f,  0.0f,0.0f}},
@@ -182,13 +182,15 @@ vertex_t mesh[48] = {
     {{0.5f, -0.5f,  0.5f,1.0f}, { 1.0f,  0.0f},{ 1.0f, 1.0f, 0.2f }, 1 ,  { 0.0f, -1.0f,  0.0f,0.0f}},
     {{-0.5f, -0.5f,  0.5f,1.0f},{ 0.0f,  0.0f},{ 1.0f, 1.0f, 0.2f }, 1 , {  0.0f, -1.0f,  0.0f,0.0f}},
     {{-0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f},{ 1.0f, 1.0f, 0.2f }, 1 , {  0.0f, -1.0f,  0.0f,0.0f}},
-    
+
     {{-0.5f,  0.5f, -0.5f, 1.0f}, {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
-    {{0.5f,  0.5f, -0.5f, 1.0f},  {1.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
+    {{-0.5f,  0.5f,  0.5f, 1.0f},  {0.0f,  0.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
     {{0.5f,  0.5f,  0.5f, 1.0f},  {1.0f,  0.0f},{ 0.2f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
     {{0.5f,  0.5f,  0.5f, 1.0f},  {1.0f,  0.0f}, { 0.2f, 1.0f, 1.0f }, 1 , { 0.0f,1.0f,  0.0f,0.0f}},
-    {{-0.5f,  0.5f,  0.5f, 1.0f},  {0.0f,  0.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
+    {{0.5f,  0.5f, -0.5f, 1.0f},  {1.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
     {{-0.5f,  0.5f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
+
+    
 };
 
 void draw_plane(device_t *device, int a, int b, int c, int d) {
@@ -212,7 +214,7 @@ void draw_box(device_t *device, float theta) {
 //    draw_plane(device, 4, 5, 7, 6);
 //    draw_plane(device, 1, 3, 7, 5);
 //    draw_plane(device, 2, 6, 7, 3);
-    for(int i = 0; i < 48; i+=3)
+    for(int i = 0; i < 36; i+=3)
         device_draw_primitive(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
 }
 
@@ -262,19 +264,18 @@ int main( int argc, char* args[] )
             int states[] = { RENDER_STATE_TEXTURE, RENDER_STATE_COLOR, RENDER_STATE_WIREFRAME };
             int indicator = 0;
             int kbhit = 0;
-            float alpha = 1;
-            float pos = 3.5;
+            float alpha = 0;
+            float pos = -3;
             
             memset(screen_keys, 0, sizeof(int) * 512);
             device_init(&device, SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
-            camera_at_zero(&device, 0, 0, -1);
             
             init_texture(&device);
             device.render_state = RENDER_STATE_TEXTURE;
             
             material = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
             
-            dirLight = {-0.2f, -1.0f, -0.3f, 1.0f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
+            dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
             
             int i = 0;
             for(i = 0; i < NR_POINT_LIGHTS; i++)
@@ -307,10 +308,10 @@ int main( int argc, char* args[] )
                     }
                 }
                 
-                if (screen_keys[SDL_SCANCODE_UP]) pos -= 0.04f;
-                if (screen_keys[SDL_SCANCODE_DOWN]) pos += 0.04f;
-                if (screen_keys[SDL_SCANCODE_LEFT]) alpha += 0.04f;
-                if (screen_keys[SDL_SCANCODE_RIGHT]) alpha -= 0.04f;
+                if (screen_keys[SDL_SCANCODE_UP]) pos += 0.04f;
+                if (screen_keys[SDL_SCANCODE_DOWN]) pos -= 0.04f;
+                if (screen_keys[SDL_SCANCODE_LEFT]) alpha -= 0.04f;
+                if (screen_keys[SDL_SCANCODE_RIGHT]) alpha += 0.04f;
                 
                 if (screen_keys[SDL_SCANCODE_SPACE]) {
                     if (kbhit == 0) {

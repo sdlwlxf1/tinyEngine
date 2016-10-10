@@ -47,7 +47,6 @@ void vector_inverse(vector_t *v) {
     v->x = -v->x;
     v->y = -v->y;
     v->z = -v->z;
-    v->w = -v->w;
 }
 //      4)). dotproduct
 float vector_dotproduct(const vector_t *a, const vector_t *b) {
@@ -403,7 +402,7 @@ void calc_pointlight(color_t *color, const pointlight_t *light, const vector_t *
     color_product(&c, &light->diff, &material.diff);
     color_scale(&c, diff * attenuation);
     color_add(color, color, &c);
-    color_product(&c, &light->diff, &material.diff);
+    color_product(&c, &light->spec, &material.spec);
     color_scale(&c, spec * attenuation);
     color_add(color, color, &c);
 }
@@ -432,7 +431,7 @@ void calc_dirlight(color_t *color, const dirlight_t *light, const vector_t *norm
     color_product(&temp, &light->diff, &material.diff);
     color_scale(&temp, diff);
     color_add(color, color, &temp);
-    color_product(&temp, &light->diff, &material.diff);
+    color_product(&temp, &light->spec, &material.spec);
     color_scale(&temp, spec);
     color_add(color, color, &temp);
 }
@@ -788,7 +787,7 @@ bool computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p
 }
 
 // now is the core realize for rendering, so just do it.
-void device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt) {
+void device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n) {
     IUINT32 *framebuffer = device->framebuffer[scanline->y];
     float *zbuffer = device->zbuffer[scanline->y];
     int x = scanline->x;
@@ -801,9 +800,9 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const point_t 
             if(rhw >= zbuffer[x]) {
                 float w = 1.0f / rhw;
                 zbuffer[x] = rhw;
-                color_t color;
+                color_t color = {0.0f, 0.0f, 0.0f};
                 
-                point_t barycenter;
+                point_t barycenter = {0.0f, 0.0f, 0.0f, 1.0f};
                 computeBarycentricCoords3d(&barycenter, t, &scanline->v.pos);
                 
                 point_t fragPos = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -817,19 +816,21 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const point_t 
                 vector_scale(&ptemp, barycenter.z);
                 vector_add(&fragPos, &fragPos, &ptemp);
                 
-                vector_t normal = {0.0f, 0.0f, 0.0f, 1.0f};
-                ptemp = vt[0].normal;
+                vector_t normal = {0.0f, 0.0f, 0.0f, 0.0f};
+                ptemp = n[0];
                 vector_scale(&ptemp, barycenter.x);
                 vector_add(&normal, &normal, &ptemp);
-                ptemp = vt[1].normal;
+                ptemp = n[1];
                 vector_scale(&ptemp, barycenter.y);
                 vector_add(&normal, &normal, &ptemp);
-                ptemp = vt[2].normal;
+                ptemp = n[2];
                 vector_scale(&ptemp, barycenter.z);
                 vector_add(&normal, &normal, &ptemp);
-                
+                vector_normalize(&normal);
+                //printf("%f, %f, %f\n", normal.x, normal.y, normal.z);
                 vector_t viewdir;
                 vector_sub(&viewdir, &viewPos, &fragPos);
+                vector_normalize(&viewdir);
                 calc_dirlight(&color, &dirLight, &normal, &viewdir);
                 color_t temp = {0.0f, 0.0f ,0.0f};
                 int i = 0;
@@ -856,9 +857,9 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const point_t 
                     g = cc.g;
                     b = cc.b;
                 }
-                r = r * color.r;
-                g = g * color.g;
-                b = b * color.b;
+                r = color.r * 255.0f;
+                g = color.g * 255.0f;
+                b = color.b * 255.0f;
                 int R = CMID((int)r, 0, 255);
                 int G = CMID((int)g, 0, 255);
                 int B = CMID((int)b, 0, 255);
@@ -871,7 +872,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const point_t 
 }
 
 // core render function
-void device_render_trap(device_t *device, trapezoid_t *trap, const point_t *p, const vertex_t *t) {
+void device_render_trap(device_t *device, trapezoid_t *trap, const point_t *p, const vertex_t *t, const vector_t *n) {
     scanline_t scanline;
     int j, top, bottom;
     top = (int)(trap->top + 0.5f);
@@ -880,7 +881,7 @@ void device_render_trap(device_t *device, trapezoid_t *trap, const point_t *p, c
         if(j >= 0 && j < device->height) {
             trapezoid_edge_interp(trap, (float)j + 0.5f);
             trapezoid_init_scan_line(trap, &scanline, j);
-            device_draw_scanline(device, &scanline, p, t);
+            device_draw_scanline(device, &scanline, p, t, n);
         }
         if(j >= device->height)
             break;
@@ -914,13 +915,17 @@ void device_draw_primitive(device_t *device, vertex_t *v1,
     transform_apply(&device->transform, &c3, &v3->pos);
     
     // 法向量乘正规矩阵
+    vector_t normals[3];
     matrix_t nm;
     matrix_clone(&nm, &device->transform.world);
     matrix_inverse(&nm);
     matrix_transpose(&nm);
-    matrix_apply(&v1->normal, &v1->normal, &nm);
-    matrix_apply(&v2->normal, &v2->normal, &nm);
-    matrix_apply(&v3->normal, &v3->normal, &nm);
+    matrix_apply(&normals[0], &v1->normal, &nm);
+    matrix_apply(&normals[1], &v2->normal, &nm);
+    matrix_apply(&normals[2], &v3->normal, &nm);
+    vector_normalize(&normals[0]);
+    vector_normalize(&normals[1]);
+    vector_normalize(&normals[2]);
 
     if (transform_check_cvv(&c1) != 0) return;
     if (transform_check_cvv(&c2) != 0) return;
@@ -930,13 +935,13 @@ void device_draw_primitive(device_t *device, vertex_t *v1,
     transform_homogenize(&device->transform, &p2, &c2);
     transform_homogenize(&device->transform, &p3, &c3);
     
-//    // 背面剔除
-//    vector_t v21, v32;
-//    vector_sub(&v21, &p2, &p1);
-//    vector_sub(&v32, &p3, &p2);
-//    // 计算叉积
-//    if(v21.x * v32.y - v32.x * v21.y <= 0)
-//        return;
+    // 背面剔除
+    vector_t v21, v32;
+    vector_sub(&v21, &p2, &p1);
+    vector_sub(&v32, &p3, &p2);
+    // 计算叉积
+    if(v21.x * v32.y - v32.x * v21.y <= 0)
+        return;
     
     if (render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
         vertex_t t[3];
@@ -965,8 +970,8 @@ void device_draw_primitive(device_t *device, vertex_t *v1,
         matrix_apply(&t[1].pos, &v2->pos, &device->transform.world);
         matrix_apply(&t[2].pos, &v3->pos, &device->transform.world);
 
-        if(n >= 1) device_render_trap(device, &traps[0], p, t);
-        if(n >= 2) device_render_trap(device, &traps[1], p, t);
+        if(n >= 1) device_render_trap(device, &traps[0], p, t, normals);
+        if(n >= 2) device_render_trap(device, &traps[1], p, t, normals);
     }
 
     if(render_state & RENDER_STATE_WIREFRAME) {
