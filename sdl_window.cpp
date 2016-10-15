@@ -9,6 +9,10 @@ and may not be redistributed without written permission.*/
 //#include "mini3d.c"
 #include "tiny3D.h"
 
+#define PI 3.141592653
+#define angle_to_radian(X) ((X)/180*PI)
+#define radian_to_angle(X) ((X)/PI*180)
+
 //Screen dimension constants
 const int SCREEN_WIDTH = 600;
 const int SCREEN_HEIGHT = 600;
@@ -201,29 +205,33 @@ void draw_plane(device_t *device, int a, int b, int c, int d) {
     device_draw_primitive(device, &p3, &p4, &p1);
 }
 
-void draw_box(device_t *device, float theta) {
-    matrix_t m;
-    vector_t v = {0, 1, 1, 0};
-    matrix_set_rotate(&m, &v, theta);
-    //matrix_set_rotate(&m, 1, 0, 1, theta);
-    device->transform.world = m;
+//void draw_box(device_t *device, vector_t *axis, float theta, float x, float y, float z) {
+//    matrix_t m;
+//    matrix_set_rotate(&m, axis, theta);
+//    matrix_set_translate(&m, x, y, z);
+//    device->transform.world = m;
+//    transform_update(&device->transform);
+////    draw_plane(device, 0, 2, 3, 1);
+////    draw_plane(device, 0, 4, 6, 2);
+////    draw_plane(device, 0, 1, 5, 4);
+////    draw_plane(device, 4, 5, 7, 6);
+////    draw_plane(device, 1, 3, 7, 5);
+////    draw_plane(device, 2, 6, 7, 3);
+//    for(int i = 0; i < 36; i+=3)
+//        device_draw_primitive(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
+//}
+
+void draw_box(device_t *device, const matrix_t *m) {
+    device->transform.world = *m;
     transform_update(&device->transform);
-//    draw_plane(device, 0, 2, 3, 1);
-//    draw_plane(device, 0, 4, 6, 2);
-//    draw_plane(device, 0, 1, 5, 4);
-//    draw_plane(device, 4, 5, 7, 6);
-//    draw_plane(device, 1, 3, 7, 5);
-//    draw_plane(device, 2, 6, 7, 3);
     for(int i = 0; i < 36; i+=3)
         device_draw_primitive(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
 }
 
 
-
-void camera_at_zero(device_t *device, float x, float y, float z) {
-    point_t eye = { x, y, z, 1 }, at = { 0, 0, 0, 1 }, up = { 0, 1, 0, 1 };
-    viewPos = eye;
-    matrix_set_lookat(&device->transform.view, &eye, &at, &up);
+void camera_at_zero(device_t *device, const point_t *eye, const vector_t *at, const vector_t *up) {
+    viewPos = *eye;
+    matrix_set_lookat(&device->transform.view, eye, at, up);
     transform_update(&device->transform);
 }
 
@@ -240,6 +248,8 @@ void init_texture(device_t *device) {
 }
 
 int screen_keys[512];	// 当前键盘按下状态
+float deltaTime = 0.0f;
+Uint32 lastFrame = 0;
 
 int main( int argc, char* args[] )
 {
@@ -265,7 +275,25 @@ int main( int argc, char* args[] )
             int indicator = 0;
             int kbhit = 0;
             float alpha = 0;
-            float pos = -3;
+            bool box_dirty = true;
+            
+            matrix_t m;
+            point_t pos = {0, 0, 0, 1};
+            vector_t scale = {1, 1, 1, 1};
+            vector_t axis = {0, 1, 0, 0};
+            float theta = 0.0f;
+            
+            float c_yaw = 0.0f;
+            float c_pitch = 0.0f;
+            vector_t c_pos = {0.0f, 0.0f, -3.0f, 1.0f};
+            vector_t c_front = {0.0f, 0.0f, 1.0f, 0.0f};
+            vector_t c_up = {0.0f, 1.0f, 0.0f, 0.0f};
+            vector_t c_right = {1.0f, 0.0f, 0.0f, 0.0f};
+            vector_t c_worldup = {0.0f, 1.0f, 0.0f, 0.0f};
+            float c_movementspeed = 2.0f;
+            float c_mouse_sensitivity = 0.25f;
+            float c_zoom = 45.0f;
+            bool c_dirty = true;
             
             memset(screen_keys, 0, sizeof(int) * 512);
             device_init(&device, SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
@@ -275,13 +303,20 @@ int main( int argc, char* args[] )
             
             material = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
             
-            dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
+            //dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
             
-            int i = 0;
-            for(i = 0; i < NR_POINT_LIGHTS; i++)
-            {
-                pointLights[i] = {0.0f, 2.0f, 3.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-            }
+            dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            
+//            int i = 0;
+//            for(i = 0; i < NR_POINT_LIGHTS; i++)
+//            {
+//                pointLights[i] = {0.0f, 2.0f, 3.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+//            }
+            pointLights[0] = {{0.0f, 0.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f}, {0.4f, 0.4f, 0.4f}, {0.5f, 0.5f, 0.5f}};
+            pointLights[1] = {-1.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            pointLights[2] = {7.0f, -1.0f, -6.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            pointLights[3] = {0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+
             
             //Event handler
             SDL_Event e;
@@ -289,6 +324,11 @@ int main( int argc, char* args[] )
             //While application is running
             while( !quit )
             {
+                // Set frame time
+                Uint32 currentFrame = SDL_GetTicks();
+                deltaTime = (currentFrame - lastFrame) * 1.0f /1000;
+                lastFrame = currentFrame;
+                
                 //Handle events on queue
                 while( SDL_PollEvent( &e ) != 0 )
                 {
@@ -306,12 +346,56 @@ int main( int argc, char* args[] )
                     {
                         screen_keys[e.key.keysym.scancode] = 0;
                     }
+                    else if(e.type == SDL_MOUSEMOTION)
+                    {
+                        
+                    }
                 }
                 
-                if (screen_keys[SDL_SCANCODE_UP]) pos += 0.04f;
-                if (screen_keys[SDL_SCANCODE_DOWN]) pos -= 0.04f;
-                if (screen_keys[SDL_SCANCODE_LEFT]) alpha -= 0.04f;
-                if (screen_keys[SDL_SCANCODE_RIGHT]) alpha += 0.04f;
+                if (screen_keys[SDL_SCANCODE_UP]) {
+                    theta += 0.04f;
+                    box_dirty = true;
+                }
+                if (screen_keys[SDL_SCANCODE_DOWN]) {
+                    theta -= 0.04f;
+                    box_dirty = true;
+                }
+                if (screen_keys[SDL_SCANCODE_LEFT]) {
+                    alpha -= 0.04f;
+                    box_dirty = true;
+                }
+                if (screen_keys[SDL_SCANCODE_RIGHT]) {
+                    alpha += 0.04f;
+                    box_dirty = true;
+                }
+                if (screen_keys[SDL_SCANCODE_W]) {
+                    float velocity = c_movementspeed * deltaTime;
+                    vector_t temp = c_front;
+                    vector_scale(&temp, velocity);
+                    vector_add(&c_pos, &c_pos, &temp);
+                    c_dirty = true;
+                }
+                if (screen_keys[SDL_SCANCODE_A]) {
+                    float velocity = c_movementspeed * deltaTime;
+                    vector_t temp = c_right;
+                    vector_scale(&temp, velocity);
+                    vector_sub(&c_pos, &c_pos, &temp);
+                    c_dirty = true;
+                }
+                if (screen_keys[SDL_SCANCODE_S]) {
+                    float velocity = c_movementspeed * deltaTime;
+                    vector_t temp = c_front;
+                    vector_scale(&temp, velocity);
+                    vector_sub(&c_pos, &c_pos, &temp);
+                    c_dirty = true;
+                }
+                if (screen_keys[SDL_SCANCODE_D]) {
+                    float velocity = c_movementspeed * deltaTime;
+                    vector_t temp = c_right;
+                    vector_scale(&temp, velocity);
+                    vector_add(&c_pos, &c_pos, &temp);
+                    c_dirty = true;
+                }
                 
                 if (screen_keys[SDL_SCANCODE_SPACE]) {
                     if (kbhit == 0) {
@@ -328,9 +412,29 @@ int main( int argc, char* args[] )
                 SDL_RenderClear( gRenderer );
                 
                 device_clear(&device, 1);
-                camera_at_zero(&device, 0, 0, pos);
                 
-                draw_box(&device, alpha);
+                if(c_dirty == true) {
+                    c_front.x = sin(angle_to_radian(c_yaw)) * cos(angle_to_radian(c_pitch));
+                    c_front.y = -sin(angle_to_radian(c_pitch));
+                    c_front.z = cos(angle_to_radian(c_yaw)) * cos(angle_to_radian(c_pitch));
+                    vector_normalize(&c_front);
+                    vector_crossproduct(&c_right, &c_worldup, &c_front);
+                    vector_normalize(&c_right);
+                    vector_crossproduct(&c_up, &c_front, &c_right);
+                    vector_normalize(&c_up);
+                    vector_t at;
+                    vector_add(&at, &c_pos, &c_front);
+                    camera_at_zero(&device, &c_pos, &at, &c_up);
+                    c_dirty = false;
+                }
+                
+                pos.x = theta;
+                if(box_dirty == true) {
+                    matrix_set_rotate_translate_scale(&m, &axis, alpha, &pos, &scale);
+                    box_dirty = false;
+                }
+                
+                draw_box(&device, &m);
 
                 for(int i = 0; i < SCREEN_WIDTH; i++)
                 {

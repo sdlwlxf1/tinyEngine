@@ -227,6 +227,15 @@ void matrix_set_rotate(matrix_t *m, const vector_t *v, float theta) {
     m->m[0][3] = m->m[1][3] = m->m[2][3] = 0.0f;
     m->m[3][3] = 1.0f;
 }
+void matrix_set_rotate_translate_scale(matrix_t *m, const vector_t *axis, float theta, const point_t *pos, const vector_t *scale) {
+    matrix_set_scale(m, scale->x, scale->y, scale->z);
+    matrix_t r, t = *m;
+    matrix_set_rotate(&r, axis, theta);
+    matrix_mul(m, &t, &r);
+    m->m[3][0] = pos->x;
+    m->m[3][1] = pos->y;
+    m->m[3][2] = pos->z;
+}
 //      11)).set_lookat m, eye, at, up
 // zaxis = normal(At - Eye)
 // xaxis = normal(cross(Up, zaxis))
@@ -857,9 +866,9 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const point_t 
                     g = cc.g;
                     b = cc.b;
                 }
-                r = color.r * 255.0f;
-                g = color.g * 255.0f;
-                b = color.b * 255.0f;
+                r *= color.r;
+                g *= color.g;
+                b *= color.b;
                 int R = CMID((int)r, 0, 255);
                 int G = CMID((int)g, 0, 255);
                 int B = CMID((int)b, 0, 255);
