@@ -116,63 +116,66 @@ void matrix_scale(matrix_t *m, float k) {
 }
 //      5)). inverse
 void matrix_inverse(matrix_t *m) {
-    matrix_t res;
-    double determinant =    +m->m[0][0] * (m->m[1][1]*m->m[2][2] - m->m[2][1]*m->m[1][2])
-    - m->m[0][1] * (m->m[1][0]*m->m[2][2] - m->m[1][2]*m->m[2][0])
-    + m->m[0][2] * (m->m[1][0]*m->m[2][1] - m->m[1][1]*m->m[2][0]);
-    double invdet = 1/determinant;
-    res.m[0][0] =  (m->m[1][1]*m->m[2][2]-m->m[2][1]*m->m[1][2])*invdet;
-    res.m[1][0] = -(m->m[0][1]*m->m[2][2]-m->m[0][2]*m->m[2][1])*invdet;
-    res.m[2][0] =  (m->m[0][1]*m->m[1][2]-m->m[0][2]*m->m[1][1])*invdet;
-    res.m[0][1] = -(m->m[1][0]*m->m[2][2]-m->m[1][2]*m->m[2][0])*invdet;
-    res.m[1][1] =  (m->m[0][0]*m->m[2][2]-m->m[0][2]*m->m[2][0])*invdet;
-    res.m[2][1] = -(m->m[0][0]*m->m[1][2]-m->m[1][0]*m->m[0][2])*invdet;
-    res.m[0][2] =  (m->m[1][0]*m->m[2][1]-m->m[2][0]*m->m[1][1])*invdet;
-    res.m[1][2] = -(m->m[0][0]*m->m[2][1]-m->m[2][0]*m->m[0][1])*invdet;
-    res.m[2][2] =  (m->m[0][0]*m->m[1][1]-m->m[1][0]*m->m[0][1])*invdet;
-    
-    int i, j;
+//    matrix_t res;
+//    double determinant =    +m->m[0][0] * (m->m[1][1]*m->m[2][2] - m->m[2][1]*m->m[1][2])
+//    - m->m[0][1] * (m->m[1][0]*m->m[2][2] - m->m[1][2]*m->m[2][0])
+//    + m->m[0][2] * (m->m[1][0]*m->m[2][1] - m->m[1][1]*m->m[2][0]);
+//    double invdet = 1/determinant;
+//    res.m[0][0] =  (m->m[1][1]*m->m[2][2]-m->m[2][1]*m->m[1][2])*invdet;
+//    res.m[1][0] = -(m->m[0][1]*m->m[2][2]-m->m[0][2]*m->m[2][1])*invdet;
+//    res.m[2][0] =  (m->m[0][1]*m->m[1][2]-m->m[0][2]*m->m[1][1])*invdet;
+//    res.m[0][1] = -(m->m[1][0]*m->m[2][2]-m->m[1][2]*m->m[2][0])*invdet;
+//    res.m[1][1] =  (m->m[0][0]*m->m[2][2]-m->m[0][2]*m->m[2][0])*invdet;
+//    res.m[2][1] = -(m->m[0][0]*m->m[1][2]-m->m[1][0]*m->m[0][2])*invdet;
+//    res.m[0][2] =  (m->m[1][0]*m->m[2][1]-m->m[2][0]*m->m[1][1])*invdet;
+//    res.m[1][2] = -(m->m[0][0]*m->m[2][1]-m->m[2][0]*m->m[0][1])*invdet;
+//    res.m[2][2] =  (m->m[0][0]*m->m[1][1]-m->m[1][0]*m->m[0][1])*invdet;
+//    
+//    int i, j;
+//    for(i = 0; i < 3; i++)
+//        for(j = 0; j < 3; j++)
+//            m->m[i][j-3] = res.m[i][j];
+    float t[3][6];
+    int i, j, k;
+    float f;
+
     for(i = 0; i < 3; i++)
-        for(j = 0; j < 3; j++)
-            m->m[i][j-3] = res.m[i][j];
-    
-//    float t[3][6];
-//    int i, j, k;
-//    float f;
-//
-//    for(i = 0; i < 3; i++)
-//        for(j = 0; j < 6; j++) {
-//            if(j < 3)
-//                t[i][j] = m->m[i][j];
-//            else if(j == i + 3)
-//                t[i][j] = 1;
-//            else
-//                t[i][j] = 0;
-//        }
-//
-//    for(i = 0; i < 3; i++) {
-//        f = t[i][i];
-//        for(j = 0; j < 6; j++)
-//            t[i][j] /= f;
-//        for(j = 0; j < 3; j++) {
-//            if(j != i) {
-//                f = t[j][i];
-//                for(k = 0; k < 6; k++)
-//                    t[j][k] = t[j][k] - t[i][k] * f;
-//            }
-//        }
-//    }
-//
-//    for(i = 0; i < 3; i++)
-//        for(j = 3; j < 6; j++)
-//            m->m[i][j-3] = t[i][j];
+        for(j = 0; j < 6; j++) {
+            if(j < 3)
+                t[i][j] = m->m[i][j];
+            else if(j == i + 3)
+                t[i][j] = 1;
+            else
+                t[i][j] = 0;
+        }
+
+    for(i = 0; i < 3; i++) {
+        f = t[i][i];
+        for(j = 0; j < 6; j++)
+            t[i][j] /= f;
+        for(j = 0; j < 3; j++) {
+            if(j != i) {
+                f = t[j][i];
+                for(k = 0; k < 6; k++)
+                    t[j][k] = t[j][k] - t[i][k] * f;
+            }
+        }
+    }
+
+    for(i = 0; i < 3; i++)
+        for(j = 3; j < 6; j++)
+            m->m[i][j-3] = t[i][j];
 }
 
 //      6)). transpose
 void matrix_transpose(matrix_t *m) {
     for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
+        for(int j = i+1; j < 3; j++)
+        {
+            float temp = m->m[i][j];
             m->m[i][j] = m->m[j][i];
+            m->m[j][i] = temp;
+        }
 }
 //      5)). apply v = v * m
 void matrix_apply(vector_t *y, const vector_t *x, const matrix_t *m) {
@@ -946,14 +949,9 @@ void device_draw_primitive(device_t *device, vertex_t *v1,
     // 法向量乘正规矩阵
     vector_t normals[3];
     matrix_t nm;
-//    nm = {0.2f, 0.2f, 0.5f, 0.0f, 2.0f, 3.0f, 3.0f, 0.0f, 0.5f, 0.6f, 0.4f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-//    matrix_t km = nm;
-//    matrix_inverse(&km);
-//    matrix_t bm;
-//    matrix_mul(&bm, &nm, &km);
     matrix_clone(&nm, &device->transform.world);
-//    matrix_inverse(&nm);
-    //matrix_transpose(&nm);
+    matrix_inverse(&nm);
+    matrix_transpose(&nm);
     matrix_apply(&normals[0], &v1->normal, &nm);
     matrix_apply(&normals[1], &v2->normal, &nm);
     matrix_apply(&normals[2], &v3->normal, &nm);

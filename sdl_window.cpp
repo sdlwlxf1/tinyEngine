@@ -280,7 +280,7 @@ int main( int argc, char* args[] )
             matrix_t m;
             point_t pos = {0, 0, 0, 1};
             vector_t scale = {1, 1, 1, 1};
-            vector_t axis = {0, 1, 0, 0};
+            vector_t axis = {1, 1, 1, 0};
             float theta = 0.0f;
             
             float c_yaw = 0.0f;
@@ -428,7 +428,7 @@ int main( int argc, char* args[] )
                     c_dirty = false;
                 }
                 
-                pos.x = theta;
+                scale.x = theta;
                 if(box_dirty == true) {
                     matrix_set_rotate_translate_scale(&m, &axis, alpha, &pos, &scale);
                     box_dirty = false;
