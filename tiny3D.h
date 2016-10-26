@@ -931,6 +931,7 @@ void device_draw_primitive(device_t *device, vertex_t *v1,
 //    matrix_apply(&c3, &v3->pos, &device->transform.world);
     
 //    matrix_apply(&p1, &c1, &device->transform.view);
+    
 //    matrix_apply(&p2, &c2, &device->transform.view);
 //    matrix_apply(&p3, &c3, &device->transform.view);
     
