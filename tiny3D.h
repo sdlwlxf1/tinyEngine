@@ -13,6 +13,17 @@ typedef vector_t point_t;
 
 int CMID(int x, int min, int max) { return (x < min) ? min : ((x > max) ? max : x); }
 
+int logbase2ofx(int n) {
+    if(n <= 0) return 0;
+    int r = 0;
+    while(n != 0)
+    {
+        n = n >> 1;
+        r++;
+    }
+    return r-1;
+}
+
 float interp(float a, float b, float t) {
     return a + (b - a) * t;
 }
@@ -609,6 +620,8 @@ typedef struct {
 	IUINT32 **framebuffer;      // 像素缓存：framebuffer[y] 代表第 y行
 	float **zbuffer;            // 深度缓存：zbuffer[y] 为第 y行指针
 	IUINT32 **texture;          // 纹理：同样是每行索引
+    IUINT32 **mipmaps;           // mipmap纹理
+    bool use_mipmap;
 	int tex_width;              // 纹理宽度
 	int tex_height;             // 纹理高度
 	float max_u;                // 纹理最大宽度：tex_width - 1
@@ -624,19 +637,24 @@ typedef struct {
 
 // 设备初始化，fb为外部帧缓存，非 NULL 将引用外部帧缓存（每行 4字节对齐）
 void device_init(device_t *device, int width, int height, void *fb) {
-	int need = sizeof(void*) * (height * 2 + 1024) + width * height * 8;
+	int need = sizeof(void*) * (height * 2 + 1024 + 1) + width * height * 8;
 	char *ptr = (char*)malloc(need + 64);
 	char *framebuf, *zbuf;
 	int j;
 	device->framebuffer = (IUINT32**)ptr;
     ptr += sizeof(void*) * height;
-    
+ 
 	device->zbuffer = (float**)ptr;
 	ptr += sizeof(void*) * height;
 
 	device->texture = (IUINT32**)ptr;
 	ptr += sizeof(void*) * 1024;
 
+    device->use_mipmap = false;
+    device->mipmaps = (IUINT32**)ptr;
+    ptr += sizeof(void*) * 1;
+
+    // framebuf和zbuf的内存数据直接初始化
 	framebuf = (char*)ptr;
 	zbuf = (char*)ptr + width * height * 4;
 	ptr += width * height * 8;
@@ -645,6 +663,7 @@ void device_init(device_t *device, int width, int height, void *fb) {
 		device->framebuffer[j] = (IUINT32*)(framebuf + width * 4 * j);
 		device->zbuffer[j] = (float*)(zbuf + width * 4 * j);
 	}
+    // texture暂时初始化一下，以后还会重新赋值
 	device->texture[0] = (IUINT32*)ptr;
 	device->texture[1] = (IUINT32*)(ptr + 16);
 	memset(device->texture[0], 0, 64);
@@ -668,7 +687,65 @@ void device_destroy(device_t *device) {
 	device->texture = NULL;
 }
 
-void device_set_texture(device_t *device, void *bits, long pitch, int w, int h) {
+int generate_mipmaps(IUINT32 *source, IUINT32 width, IUINT32 height,  IUINT32 ***mipmaps, float gamma) {
+    int num_mip_levels = logbase2ofx(width) + 1;
+    *mipmaps = (IUINT32**)malloc(num_mip_levels * sizeof(IUINT32*));
+    (*mipmaps)[0] = source;
+    int mip_width = width;
+    int mip_height = height;
+    for(int mip_level = 1; mip_level < num_mip_levels; mip_level++) {
+        mip_width = mip_width >> 1;
+        mip_height = mip_height >> 1;
+        (*mipmaps)[mip_level] = (IUINT32*)malloc(mip_width * mip_height * sizeof(IUINT32));
+        IUINT32 *src_buffer = (*mipmaps)[mip_level-1];
+        IUINT32 *dest_buffer = (*mipmaps)[mip_level];
+        for(int x = 0; x < mip_width; x++)
+        {
+            for(int y = 0; y < mip_height; y++)
+            {
+                float r0, g0, b0,
+                r1, g1, b1,
+                r2, g2, b2,
+                r3, g3, b3;
+                int r_avg, g_avg, b_avg;
+                
+                IUINT32 c = src_buffer[(x*2+0) + (y*2+0)*mip_width*2];
+                r0 = c & 0xff;
+                g0 = (c >> 8) & 0xff;
+                b0 = (c >> 16) & 0xff;
+                
+                c = src_buffer[(x*2+1) + (y*2+0)*mip_width*2];
+                r1 = c & 0xff;
+                g1 = (c >> 8) & 0xff;
+                b1 = (c >> 16) & 0xff;
+                
+                c = src_buffer[(x*2+0) + (y*2+1)*mip_width*2];
+                r2 = c & 0xff;
+                g2 = (c >> 8) & 0xff;
+                b2 = (c >> 16) & 0xff;
+                
+                c = src_buffer[(x*2+1) + (y*2+1)*mip_width*2];
+                r3 = c & 0xff;
+                g3 = (c >> 8) & 0xff;
+                b3 = (c >> 16) & 0xff;
+                
+                r_avg = (IUINT32)(0.5f + gamma*(r0+r1+r2+r3)/4);
+                g_avg = (IUINT32)(0.5f + gamma*(g0+g1+g2+g3)/4);
+                b_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
+                
+                int R = CMID(r_avg, 0, 255);
+                int G = CMID(g_avg, 0, 255);
+                int B = CMID(b_avg, 0, 255);
+                
+                dest_buffer[x+y*mip_width] = (R << 16) | (G << 8) | B;
+            }
+        }
+    }
+    return num_mip_levels;
+}
+
+
+void device_set_texture(device_t *device, void *bits, long pitch, int w, int h, bool mipmap) {
 	char *ptr = (char*)bits;
 	int j;
 	for (j = 0; j < h; ptr += pitch, j++) 	// 重新计算每行纹理的指针
@@ -677,6 +754,10 @@ void device_set_texture(device_t *device, void *bits, long pitch, int w, int h) 
 	device->tex_height = h;
 	device->max_u = (float)(w - 1);
 	device->max_v = (float)(h - 1);
+    if(mipmap) {
+        device->use_mipmap = mipmap;
+        generate_mipmaps((IUINT32*)bits, w, h, &device->mipmaps, 1.01);
+    }
 }
 
 void device_clear(device_t *device, int mode) {
@@ -755,16 +836,36 @@ void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 
 //    return device->texture[y][x];
 //}
 
-color_t device_texture_read(const device_t *device, float u, float v) {
+color_t device_texture_read(const device_t *device, float u, float v, float z, float maxz) {
     color_t color;
+    IUINT32 c;
     int x, y;
-    u = u * device->max_u;
-    v = v * device->max_v;
-    x = (int)(u + 0.5f);
-    y = (int)(v + 0.5f);
-    x = CMID(x, 0, device->tex_width - 1);
-    y = CMID(y, 0, device->tex_height - 1);
-    IUINT32 c = device->texture[y][x];
+    if(device->use_mipmap) {
+        int width = device->tex_width, height = device->tex_height;
+        int tmiplevels = logbase2ofx(device->tex_width);
+        int miplevel = tmiplevels * (z / maxz);
+        if(miplevel > tmiplevels) miplevel = tmiplevels;
+        IUINT32 *texture = (IUINT32*)device->mipmaps[miplevel];
+        for(int ts = 0; ts < miplevel; ts++) {
+            width = width >> 1;
+            height = height >> 1;
+        }
+        u = u * (width-1);
+        v = v * (height-1);
+        x = (int)(u + 0.5f);
+        y = (int)(v + 0.5f);
+        x = CMID(x, 0, width - 1);
+        y = CMID(y, 0, height - 1);
+        c = texture[y*width+x];
+    } else {
+        u = u * device->max_u;
+        v = v * device->max_v;
+        x = (int)(u + 0.5f);
+        y = (int)(v + 0.5f);
+        x = CMID(x, 0, device->tex_width - 1);
+        y = CMID(y, 0, device->tex_height - 1);
+        c = device->texture[y][x];
+    }
     color.r = c & 0xff;
     color.g = (c >> 8) & 0xff;
     color.b = (c >> 16) & 0xff;
@@ -884,7 +985,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const point_t 
                 if(render_state & RENDER_STATE_TEXTURE) {
                     float u = scanline->v.tc.u * w;
                     float v = scanline->v.tc.v * w;
-                    color_t cc = device_texture_read(device, u, v);
+                    color_t cc = device_texture_read(device, u, v, w, 15);
                     r = cc.r;
                     g = cc.g;
                     b = cc.b;
@@ -1013,3 +1114,4 @@ void device_draw_primitive(device_t *device, vertex_t *v1,
         device_draw_line(device, (int)p3.x, (int)p3.y, (int)p2.x, (int)p2.y, device->foreground);
     }
 }
+
