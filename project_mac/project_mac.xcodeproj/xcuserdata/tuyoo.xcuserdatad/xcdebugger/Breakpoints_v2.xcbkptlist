@@ -26,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "962"
-            endingLineNumber = "962"
-            landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
+            startingLineNumber = "967"
+            endingLineNumber = "967"
+            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -42,12 +42,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "926"
-            endingLineNumber = "926"
-            landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
+            startingLineNumber = "931"
+            endingLineNumber = "931"
+            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -58,12 +58,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1060"
-            endingLineNumber = "1060"
-            landmarkName = "device_draw_primitive(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3)"
+            startingLineNumber = "1065"
+            endingLineNumber = "1065"
+            landmarkName = "device_render_trap(device_t *device, trapezoid_t *trap, const point_t *p, const vertex_t *t, const vector_t *n)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -106,12 +106,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "898"
-            endingLineNumber = "898"
-            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
+            startingLineNumber = "899"
+            endingLineNumber = "899"
+            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -122,12 +122,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "903"
+            endingLineNumber = "903"
+            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../tiny3D.h"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "902"
             endingLineNumber = "902"
-            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
+            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -138,29 +154,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "901"
-            endingLineNumber = "901"
-            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "923"
-            endingLineNumber = "923"
-            landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
-            landmarkType = "9">
+            startingLineNumber = "928"
+            endingLineNumber = "928">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -232,26 +230,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "921"
-            endingLineNumber = "921">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1016"
-            endingLineNumber = "1016"
-            landmarkName = "device_render_trap(device_t *device, trapezoid_t *trap, const point_t *p, const vertex_t *t, const vector_t *n)"
+            startingLineNumber = "926"
+            endingLineNumber = "926"
+            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -262,11 +246,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "925"
-            endingLineNumber = "925"
+            startingLineNumber = "1021"
+            endingLineNumber = "1021"
             landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
             landmarkType = "9">
          </BreakpointContent>
@@ -278,12 +262,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "952"
-            endingLineNumber = "952"
-            landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
+            startingLineNumber = "930"
+            endingLineNumber = "930"
+            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -294,12 +278,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "948"
-            endingLineNumber = "948"
-            landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
+            startingLineNumber = "957"
+            endingLineNumber = "957"
+            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../tiny3D.h"
+            timestampString = "501407633.122581"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "953"
+            endingLineNumber = "953"
+            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -358,11 +358,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1075"
-            endingLineNumber = "1075"
+            startingLineNumber = "1080"
+            endingLineNumber = "1080"
             landmarkName = "device_draw_primitive(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3)"
             landmarkType = "9">
          </BreakpointContent>
@@ -406,12 +406,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "934"
-            endingLineNumber = "934"
-            landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
+            startingLineNumber = "939"
+            endingLineNumber = "939"
+            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -438,12 +438,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1021"
-            endingLineNumber = "1021"
-            landmarkName = "device_render_trap(device_t *device, trapezoid_t *trap, const point_t *p, const vertex_t *t, const vector_t *n)"
+            startingLineNumber = "1026"
+            endingLineNumber = "1026"
+            landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -514,12 +514,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "892"
-            endingLineNumber = "892"
-            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
+            startingLineNumber = "893"
+            endingLineNumber = "893"
+            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -530,12 +530,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "893"
-            endingLineNumber = "893"
-            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *v, const point_t *p)"
+            startingLineNumber = "894"
+            endingLineNumber = "894"
+            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -578,11 +578,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "988"
-            endingLineNumber = "988"
+            startingLineNumber = "993"
+            endingLineNumber = "993"
             landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
             landmarkType = "9">
          </BreakpointContent>
@@ -594,11 +594,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "986"
-            endingLineNumber = "986"
+            startingLineNumber = "991"
+            endingLineNumber = "991"
             landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
             landmarkType = "9">
          </BreakpointContent>
@@ -610,11 +610,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "987"
-            endingLineNumber = "987"
+            startingLineNumber = "992"
+            endingLineNumber = "992"
             landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const point_t *t, const vertex_t *vt, const vector_t *n)"
             landmarkType = "9">
          </BreakpointContent>
@@ -626,11 +626,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../tiny3D.h"
-            timestampString = "500899997.419612"
+            timestampString = "501407633.122581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "844"
-            endingLineNumber = "844"
+            startingLineNumber = "845"
+            endingLineNumber = "845"
             landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
             landmarkType = "9">
          </BreakpointContent>
@@ -664,6 +664,70 @@
             startingLineNumber = "732"
             endingLineNumber = "732"
             landmarkName = "generate_mipmaps(IUINT32 *source, IUINT32 width, IUINT32 height, IUINT32 ***mipmaps, float gamma)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../tiny3D.h"
+            timestampString = "501056846.919376"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "701"
+            endingLineNumber = "701"
+            landmarkName = "generate_mipmaps(IUINT32 *source, IUINT32 width, IUINT32 height, IUINT32 ***mipmaps, float gamma)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../tiny3D.h"
+            timestampString = "501407633.122581"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "881"
+            endingLineNumber = "881"
+            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../tiny3D.h"
+            timestampString = "501407633.122581"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "880"
+            endingLineNumber = "880"
+            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../tiny3D.h"
+            timestampString = "501407633.122581"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "904"
+            endingLineNumber = "904"
+            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

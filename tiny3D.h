@@ -710,24 +710,24 @@ int generate_mipmaps(IUINT32 *source, IUINT32 width, IUINT32 height,  IUINT32 **
                 int r_avg, g_avg, b_avg;
                 
                 IUINT32 c = src_buffer[(x*2+0) + (y*2+0)*mip_width*2];
-                r0 = c & 0xff;
+                b0 = c & 0xff;
                 g0 = (c >> 8) & 0xff;
-                b0 = (c >> 16) & 0xff;
+                r0 = (c >> 16) & 0xff;
                 
                 c = src_buffer[(x*2+1) + (y*2+0)*mip_width*2];
-                r1 = c & 0xff;
+                b1 = c & 0xff;
                 g1 = (c >> 8) & 0xff;
-                b1 = (c >> 16) & 0xff;
+                r1 = (c >> 16) & 0xff;
                 
                 c = src_buffer[(x*2+0) + (y*2+1)*mip_width*2];
-                r2 = c & 0xff;
+                b2 = c & 0xff;
                 g2 = (c >> 8) & 0xff;
-                b2 = (c >> 16) & 0xff;
+                r2 = (c >> 16) & 0xff;
                 
                 c = src_buffer[(x*2+1) + (y*2+1)*mip_width*2];
-                r3 = c & 0xff;
+                b3 = c & 0xff;
                 g3 = (c >> 8) & 0xff;
-                b3 = (c >> 16) & 0xff;
+                r3 = (c >> 16) & 0xff;
                 
                 r_avg = (IUINT32)(0.5f + gamma*(r0+r1+r2+r3)/4);
                 g_avg = (IUINT32)(0.5f + gamma*(g0+g1+g2+g3)/4);
@@ -836,39 +836,93 @@ void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 
 //    return device->texture[y][x];
 //}
 
+// 双线性插值和mipmap
 color_t device_texture_read(const device_t *device, float u, float v, float z, float maxz) {
     color_t color;
     IUINT32 c;
     int x, y;
+    IUINT32* texture = nullptr;
+    int width, height;
+    width = device->tex_width;
+    height = device->tex_height;
     if(device->use_mipmap) {
-        int width = device->tex_width, height = device->tex_height;
         int tmiplevels = logbase2ofx(device->tex_width);
         int miplevel = tmiplevels * (z / maxz);
         if(miplevel > tmiplevels) miplevel = tmiplevels;
-        IUINT32 *texture = (IUINT32*)device->mipmaps[miplevel];
+        texture = (IUINT32*)device->mipmaps[miplevel];
         for(int ts = 0; ts < miplevel; ts++) {
             width = width >> 1;
             height = height >> 1;
         }
-        u = u * (width-1);
-        v = v * (height-1);
-        x = (int)(u + 0.5f);
-        y = (int)(v + 0.5f);
-        x = CMID(x, 0, width - 1);
-        y = CMID(y, 0, height - 1);
-        c = texture[y*width+x];
-    } else {
-        u = u * device->max_u;
-        v = v * device->max_v;
-        x = (int)(u + 0.5f);
-        y = (int)(v + 0.5f);
-        x = CMID(x, 0, device->tex_width - 1);
-        y = CMID(y, 0, device->tex_height - 1);
-        c = device->texture[y][x];
     }
-    color.r = c & 0xff;
-    color.g = (c >> 8) & 0xff;
-    color.b = (c >> 16) & 0xff;
+    u = u * (width-1);
+    v = v * (height-1);
+    int uint = (int)u;
+    int vint = (int)v;
+    int uint_pls_1 = uint+1;
+    int vint_pls_1 = vint+1;
+    uint_pls_1 = CMID(uint_pls_1, 0, width - 1);
+    vint_pls_1 = CMID(vint_pls_1, 0, height - 1);
+    
+    int textel00, textel10, textel01, textel11;
+
+    if(device->use_mipmap) {
+        textel00 = texture[(vint+0)*width + (uint+0)];
+        textel10 = texture[(vint_pls_1)*width + (uint+0)];
+        textel01 = texture[(vint+0)*width + (uint_pls_1)];
+        textel11 = texture[(vint_pls_1)*width + (uint_pls_1)];
+    } else {
+        textel00 = device->texture[vint][uint];
+        textel10 = device->texture[vint_pls_1][uint];
+        textel01 = device->texture[vint][uint_pls_1];
+        textel11 = device->texture[vint_pls_1][uint_pls_1];
+    }
+    int textel00_r = (textel00 >> 16) & 0xff;
+    int textel00_g = (textel00 >> 8) & 0xff;
+    int textel00_b = textel00 & 0xff;
+    
+    int textel10_r = (textel10 >> 16) & 0xff;
+    int textel10_g = (textel10 >> 8) & 0xff;
+    int textel10_b = textel10 & 0xff;
+    
+    int textel01_r = (textel01 >> 16) & 0xff;
+    int textel01_g = (textel01 >> 8) & 0xff;
+    int textel01_b = textel01 & 0xff;
+    
+    int textel11_r = (textel11 >> 16) & 0xff;
+    int textel11_g = (textel11 >> 8) & 0xff;
+    int textel11_b = textel11 & 0xff;
+    
+    float dtu = u - (float)uint;
+    float dtv = v - (float)vint;
+    
+    float one_minus_dtu = 1.0 - dtu;
+    float one_minus_dtv = 1.0 - dtv;
+
+    float one_minus_dtu_x_one_minus_dtv = (one_minus_dtu) * (one_minus_dtv);
+    float dtu_x_one_minus_dtv = (dtu) * (one_minus_dtv);
+    float dtu_x_dtv = (dtu) * (dtv);
+    float one_minus_dtu_x_dtv = (one_minus_dtu) * (dtv);
+
+    color.r = one_minus_dtu_x_one_minus_dtv * textel00_r +
+        dtu_x_one_minus_dtv * textel01_r +
+        dtu_x_dtv * textel11_r + 
+        one_minus_dtu_x_dtv * textel10_r;
+
+    color.g = one_minus_dtu_x_one_minus_dtv * textel00_g + 
+        dtu_x_one_minus_dtv * textel01_g +
+        dtu_x_dtv * textel11_g + 
+        one_minus_dtu_x_dtv * textel10_g;
+
+    color.b = one_minus_dtu_x_one_minus_dtv * textel00_b + 
+        dtu_x_one_minus_dtv * textel01_b +
+        dtu_x_dtv * textel11_b + 
+        one_minus_dtu_x_dtv * textel10_b;
+    
+//    color.r = textel00_r;
+//    color.g = textel00_g;
+//    color.b = textel00_b;
+
     return color;
 }
 

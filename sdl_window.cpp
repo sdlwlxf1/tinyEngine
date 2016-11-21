@@ -244,7 +244,7 @@ void init_texture(device_t *device) {
             texture[j][i] = ((x + y) & 1)? 0xffffff : 0x3fbcef;
         }
     }
-    device_set_texture(device, texture, 256 * 4, 256, 256, true);
+    device_set_texture(device, texture, 256 * 4, 256, 256, false);
 }
 
 int screen_keys[512];	// 当前键盘按下状态
