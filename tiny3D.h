@@ -1075,6 +1075,248 @@ void device_render_trap(device_t *device, trapezoid_t *trap, const point_t *p, c
     }
 }
 
+void clip_polys(device_t *device, vertex_t *p1, vertex_t *p2, vertex_t *p3) {
+    #define CLIP_CODE_GZ    0x0001
+    #define CLIP_CODE_LZ    0x0002
+    #define CLIP_CODE_IZ    0x0004
+
+    #define CLIP_CODE_GX    0x0001
+    #define CLIP_CODE_LX    0x0002
+    #define CLIP_CODE_IX    0x0004
+
+    #define CLIP_CODE_GY    0x0001
+    #define CLIP_CODE_LY    0x0002
+    #define CLIP_CODE_IY    0x0004
+
+    #define CLIP_CODE_NULL  0x0000
+    
+    int vertex_ccodes[3];
+    int num_verts_in;
+    int v0, v1, v2;
+
+    float z_factor, z_test;
+    
+    float xi, yi, x01i, y01i, x02i, y02i, t1, t2, ui, vi, u01i, v01i, u02i, v02i;
+
+    int last_poly_index, insert_poly_index;
+
+    vector_t u, v, n;
+
+    insert_poly_index = last_poly_index = count;
+
+    z_factor = (0.5) * device->camera.width / camera.dist;
+    z_test = z_factor * p1->pos.z;
+
+    if (p1->pos.x > z_test)
+        vertex_ccodes[0] = CLIP_CODE_GX;
+    else if (p1->pos.x < -z_test)
+        vertex_ccodes[0] = CLIP_CODE_LX;
+    else
+        vertex_ccodes[0] = CLIP_CODE_IX;
+
+    z_test = z_factor * p2->pos.z;
+
+    if (p2->pos.x > z_test)
+        vertex_ccodes[1] = CLIP_CODE_GX;
+    else if (p2->pos.x < -z_test)
+        vertex_ccodes[1] = CLIP_CODE_LX;
+    else
+        vertex_ccodes[1] = CLIP_CODE_IX;
+
+    z_test = z_factor * p3->pos.z;
+
+    if (p3->pos.x > z_test)
+        vertex_ccodes[2] = CLIP_CODE_GX;
+    else if (p3->pos.x < -z_test)
+        vertex_ccodes[2] = CLIP_CODE_LX;
+    else
+        vertex_ccodes[2] = CLIP_CODE_IX;
+
+    if (((vertex_ccodes[0] == CLIP_CODE_GX) && (vertex_ccodes[1] == CLIP_CODE_GX) && (vertex_ccodes[2] == CLIP_CODE_GX))
+     || ((vertex_ccodes[0] == CLIP_CODE_LX) && (vertex_ccodes[1] == CLIP_CODE_LX) && (vertex_ccodes[2] == CLIP_CODE_LX))) {
+        return;
+    }
+
+    z_factor = (0.5) * device->camera.height / camera.dist;
+    z_test = z_factor * p1->pos.z;
+
+    if (p1->pos.y > z_test)
+        vertex_ccodes[0] = CLIP_CODE_GY;
+    else if (p1->pos.y < -z_test)
+        vertex_ccodes[0] = CLIP_CODE_LY;
+    else
+        vertex_ccodes[0] = CLIP_CODE_IY;
+
+    z_test = z_factor * p2->pos.z;
+
+    if (p2->pos.y > z_test)
+        vertex_ccodes[1] = CLIP_CODE_GY;
+    else if (p2->pos.y < -z_test)
+        vertex_ccodes[1] = CLIP_CODE_LY;
+    else
+        vertex_ccodes[1] = CLIP_CODE_IY;
+
+    z_test = z_factor * p3->pos.z;
+
+    if (p3->pos.y > z_test)
+        vertex_ccodes[2] = CLIP_CODE_GY;
+    else if (p3->pos.y < -z_test)
+        vertex_ccodes[2] = CLIP_CODE_LY;
+    else
+        vertex_ccodes[2] = CLIP_CODE_IY;
+
+    if (((vertex_ccodes[0] == CLIP_CODE_GY) && (vertex_ccodes[1] == CLIP_CODE_GY) && (vertex_ccodes[2] == CLIP_CODE_GY))
+     || ((vertex_ccodes[0] == CLIP_CODE_LY) && (vertex_ccodes[1] == CLIP_CODE_LY) && (vertex_ccodes[2] == CLIP_CODE_LY))) {
+        return;
+    }
+
+// 是否完全在远裁剪面或近裁剪面外侧
+    if (p1->pos.z > cam->far_clip_z)
+        vertex_ccodes[0] = CLIP_CODE_GZ;
+    else if (p1->pos.z < cam->near_clip_z)
+        vertex_ccodes[0] = CLIP_CODE_LZ;
+    else
+        vertex_ccodes[0] = CLIP_CODE_IZ;
+
+    if (p2->pos.z > cam->far_clip_z)
+        vertex_ccodes[1] = CLIP_CODE_GZ;
+    else if (p2->pos.z < cam->near_clip_z)
+        vertex_ccodes[1] = CLIP_CODE_LZ;
+    else
+        vertex_ccodes[1] = CLIP_CODE_IZ;
+        
+    if (p3->pos.z > cam->far_clip_z)
+        vertex_ccodes[2] = CLIP_CODE_GZ;
+    else if (p3->pos.z < cam->near_clip_z)
+        vertex_ccodes[2] = CLIP_CODE_LZ;
+    else
+        vertex_ccodes[2] = CLIP_CODE_IZ;
+
+    if (((vertex_ccodes[0] == CLIP_CODE_GZ) && (vertex_ccodes[1] == CLIP_CODE_GZ) && (vertex_ccodes[2] == CLIP_CODE_GZ))
+     || ((vertex_ccodes[0] == CLIP_CODE_LZ) && (vertex_ccodes[1] == CLIP_CODE_LZ) && (vertex_ccodes[2] == CLIP_CODE_LZ))) {
+        return;
+    }
+
+    // 判断是否有顶点在近裁剪面外侧
+    if (((vertex_ccodes[0] | vertex_ccodes[1] | vertex_ccodes[2]) & CLIP_CODE_LZ))
+    {
+        vertex_t *temp;
+        // 三角形有1个顶点在近裁剪面内侧，2个顶点在外侧
+        // 三角形有2个顶点在近裁剪面内侧，1个顶点在外侧
+        if (num_verts_in == 1)
+        {
+            if (vertex_ccodes[0] == CLIP_CODE_IZ) {
+            } else if (vertex_ccodes[1] == CLIP_CODE_IZ) {
+                temp = p1;
+                p1 = p2;
+                p2 = p3;
+                p3 = temp;
+            } else {
+                temp = p1;
+                p1 = p3;
+                p3 = p2;
+                p2 = temp;
+            }
+            // 对每条边进行裁剪
+            // 创建参数化方程p = v0 + v01 * t
+            vector_sub(&v, p2, p1);
+            t1 = (cam->near_clip_z - p1->pos.z) / v.z;
+
+            xi = p1->pos.x + v.x * t1;
+            yi = p1->pos.y + v.y * t1;
+
+            // 用交点覆盖原来的顶点
+            p2->pos.x = xi;
+            p2->pos.y = yi;
+            p2->pos.z = cam->near_clip_z;
+
+            // 对三角形边v0->v2进行裁剪
+            vector_sub(&v, p3, p1);
+            t2 = (cam->near_clip_z - p1->pos.z) / v.z;
+
+            xi = p1->pos.x + v.x * t2;
+            yi = p1->pos.y + v.y * t2;
+
+            // 用交点覆盖原来的顶点
+            p3->pos.x = xi;
+            p3->pos.y = yi;
+            p3->pos.z = cam->near_clip_z;
+
+            // 对纹理进行裁剪
+            ui = p1->tc.u + (p2->u0 - p1->u0) * t1;
+            vi = p1->tc.v + (p2->v0 - p1->v0) * t1;
+
+            p2->u0 = ui;
+            p2->v0 = vi;
+
+            ui = p1->u0 + (p3->u0 - p1->u0) * t1;
+            vi = p1->v0 + (p3->v0 - p1->v0) * t1;
+
+            p3->u0 = ui;
+            p3->v0 = vi;
+        } else if (num_verts_in == 2) {
+            // 外侧的点
+            if (vertex_ccodes[0] == CLIP_CODE_LZ) {
+            } else if (vertex_ccodes[1] == CLIP_CODE_LZ) {
+                temp = p1;
+                p1 = p2;
+                p2 = p3;
+                p3 = temp;
+            } else {
+                temp = p1;
+                p1 = p3;
+                p3 = p2;
+                p2 = temp;
+            }
+            // 对每条边进行裁剪
+            // 创建参数化方程p = v0 + v01 * t
+            vector_sub(&v, p2, p1);
+            t1 = (cam->near_clip_z - p1->pos.z) / v.z;
+
+            x01i = p1->pos.x + v.x * t1;
+            y01i = p1->pos.y + v.y * t1;
+
+            // 对三角形边v0->v2进行裁剪
+            vector_sub(&v, p3, p1);
+            t2 = (cam->near_clip_z - p1->pos.z) / v.z;
+
+            x02i = p1->pos.x + v.x * t2;
+            y02i = p1->pos.y + v.y * t2;
+
+            // 用交点覆盖原来的顶点
+            p1->pos.x = x01i;
+            p1->pos.y = y01i;
+            p1->pos.z = cam->near_clip_z;
+
+            np2.x = x01i;
+            np2.y = y01i;
+            np2.z = cam->near_clip_z;
+
+            np1.x = x02i;
+            np1.y = y02i;
+            np1.z = cam->near_clip_z;
+
+            // 对纹理进行裁剪
+            u01i = p1->u0 + (p2->u0 - p1->u0) * t1;
+            v01i = p1->v0 + (p2->v0 - p1->v0) * t1;
+
+            u02i = p1->u0 + (p3->u0 - p1->u0) * t1;
+            v02i = p1->v0 + (p3->v0 - p1->v0) * t1;
+
+            p1->u0 = u01i;
+            p1->v0 = v01i;
+
+            np1->u0 = u02i;
+            np1->v0 = v02i;
+            np2->u0 = u01i;
+            np2->v0 = v01i;
+
+            device_draw_primitive(device, &np1, &np2, &np3);
+        }
+
+    }
+}
+
 void device_draw_primitive(device_t *device, vertex_t *v1,
     vertex_t *v2, vertex_t *v3) {
     point_t p1, p2, p3, c1, c2, c3;
