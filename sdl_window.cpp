@@ -225,7 +225,8 @@ void draw_box(device_t *device, const matrix_t *m) {
     device->transform.world = *m;
     transform_update(&device->transform);
     for(int i = 0; i < 36; i+=3)
-        device_draw_primitive(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
+        clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
+        //device_draw_primitive(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
 }
 
 
@@ -279,8 +280,8 @@ int main( int argc, char* args[] )
             
             matrix_t m;
             point_t pos = {0, 0, 0, 1};
-            vector_t scale = {1, 1, 1, 1};
-            vector_t axis = {1, 1, 1, 0};
+            vector_t scale = {1, 1, 1, 0};
+            vector_t axis = {1, 1, 1, 1};
             float theta = 0.0f;
             
             float c_yaw = 0.0f;
@@ -296,7 +297,7 @@ int main( int argc, char* args[] )
             bool c_dirty = true;
             
             memset(screen_keys, 0, sizeof(int) * 512);
-            device_init(&device, SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
+            device_init(&device, SCREEN_WIDTH, SCREEN_HEIGHT, 3.1415926 * 0.5f, 2.0f, 500.0f, NULL);
             
             init_texture(&device);
             device.render_state = RENDER_STATE_TEXTURE;
@@ -428,7 +429,6 @@ int main( int argc, char* args[] )
                     c_dirty = false;
                 }
                 
-                scale.x = theta;
                 if(box_dirty == true) {
                     matrix_set_rotate_translate_scale(&m, &axis, alpha, &pos, &scale);
                     box_dirty = false;
