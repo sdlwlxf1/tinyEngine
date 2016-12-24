@@ -127,8 +127,98 @@ void matrix_scale(matrix_t *m, float k) {
         for(int j = 0; j < 4; j++)
             m->m[i][j] *= k;
 }
+#define N 3
+float getA(float arcs[N][N], int n)//按第一行展开计算|A|
+{
+    if(n==1)
+    {
+        return arcs[0][0];
+    }
+    float ans = 0;
+    float temp[N][N];
+    int i,j,k;
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n-1;j++)
+        {
+            for(k=0;k<n-1;k++)
+            {
+                temp[j][k] = arcs[j+1][(k>=i)?k+1:k];
+                
+            }
+        }
+        float t = getA(temp,n-1);
+        if(i%2==0)
+        {
+            ans += arcs[0][i]*t;
+        }
+        else
+        {
+            ans -= arcs[0][i]*t;
+        }
+    }
+    return ans;
+}
+void getAStart(float arcs[N][N], int n, float ans[N][N])//计算每一行每一列的每个元素所对应的余子式，组成A*
+{
+    if(n==1)
+    {
+        ans[0][0] = 1;
+        return;
+    }
+    int i,j,k,t;
+    float temp[N][N];
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            for(k=0;k<n-1;k++)
+            {
+                for(t=0;t<n-1;t++)
+                {
+                    temp[k][t] = arcs[k>=i?k+1:k][t>=j?t+1:t];
+                }
+            }
+            
+            
+            ans[j][i] = getA(temp,n-1);
+            if((i+j)%2 == 1)
+            {
+                ans[j][i] = -ans[j][i];
+            }
+        }
+    }  
+}
+
+
 //      5)). inverse
 void matrix_inverse(matrix_t *m) {
+    float arcs[3][3];
+    float astar[3][3];
+    int i, j;
+
+    for(i = 0; i < 3; i++)
+        for(j = 0; j < 3; j++)
+            arcs[i][j] = m->m[i][j];
+    
+    float a = getA(arcs, 3);
+    if(a==0)
+    {
+        printf("can not transform!\n");
+    }
+    else
+    {
+        getAStart(arcs, 3, astar);
+        for(i = 0; i < 3; i++)
+        {
+            for(j = 0; j <3 ; j++)
+            {
+                m->m[i][j] = astar[i][j]/a;
+            }
+        }
+    }
+    
+    
 //    matrix_t res;
 //    double determinant =    +m->m[0][0] * (m->m[1][1]*m->m[2][2] - m->m[2][1]*m->m[1][2])
 //    - m->m[0][1] * (m->m[1][0]*m->m[2][2] - m->m[1][2]*m->m[2][0])
@@ -148,36 +238,37 @@ void matrix_inverse(matrix_t *m) {
 //    for(i = 0; i < 3; i++)
 //        for(j = 0; j < 3; j++)
 //            m->m[i][j-3] = res.m[i][j];
-    float t[3][6];
-    int i, j, k;
-    float f;
-
-    for(i = 0; i < 3; i++)
-        for(j = 0; j < 6; j++) {
-            if(j < 3)
-                t[i][j] = m->m[i][j];
-            else if(j == i + 3)
-                t[i][j] = 1;
-            else
-                t[i][j] = 0;
-        }
-
-    for(i = 0; i < 3; i++) {
-        f = t[i][i];
-        for(j = 0; j < 6; j++)
-            t[i][j] /= f;
-        for(j = 0; j < 3; j++) {
-            if(j != i) {
-                f = t[j][i];
-                for(k = 0; k < 6; k++)
-                    t[j][k] = t[j][k] - t[i][k] * f;
-            }
-        }
-    }
-
-    for(i = 0; i < 3; i++)
-        for(j = 3; j < 6; j++)
-            m->m[i][j-3] = t[i][j];
+    
+//    float t[3][6];
+//    int i, j, k;
+//    float f;
+//
+//    for(i = 0; i < 3; i++)
+//        for(j = 0; j < 6; j++) {
+//            if(j < 3)
+//                t[i][j] = m->m[i][j];
+//            else if(j == i + 3)
+//                t[i][j] = 1;
+//            else
+//                t[i][j] = 0;
+//        }
+//
+//    for(i = 0; i < 3; i++) {
+//        f = t[i][i];
+//        for(j = 0; j < 6; j++)
+//            t[i][j] /= f;
+//        for(j = 0; j < 3; j++) {
+//            if(j != i) {
+//                f = t[j][i];
+//                for(k = 0; k < 6; k++)
+//                    t[j][k] = t[j][k] - t[i][k] * f;
+//            }
+//        }
+//    }
+//
+//    for(i = 0; i < 3; i++)
+//        for(j = 3; j < 6; j++)
+//            m->m[i][j-3] = t[i][j];
     
     m->m[3][0] = -m->m[3][0];
     m->m[3][1] = -m->m[3][1];
@@ -289,10 +380,8 @@ void matrix_set_rotate(matrix_t *m, const vector_t *v, float theta) {
     m->m[3][3] = 1.0f;
 }
 void matrix_set_rotate_translate_scale(matrix_t *m, const vector_t *axis, float theta, const point_t *pos, const vector_t *scale) {
-//    matrix_set_scale(m, scale->x, scale->y, scale->z);
-//    matrix_t r, t = *m;
-    matrix_t t, r;
-    matrix_set_identity(&t);
+    matrix_set_scale(m, scale->x, scale->y, scale->z);
+    matrix_t r, t = *m;
     matrix_set_rotate(&r, axis, theta);
     matrix_mul(m, &t, &r);
     m->m[3][0] = pos->x;
@@ -398,12 +487,6 @@ int transform_check_cvv(const vector_t *v) {
 }
 //  5). transform_homogenize(ts, y, x)
 void transform_homogenize(const transform_t *ts, vector_t *y, const vector_t *x) {
-//    float rhw = 1.0f / x->w;
-//    y->x = (x->x * rhw + 1.0f) * 0.5f * ts->w;
-//    y->y = (1.0f - x->y * rhw) * 0.5f * ts->h;
-//    y->z = x->z * rhw;
-//    y->w = 1.0f;
-    
     float rhw = 1.0f / x->w;
     y->x = (x->x * rhw + 1.0f) * ts->w * 0.5f;
     y->y = (1.0f - x->y * rhw) * ts->h * 0.5f;
@@ -885,8 +968,6 @@ void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 
 // 双线性插值和mipmap
 color_t device_texture_read(const device_t *device, float u, float v, float z, float maxz) {
     color_t color;
-    IUINT32 c;
-    int x, y;
     IUINT32* texture = nullptr;
     int width, height;
     width = device->tex_width;
@@ -1121,8 +1202,7 @@ void device_render_trap(device_t *device, trapezoid_t *trap, const point_t *p, c
     }
 }
 
-void device_draw_primitive(device_t *device, vertex_t *v1,
-                           vertex_t *v2, vertex_t *v3) {
+void device_draw_primitive(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool cliped = false) {
     point_t p1, p2, p3, c1, c2, c3;
     int render_state = device->render_state;
     
@@ -1144,18 +1224,20 @@ void device_draw_primitive(device_t *device, vertex_t *v1,
     //    if(vector_dotproduct(&normal, &p2) >= 0)
     //        return;
     
-    matrix_apply(&c1, &v1->pos, &device->transform.projection);
-    matrix_apply(&c2, &v2->pos, &device->transform.projection);
-    matrix_apply(&c3, &v3->pos, &device->transform.projection);
-    
-    matrix_apply(&v1->pos, &v1->pos, &device->transform.transform_wv_r);
-    matrix_apply(&v2->pos, &v2->pos, &device->transform.transform_wv_r);
-    matrix_apply(&v3->pos, &v3->pos, &device->transform.transform_wv_r);
-
-//    transform_apply(&device->transform, &c1, &v1->pos);
-//    transform_apply(&device->transform, &c2, &v2->pos);
-//    transform_apply(&device->transform, &c3, &v3->pos);
-    
+    if(cliped == true) {
+        matrix_apply(&c1, &v1->pos, &device->transform.projection);
+        matrix_apply(&c2, &v2->pos, &device->transform.projection);
+        matrix_apply(&c3, &v3->pos, &device->transform.projection);
+        
+        matrix_apply(&v1->pos, &v1->pos, &device->transform.transform_wv_r);
+        matrix_apply(&v2->pos, &v2->pos, &device->transform.transform_wv_r);
+        matrix_apply(&v3->pos, &v3->pos, &device->transform.transform_wv_r);
+    } else {
+        transform_apply(&device->transform, &c1, &v1->pos);
+        transform_apply(&device->transform, &c2, &v2->pos);
+        transform_apply(&device->transform, &c3, &v3->pos);
+    }
+    cout << v1->pos.x << endl;
     // 法向量乘正规矩阵
     vector_t normals[3];
     matrix_t nm;
@@ -1244,6 +1326,8 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3) {
     float z_factor_x, z_factor_y, z_factor, z_test;
     
     float xi, yi, x01i, y01i, x02i, y02i, t1, t2, ui, vi, u01i, v01i, u02i, v02i;
+    
+    bool cliped = false;
 
     vector_t v;
     
@@ -1414,6 +1498,8 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3) {
 
             p3.tc.u = ui;
             p3.tc.v = vi;
+            
+            cliped = true;
         } else if (num_verts_in == 2) {
             // 外侧的点
             if (vertex_ccodes[0] == CLIP_CODE_LZ) {
@@ -1473,11 +1559,20 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3) {
             np2.tc.u = u01i;
             np2.tc.v = v01i;
 
-            device_draw_primitive(device, &np1, &np2, &np3);
+            device_draw_primitive(device, &np1, &np2, &np3, true);
+            
+            cliped = true;
         }
     }
     
-    device_draw_primitive(device, &p1, &p2, &p3);
+//    if(cliped == false) {
+//        device_draw_primitive(device, v1, v2, v3, false);
+//    } else {
+//        device_draw_primitive(device, &p1, &p2, &p3, true);
+//    }
+    
+    //device_draw_primitive(device, v1, v2, v3, false);
+    device_draw_primitive(device, &p1, &p2, &p3, true);
 }
 
 

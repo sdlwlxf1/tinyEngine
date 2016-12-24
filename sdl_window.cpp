@@ -281,7 +281,7 @@ int main( int argc, char* args[] )
             matrix_t m;
             point_t pos = {0, 0, 0, 1};
             vector_t scale = {1, 1, 1, 0};
-            vector_t axis = {1, 1, 1, 1};
+            vector_t axis = {10, 5, 1, 1};
             float theta = 0.0f;
             
             float c_yaw = 0.0f;
@@ -354,12 +354,26 @@ int main( int argc, char* args[] )
                 }
                 
                 if (screen_keys[SDL_SCANCODE_UP]) {
-                    theta += 0.04f;
-                    box_dirty = true;
+                    
+                    float velocity = c_movementspeed * deltaTime;
+                    vector_t temp = c_front;
+                    vector_scale(&temp, velocity);
+                    vector_add(&c_pos, &c_pos, &temp);
+                    c_dirty = true;
+                    
+                    //theta += 0.04f;
+                    //box_dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_DOWN]) {
-                    theta -= 0.04f;
-                    box_dirty = true;
+                    
+                    float velocity = c_movementspeed * deltaTime;
+                    vector_t temp = c_front;
+                    vector_scale(&temp, velocity);
+                    vector_sub(&c_pos, &c_pos, &temp);
+                    c_dirty = true;
+                    
+//                    theta -= 0.04f;
+//                    box_dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_LEFT]) {
                     alpha -= 0.04f;
@@ -371,31 +385,39 @@ int main( int argc, char* args[] )
                 }
                 if (screen_keys[SDL_SCANCODE_W]) {
                     float velocity = c_movementspeed * deltaTime;
-                    vector_t temp = c_front;
+                    vector_t temp = c_up;
                     vector_scale(&temp, velocity);
-                    vector_add(&c_pos, &c_pos, &temp);
-                    c_dirty = true;
+//                    vector_add(&c_pos, &c_pos, &temp);
+//                    c_dirty = true;
+                    vector_add(&pos, &pos, &temp);
+                    box_dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_A]) {
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_right;
                     vector_scale(&temp, velocity);
-                    vector_sub(&c_pos, &c_pos, &temp);
-                    c_dirty = true;
+                    //vector_sub(&c_pos, &c_pos, &temp);
+                    //c_dirty = true;
+                    vector_sub(&pos, &pos, &temp);
+                    box_dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_S]) {
                     float velocity = c_movementspeed * deltaTime;
-                    vector_t temp = c_front;
+                    vector_t temp = c_up;
                     vector_scale(&temp, velocity);
-                    vector_sub(&c_pos, &c_pos, &temp);
-                    c_dirty = true;
+//                    vector_sub(&c_pos, &c_pos, &temp);
+//                    c_dirty = true;
+                    vector_sub(&pos, &pos, &temp);
+                    box_dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_D]) {
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_right;
                     vector_scale(&temp, velocity);
-                    vector_add(&c_pos, &c_pos, &temp);
-                    c_dirty = true;
+                    //vector_add(&c_pos, &c_pos, &temp);
+                    //c_dirty = true;
+                    vector_add(&pos, &pos, &temp);
+                    box_dirty = true;
                 }
                 
                 if (screen_keys[SDL_SCANCODE_SPACE]) {
