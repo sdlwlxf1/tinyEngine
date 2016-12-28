@@ -7,7 +7,7 @@ and may not be redistributed without written permission.*/
 #include <string>
 #include <cmath>
 //#include "mini3d.c"
-#include "tiny3D_tmp.h"
+#include "tiny3D.h"
 
 #define PI 3.141592653
 #define angle_to_radian(X) ((X)/180*PI)
