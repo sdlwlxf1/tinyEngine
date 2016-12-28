@@ -7,7 +7,7 @@ and may not be redistributed without written permission.*/
 #include <string>
 #include <cmath>
 //#include "mini3d.c"
-#include "tiny3D.h"
+#include "tiny3D_tmp.h"
 
 #define PI 3.141592653
 #define angle_to_radian(X) ((X)/180*PI)
@@ -231,7 +231,6 @@ void draw_box(device_t *device, const matrix_t *m) {
 
 
 void camera_at_zero(device_t *device, const point_t *eye, const vector_t *at, const vector_t *up) {
-    viewPos = *eye;
     matrix_set_lookat(&device->transform.view, eye, at, up);
     transform_update(&device->transform);
 }
@@ -281,7 +280,7 @@ int main( int argc, char* args[] )
             matrix_t m;
             point_t pos = {0, 0, 0, 1};
             vector_t scale = {1, 1, 1, 0};
-            vector_t axis = {10, 5, 1, 1};
+            vector_t axis = {0, 5, 0, 1};
             float theta = 0.0f;
             
             float c_yaw = 0.0f;
@@ -304,19 +303,19 @@ int main( int argc, char* args[] )
             
             material = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
             
-            dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
-            
-            //dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            //dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
+            dirLight = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
             
             int i = 0;
             for(i = 0; i < NR_POINT_LIGHTS; i++)
             {
-                pointLights[i] = {0.0f, 2.0f, 3.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+                pointLights[i] = {0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
             }
-            pointLights[0] = {{0.0f, 0.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f}, {0.4f, 0.4f, 0.4f}, {0.5f, 0.5f, 0.5f}};
-            pointLights[1] = {-1.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-            pointLights[2] = {7.0f, -1.0f, -6.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-            pointLights[3] = {0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            
+            pointLights[0] = {{0.0f, 0.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f}, {0.4f, 0.4f, 0.4f}, {0.5f, 0.5f, 0.5f}};
+            //pointLights[1] = {-1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
+            //pointLights[2] = {7.0f, -1.0f, -6.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
+            //pointLights[3] = {0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
 
             
             //Event handler
@@ -448,6 +447,13 @@ int main( int argc, char* args[] )
                     vector_t at;
                     vector_add(&at, &c_pos, &c_front);
                     camera_at_zero(&device, &c_pos, &at, &c_up);
+                    
+                    matrix_apply(&dirLight.vdir, &dirLight.dir, &device.transform.view);
+                    for(i = 0; i < NR_POINT_LIGHTS; i++)
+                    {
+                        matrix_apply(&pointLights[i].vpos, &pointLights[i].pos, &device.transform.view);
+                    }
+                    
                     c_dirty = false;
                 }
                 

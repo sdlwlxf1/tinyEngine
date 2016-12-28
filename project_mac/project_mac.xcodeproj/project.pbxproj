@@ -27,9 +27,10 @@
 /* Begin PBXFileReference section */
 		165434D71D99591E00F3B0C6 /* project_mac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = project_mac; sourceTree = BUILT_PRODUCTS_DIR; };
 		165434E11D99594D00F3B0C6 /* sdl_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sdl_window.cpp; path = ../../sdl_window.cpp; sourceTree = "<group>"; };
-		165434E31D99595400F3B0C6 /* tiny3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tiny3D.h; path = ../../tiny3D.h; sourceTree = "<group>"; };
 		165434E41D9959BF00F3B0C6 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = /usr/local/Cellar/sdl2/2.0.4/lib/libSDL2.a; sourceTree = "<absolute>"; };
 		165434E81D9C023300F3B0C6 /* mini3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mini3d.c; path = ../../mini3d.c; sourceTree = "<group>"; };
+		1697B7731E1162AE00E17972 /* tiny3D_tmp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tiny3D_tmp.h; path = ../../tiny3D_tmp.h; sourceTree = "<group>"; };
+		1697B7741E11631100E17972 /* tiny3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tiny3D.h; path = ../../tiny3D.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,9 +64,10 @@
 		165434D91D99591E00F3B0C6 /* project_mac */ = {
 			isa = PBXGroup;
 			children = (
+				1697B7741E11631100E17972 /* tiny3D.h */,
+				1697B7731E1162AE00E17972 /* tiny3D_tmp.h */,
 				165434E41D9959BF00F3B0C6 /* libSDL2.a */,
 				165434E11D99594D00F3B0C6 /* sdl_window.cpp */,
-				165434E31D99595400F3B0C6 /* tiny3D.h */,
 				165434E81D9C023300F3B0C6 /* mini3d.c */,
 			);
 			path = project_mac;
@@ -265,6 +267,7 @@
 				165434E01D99591E00F3B0C6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
