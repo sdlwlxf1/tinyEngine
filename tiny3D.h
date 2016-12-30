@@ -93,7 +93,9 @@ void vector_reflect(vector_t *r, const vector_t *v, const vector_t *n) {
 }
 //      7)). normalize
 void vector_normalize(vector_t *v) {
-    float k = 1 / vector_length(v);
+    float len = vector_length(v);
+    if(abs(len) < 1e-6) return;
+    float k = 1 / len;
     v->x *= k;
     v->y *= k;
     v->z *= k;
@@ -533,7 +535,9 @@ typedef struct {
     color_t spec;
     float shininess;
 } material_t;
-material_t material;
+#define NUM_MATERIAL 4
+material_t materials[NUM_MATERIAL];
+int material_cnt;
 
 typedef struct {
     point_t pos;
@@ -547,8 +551,9 @@ typedef struct {
 } pointlight_t;
 #define NR_POINT_LIGHTS 4
 pointlight_t pointLights[NR_POINT_LIGHTS];
+int pointlight_cnt;
 
-void calc_pointlight(color_t *color, const pointlight_t *light, const vector_t *normal, const vector_t *fpos, const vector_t *viewdir) {
+void calc_pointlight(color_t *color, const material_t *material, const pointlight_t *light, const vector_t *normal, const vector_t *fpos, const vector_t *viewdir) {
     vector_t lightDir;
     vector_sub(&lightDir, &light->vpos, fpos);
     float distance = vector_length(&lightDir);
@@ -557,20 +562,20 @@ void calc_pointlight(color_t *color, const pointlight_t *light, const vector_t *
     vector_t vec;
     vector_inverse(&lightDir);
     vector_reflect(&vec, &lightDir, normal);
-    float spec = powf(fmaxf(vector_dotproduct(viewdir, &vec), 0.0f), material.shininess);
+    float spec = powf(fmaxf(vector_dotproduct(viewdir, &vec), 0.0f), material->shininess);
     float temp = light->constant + light->linear * distance + light->quadratic * (distance * distance);
     float attenuation = 0;
     if(temp != 0)
      attenuation = 1.0f / temp;
     
     color_t c;
-    color_product(&c, &light->ambi, &material.ambi);
+    color_product(&c, &light->ambi, &material->ambi);
     color_scale(&c, attenuation);
     color_add(color, color, &c);
-    color_product(&c, &light->diff, &material.diff);
+    color_product(&c, &light->diff, &material->diff);
     color_scale(&c, diff * attenuation);
     color_add(color, color, &c);
-    color_product(&c, &light->spec, &material.spec);
+    color_product(&c, &light->spec, &material->spec);
     color_scale(&c, spec * attenuation);
     color_add(color, color, &c);
 }
@@ -584,7 +589,7 @@ typedef struct {
 } dirlight_t;
 dirlight_t dirLight;
 
-void calc_dirlight(color_t *color, const dirlight_t *light, const vector_t *normal, const vector_t *viewdir) {
+void calc_dirlight(color_t *color, const material_t *material, const dirlight_t *light, const vector_t *normal, const vector_t *viewdir) {
     vector_t lightDir = light->vdir;
     vector_inverse(&lightDir);
     vector_normalize(&lightDir);
@@ -594,15 +599,15 @@ void calc_dirlight(color_t *color, const dirlight_t *light, const vector_t *norm
     vector_t vec;
     vector_reflect(&vec, &lightDir, normal);
     //vector_inverse(&vec);
-    float spec = powf(fmaxf(vector_dotproduct(viewdir, &vec), 0.0f), material.shininess);
+    float spec = powf(fmaxf(vector_dotproduct(viewdir, &vec), 0.0f), material->shininess);
     
     color_t temp;
-    color_product(&temp, &light->ambi, &material.ambi);
+    color_product(&temp, &light->ambi, &material->ambi);
     color_add(color, color, &temp);
-    color_product(&temp, &light->diff, &material.diff);
+    color_product(&temp, &light->diff, &material->diff);
     color_scale(&temp, diff);
     color_add(color, color, &temp);
-    color_product(&temp, &light->spec, &material.spec);
+    color_product(&temp, &light->spec, &material->spec);
     color_scale(&temp, spec);
     color_add(color, color, &temp);
 }
@@ -746,6 +751,7 @@ typedef struct {
 	int width;                  // 窗口宽度
 	int height;                 // 窗口高度
     float aspect;
+    material_t material;        // 当前材质
 	IUINT32 **framebuffer;      // 像素缓存：framebuffer[y] 代表第 y行
 	float **zbuffer;            // 深度缓存：zbuffer[y] 为第 y行指针
 	IUINT32 **texture;          // 纹理：同样是每行索引
@@ -1097,7 +1103,7 @@ bool computeBarycentricCoords3d(point_t *res, const point_t *p0, const point_t *
     }
     
     float denom = v1 * u2 - v2 * u1;
-    if (denom == 0.0f) {
+    if (abs(denom) < 1e-6) {
         return false;
     }
     float oneOverDenom = 1.0f / denom;
@@ -1152,12 +1158,12 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                 vector_t viewdir, viewPos = {0.0f, 0.0f ,0.0f};
                 vector_sub(&viewdir, &viewPos, &fragPos);
                 vector_normalize(&viewdir);
-                calc_dirlight(&color, &dirLight, &normal, &viewdir);
+                calc_dirlight(&color, &device->material, &dirLight, &normal, &viewdir);
                 color_t temp = {0.0f, 0.0f ,0.0f};
                 int i = 0;
-                for(i = 0; i < NR_POINT_LIGHTS; i++)
+                for(i = 0; i < pointlight_cnt; i++)
                 {
-                    calc_pointlight(&temp, &pointLights[i], &normal, &fragPos, &viewdir);
+                    calc_pointlight(&temp, &device->material, &pointLights[i], &normal, &fragPos, &viewdir);
                     color_add(&color, &color, &temp);
                 }
                 
@@ -1315,7 +1321,7 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     }
 }
 
-void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3) {
+void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool world = false) {
     #define CLIP_CODE_GZ    0x0001
     #define CLIP_CODE_LZ    0x0002
     #define CLIP_CODE_IZ    0x0004
@@ -1343,9 +1349,16 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3) {
     
     vertex_t p1 = *v1, p2 = *v2, p3 = *v3;
     
-    matrix_apply(&p1.pos, &p1.pos, &device->transform.transform_wv);
-    matrix_apply(&p2.pos, &p2.pos, &device->transform.transform_wv);
-    matrix_apply(&p3.pos, &p3.pos, &device->transform.transform_wv);
+    if(world == false) {
+        matrix_apply(&p1.pos, &p1.pos, &device->transform.transform_wv);
+        matrix_apply(&p2.pos, &p2.pos, &device->transform.transform_wv);
+        matrix_apply(&p3.pos, &p3.pos, &device->transform.transform_wv);
+    } else {
+        matrix_apply(&p1.pos, &p1.pos, &device->transform.view);
+        matrix_apply(&p2.pos, &p2.pos, &device->transform.view);
+        matrix_apply(&p3.pos, &p3.pos, &device->transform.view);
+    }
+    
     
     z_factor_y = tan(device->fovy*0.5);
     z_factor_x = z_factor_y / device->aspect;

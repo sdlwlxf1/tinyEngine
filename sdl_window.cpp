@@ -141,7 +141,16 @@ void close()
 //=====================================================================
 // 主程序
 //=====================================================================
-vertex_t mesh[36] = {
+vertex_t ground_mesh[6] = {
+    {{-0.5f,  0.0f, -0.5f, 1.0f}, {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
+    {{-0.5f,  0.0f,  0.5f, 1.0f},  {0.0f,  0.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
+    {{0.5f,  0.0f,  0.5f, 1.0f},  {1.0f,  0.0f},{ 0.2f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
+    {{0.5f,  0.0f,  0.5f, 1.0f},  {1.0f,  0.0f}, { 0.2f, 1.0f, 1.0f }, 1 , { 0.0f,1.0f,  0.0f,0.0f}},
+    {{0.5f,  0.0f, -0.5f, 1.0f},  {1.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
+    {{-0.5f,  0.0f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
+};
+
+vertex_t box_mesh[36] = {
 //    { {  -1, -1, -1, 1 }, { 0, 0 }, { 1.0f, 0.2f, 0.2f }, 1 , { -1, -1, -1, 0}},
 //    { { 1, -1, -1, 1 }, { 0, 1 }, { 0.2f, 1.0f, 0.2f }, 1 ,{ 1, -1, -1, 0 }},
 //    { { -1,  1, -1, 1 }, { 1, 1 }, { 0.2f, 0.2f, 1.0f }, 1 ,{ -1,  1, -1, 0 }},
@@ -193,17 +202,35 @@ vertex_t mesh[36] = {
     {{0.5f,  0.5f,  0.5f, 1.0f},  {1.0f,  0.0f}, { 0.2f, 1.0f, 1.0f }, 1 , { 0.0f,1.0f,  0.0f,0.0f}},
     {{0.5f,  0.5f, -0.5f, 1.0f},  {1.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
     {{-0.5f,  0.5f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
-
-    
 };
 
-void draw_plane(device_t *device, int a, int b, int c, int d) {
-    vertex_t p1 = mesh[a], p2 = mesh[b], p3 = mesh[c], p4 = mesh[d];
-    p1.tc.u = 0, p1.tc.v = 0, p2.tc.u = 0, p2.tc.v = 1;
-    p3.tc.u = 1, p3.tc.v = 1, p4.tc.u = 1, p4.tc.v = 0;
-    device_draw_primitive(device, &p1, &p2, &p3);
-    device_draw_primitive(device, &p3, &p4, &p1);
-}
+typedef struct {
+    vertex_t *mesh;
+    int mesh_num;
+    int material_id;
+    bool shadow;
+    
+    bool dirty;
+    point_t pos;
+    vector_t scale;
+    
+    vector_t axis;
+    float theta;
+    
+    matrix_t matrix;
+} object_t;
+#define MAX_NUM_OBJECT 100
+object_t objects[MAX_NUM_OBJECT];
+int object_count = 0;
+
+
+//void draw_plane(device_t *device, int a, int b, int c, int d) {
+//    vertex_t p1 = mesh[a], p2 = mesh[b], p3 = mesh[c], p4 = mesh[d];
+//    p1.tc.u = 0, p1.tc.v = 0, p2.tc.u = 0, p2.tc.v = 1;
+//    p3.tc.u = 1, p3.tc.v = 1, p4.tc.u = 1, p4.tc.v = 0;
+//    device_draw_primitive(device, &p1, &p2, &p3);
+//    device_draw_primitive(device, &p3, &p4, &p1);
+//}
 
 //void draw_box(device_t *device, vector_t *axis, float theta, float x, float y, float z) {
 //    matrix_t m;
@@ -221,14 +248,51 @@ void draw_plane(device_t *device, int a, int b, int c, int d) {
 //        device_draw_primitive(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
 //}
 
-void draw_box(device_t *device, const matrix_t *m) {
-    device->transform.world = *m;
-    transform_update(&device->transform);
-    for(int i = 0; i < 36; i+=3)
-        clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
-        //device_draw_primitive(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
+void draw_object(device_t *device, object_t *objects, int obj_cnt) {
+    for(int i = 0; i < obj_cnt; i++)
+    {
+        object_t *object = &objects[i];
+        if(object->dirty == true) {
+            matrix_set_rotate_translate_scale(&object->matrix, &object->axis, object->theta, &object->pos, &object->scale);
+            object->dirty = false;
+        }
+        device->material = materials[object->material_id];
+        device->transform.world = object->matrix;
+        transform_update(&device->transform);
+        vertex_t *mesh = object->mesh;
+        for(int i = 0; i < object->mesh_num; i+=3)
+            clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
+    }
 }
 
+void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
+    for(int i = 0; i < pointlight_cnt; i++) {
+        vector_t pl = pointLights[i].pos;
+        for(int j = 0; j < obj_cnt; j++)
+        {
+            object_t *object = &objects[j];
+            if(object->shadow == false)
+                continue;
+            vertex_t *mesh = object->mesh;
+            vertex_t shadow_mesh[object->mesh_num];
+            for(int k = 0; k < object->mesh_num; k++) {
+                shadow_mesh[k] = mesh[k];
+                vector_t vi;
+                matrix_apply(&vi, &shadow_mesh[k].pos, &object->matrix);
+                
+                float t0 = -pl.y / (vi.y - pl.y);
+                shadow_mesh[k].pos.x = pl.x + t0 * (vi.x - pl.x);
+                shadow_mesh[k].pos.y = 0.01f;
+                shadow_mesh[k].pos.z = pl.z + t0 * (vi.z - pl.z);
+                shadow_mesh[k].pos.w = 1.0f;
+                
+                shadow_mesh[k].normal = {0.0f, 1.0f, 0.0f, 0.0f};
+            }
+            for(int k = 0; k < object->mesh_num; k+=3)
+                clip_polys(device, &shadow_mesh[k], &shadow_mesh[k+1], &shadow_mesh[k+2], true);
+        }
+    }
+}
 
 void camera_at_zero(device_t *device, const point_t *eye, const vector_t *at, const vector_t *up) {
     matrix_set_lookat(&device->transform.view, eye, at, up);
@@ -274,18 +338,10 @@ int main( int argc, char* args[] )
             int states[] = { RENDER_STATE_TEXTURE, RENDER_STATE_COLOR, RENDER_STATE_WIREFRAME };
             int indicator = 0;
             int kbhit = 0;
-            float alpha = 0;
-            bool box_dirty = true;
-            
-            matrix_t m;
-            point_t pos = {0, 0, 0, 1};
-            vector_t scale = {1, 1, 1, 0};
-            vector_t axis = {0, 5, 0, 1};
-            float theta = 0.0f;
             
             float c_yaw = 0.0f;
             float c_pitch = 0.0f;
-            vector_t c_pos = {0.0f, 0.0f, -3.0f, 1.0f};
+            vector_t c_pos = {0.0f, 1.0f, -3.0f, 1.0f};
             vector_t c_front = {0.0f, 0.0f, 1.0f, 0.0f};
             vector_t c_up = {0.0f, 1.0f, 0.0f, 0.0f};
             vector_t c_right = {1.0f, 0.0f, 0.0f, 0.0f};
@@ -301,7 +357,14 @@ int main( int argc, char* args[] )
             init_texture(&device);
             device.render_state = RENDER_STATE_TEXTURE;
             
-            material = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
+            materials[0] = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
+            material_cnt++;
+            materials[1] = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
+            material_cnt++;
+            materials[2] = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
+            material_cnt++;
+            materials[3] = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
+            material_cnt++;
             
             //dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
             dirLight = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
@@ -310,14 +373,54 @@ int main( int argc, char* args[] )
             for(i = 0; i < NR_POINT_LIGHTS; i++)
             {
                 pointLights[i] = {0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+                pointlight_cnt++;
             }
             
-            pointLights[0] = {{0.0f, 0.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f}, {0.4f, 0.4f, 0.4f}, {0.5f, 0.5f, 0.5f}};
-            //pointLights[1] = {-1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
+            pointLights[0] = {{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f}, {0.4f, 0.4f, 0.4f}, {0.5f, 0.5f, 0.5f}};
+            //pointLights[1] = {-1.0f, 6.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
             //pointLights[2] = {7.0f, -1.0f, -6.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
             //pointLights[3] = {0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
 
+            // init object
+            // ground
+            object_t *ground = &objects[0];
+            ground->pos = {0, 0, 0, 1};
+            ground->scale = {10, 1, 10, 0};
+            ground->axis = {0, 0, 0, 1};
+            ground->theta = 0.0f;
+            ground->mesh = ground_mesh;
+            ground->mesh_num = 6;
+            ground->material_id = 0;
+            ground->shadow = false;
+            ground->dirty = true;
+            object_count++;
             
+            // box
+            object_t *box = &objects[1];
+            box->pos = {0, 5, 0, 1};
+            box->scale = {1, 1, 1, 0};
+            box->axis = {0, 5, 0, 1};
+            box->theta = 0.0f;
+            box->mesh = box_mesh;
+            box->mesh_num = 36;
+            box->material_id = 0;
+            box->shadow = true;
+            box->dirty = true;
+            object_count++;
+            
+            // box
+            object_t *box1 = &objects[2];
+            box1->pos = {0, 0, 0, 1};
+            box1->scale = {1, 1, 1, 0};
+            box1->axis = {0, 5, 0, 1};
+            box1->theta = 0.0f;
+            box1->mesh = box_mesh;
+            box1->mesh_num = 36;
+            box1->material_id = 0;
+            box1->shadow = true;
+            box1->dirty = true;
+            object_count++;
+
             //Event handler
             SDL_Event e;
             
@@ -361,7 +464,7 @@ int main( int argc, char* args[] )
                     c_dirty = true;
                     
                     //theta += 0.04f;
-                    //box_dirty = true;
+                    //box->dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_DOWN]) {
                     
@@ -372,15 +475,15 @@ int main( int argc, char* args[] )
                     c_dirty = true;
                     
 //                    theta -= 0.04f;
-//                    box_dirty = true;
+//                    box->dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_LEFT]) {
-                    alpha -= 0.04f;
-                    box_dirty = true;
+                    box->theta -= 0.04f;
+                    box->dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_RIGHT]) {
-                    alpha += 0.04f;
-                    box_dirty = true;
+                    box->theta += 0.04f;
+                    box->dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_W]) {
                     float velocity = c_movementspeed * deltaTime;
@@ -388,8 +491,8 @@ int main( int argc, char* args[] )
                     vector_scale(&temp, velocity);
 //                    vector_add(&c_pos, &c_pos, &temp);
 //                    c_dirty = true;
-                    vector_add(&pos, &pos, &temp);
-                    box_dirty = true;
+                    vector_add(&box->pos, &box->pos, &temp);
+                    box->dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_A]) {
                     float velocity = c_movementspeed * deltaTime;
@@ -397,8 +500,8 @@ int main( int argc, char* args[] )
                     vector_scale(&temp, velocity);
                     //vector_sub(&c_pos, &c_pos, &temp);
                     //c_dirty = true;
-                    vector_sub(&pos, &pos, &temp);
-                    box_dirty = true;
+                    vector_sub(&box->pos, &box->pos, &temp);
+                    box->dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_S]) {
                     float velocity = c_movementspeed * deltaTime;
@@ -406,8 +509,8 @@ int main( int argc, char* args[] )
                     vector_scale(&temp, velocity);
 //                    vector_sub(&c_pos, &c_pos, &temp);
 //                    c_dirty = true;
-                    vector_sub(&pos, &pos, &temp);
-                    box_dirty = true;
+                    vector_sub(&box->pos, &box->pos, &temp);
+                    box->dirty = true;
                 }
                 if (screen_keys[SDL_SCANCODE_D]) {
                     float velocity = c_movementspeed * deltaTime;
@@ -415,8 +518,8 @@ int main( int argc, char* args[] )
                     vector_scale(&temp, velocity);
                     //vector_add(&c_pos, &c_pos, &temp);
                     //c_dirty = true;
-                    vector_add(&pos, &pos, &temp);
-                    box_dirty = true;
+                    vector_add(&box->pos, &box->pos, &temp);
+                    box->dirty = true;
                 }
                 
                 if (screen_keys[SDL_SCANCODE_SPACE]) {
@@ -457,12 +560,10 @@ int main( int argc, char* args[] )
                     c_dirty = false;
                 }
                 
-                if(box_dirty == true) {
-                    matrix_set_rotate_translate_scale(&m, &axis, alpha, &pos, &scale);
-                    box_dirty = false;
-                }
+                draw_object(&device, objects, object_count);
                 
-                draw_box(&device, &m);
+                // 渲染阴影
+                draw_shadow(&device, objects, object_count);
 
                 for(int i = 0; i < SCREEN_WIDTH; i++)
                 {
