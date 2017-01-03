@@ -549,7 +549,7 @@ typedef struct {
     color_t diff;
     color_t spec;
 } pointlight_t;
-#define NR_POINT_LIGHTS 4
+#define NR_POINT_LIGHTS 100
 pointlight_t pointLights[NR_POINT_LIGHTS];
 int pointlight_cnt;
 
@@ -754,9 +754,8 @@ typedef struct {
     material_t material;        // 当前材质
 	IUINT32 **framebuffer;      // 像素缓存：framebuffer[y] 代表第 y行
 	float **zbuffer;            // 深度缓存：zbuffer[y] 为第 y行指针
-	IUINT32 **texture;          // 纹理：同样是每行索引
-    IUINT32 **mipmaps;           // mipmap纹理
-    bool use_mipmap;
+	IUINT32 **texture;          // 纹理
+    bool use_mipmap;            // 是否开启mipmap
 	int tex_width;              // 纹理宽度
 	int tex_height;             // 纹理高度
 	float max_u;                // 纹理最大宽度：tex_width - 1
@@ -785,12 +784,9 @@ void device_init(device_t *device, int width, int height, float fovy, float zn, 
 	device->zbuffer = (float**)ptr;
 	ptr += sizeof(void*) * height;
 
-	device->texture = (IUINT32**)ptr;
-	ptr += sizeof(void*) * 1024;
-
     device->use_mipmap = false;
-    device->mipmaps = (IUINT32**)ptr;
-    ptr += sizeof(void*) * 1;
+    device->texture = (IUINT32**)ptr;
+    ptr += sizeof(IUINT32*) * 1;
 
     // framebuf和zbuf的内存数据直接初始化
 	framebuf = (char*)ptr;
@@ -809,6 +805,7 @@ void device_init(device_t *device, int width, int height, float fovy, float zn, 
 	device->tex_height = 2;
 	device->max_u = 1.0f;
 	device->max_v = 1.0f;
+    device->use_mipmap = false;
 	device->width = width;
 	device->height = height;
     device->aspect = (float)width / (float)height;
@@ -829,77 +826,13 @@ void device_destroy(device_t *device) {
 	device->texture = NULL;
 }
 
-int generate_mipmaps(IUINT32 *source, IUINT32 width, IUINT32 height,  IUINT32 ***mipmaps, float gamma) {
-    int num_mip_levels = logbase2ofx(width) + 1;
-    *mipmaps = (IUINT32**)malloc(num_mip_levels * sizeof(IUINT32*));
-    (*mipmaps)[0] = source;
-    int mip_width = width;
-    int mip_height = height;
-    for(int mip_level = 1; mip_level < num_mip_levels; mip_level++) {
-        mip_width = mip_width >> 1;
-        mip_height = mip_height >> 1;
-        (*mipmaps)[mip_level] = (IUINT32*)malloc(mip_width * mip_height * sizeof(IUINT32));
-        IUINT32 *src_buffer = (*mipmaps)[mip_level-1];
-        IUINT32 *dest_buffer = (*mipmaps)[mip_level];
-        for(int x = 0; x < mip_width; x++)
-        {
-            for(int y = 0; y < mip_height; y++)
-            {
-                float r0, g0, b0,
-                r1, g1, b1,
-                r2, g2, b2,
-                r3, g3, b3;
-                int r_avg, g_avg, b_avg;
-                
-                IUINT32 c = src_buffer[(x*2+0) + (y*2+0)*mip_width*2];
-                b0 = c & 0xff;
-                g0 = (c >> 8) & 0xff;
-                r0 = (c >> 16) & 0xff;
-                
-                c = src_buffer[(x*2+1) + (y*2+0)*mip_width*2];
-                b1 = c & 0xff;
-                g1 = (c >> 8) & 0xff;
-                r1 = (c >> 16) & 0xff;
-                
-                c = src_buffer[(x*2+0) + (y*2+1)*mip_width*2];
-                b2 = c & 0xff;
-                g2 = (c >> 8) & 0xff;
-                r2 = (c >> 16) & 0xff;
-                
-                c = src_buffer[(x*2+1) + (y*2+1)*mip_width*2];
-                b3 = c & 0xff;
-                g3 = (c >> 8) & 0xff;
-                r3 = (c >> 16) & 0xff;
-                
-                r_avg = (IUINT32)(0.5f + gamma*(r0+r1+r2+r3)/4);
-                g_avg = (IUINT32)(0.5f + gamma*(g0+g1+g2+g3)/4);
-                b_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
-                
-                int R = CMID(r_avg, 0, 255);
-                int G = CMID(g_avg, 0, 255);
-                int B = CMID(b_avg, 0, 255);
-                
-                dest_buffer[x+y*mip_width] = (R << 16) | (G << 8) | B;
-            }
-        }
-    }
-    return num_mip_levels;
-}
-
-
-void device_set_texture(device_t *device, void *bits, long pitch, int w, int h, bool mipmap) {
-	char *ptr = (char*)bits;
-	int j;
-	for (j = 0; j < h; ptr += pitch, j++) 	// 重新计算每行纹理的指针
-		device->texture[j] = (IUINT32*)ptr;
+void device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool use_mipmap) {
+    device->texture = texture;
 	device->tex_width = w;
 	device->tex_height = h;
 	device->max_u = (float)(w - 1);
 	device->max_v = (float)(h - 1);
-    if(mipmap) {
-        device->use_mipmap = mipmap;
-        generate_mipmaps((IUINT32*)bits, w, h, &device->mipmaps, 1.01);
-    }
+    device->use_mipmap = use_mipmap;
 }
 
 void device_clear(device_t *device, int mode) {
@@ -981,7 +914,7 @@ void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 
 // 双线性插值和mipmap
 color_t device_texture_read(const device_t *device, float u, float v, float z, float maxz) {
     color_t color;
-    IUINT32* texture = nullptr;
+    IUINT32* texture = device->texture[0];
     int width, height;
     width = device->tex_width;
     height = device->tex_height;
@@ -989,7 +922,7 @@ color_t device_texture_read(const device_t *device, float u, float v, float z, f
         int tmiplevels = logbase2ofx(device->tex_width);
         int miplevel = tmiplevels * (z / maxz);
         if(miplevel > tmiplevels) miplevel = tmiplevels;
-        texture = (IUINT32*)device->mipmaps[miplevel];
+        texture = (IUINT32*)device->texture[miplevel];
         for(int ts = 0; ts < miplevel; ts++) {
             width = width >> 1;
             height = height >> 1;
@@ -1006,17 +939,11 @@ color_t device_texture_read(const device_t *device, float u, float v, float z, f
     
     int textel00, textel10, textel01, textel11;
 
-    if(device->use_mipmap) {
-        textel00 = texture[(vint+0)*width + (uint+0)];
-        textel10 = texture[(vint_pls_1)*width + (uint+0)];
-        textel01 = texture[(vint+0)*width + (uint_pls_1)];
-        textel11 = texture[(vint_pls_1)*width + (uint_pls_1)];
-    } else {
-        textel00 = device->texture[vint][uint];
-        textel10 = device->texture[vint_pls_1][uint];
-        textel01 = device->texture[vint][uint_pls_1];
-        textel11 = device->texture[vint_pls_1][uint_pls_1];
-    }
+    textel00 = texture[(vint+0)*width + (uint+0)];
+    textel10 = texture[(vint_pls_1)*width + (uint+0)];
+    textel01 = texture[(vint+0)*width + (uint_pls_1)];
+    textel11 = texture[(vint_pls_1)*width + (uint_pls_1)];
+
     int textel00_r = (textel00 >> 16) & 0xff;
     int textel00_g = (textel00 >> 8) & 0xff;
     int textel00_b = textel00 & 0xff;
@@ -1240,19 +1167,9 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     //    if(vector_dotproduct(&normal, &p2) >= 0)
     //        return;
     
-    //if(cliped == true) {
-        matrix_apply(&t1->pos, &t1->pos, &device->transform.projection);
-        matrix_apply(&t2->pos, &t2->pos, &device->transform.projection);
-        matrix_apply(&t3->pos, &t3->pos, &device->transform.projection);
-        
-//        matrix_apply(&t1->pos, &t1->pos, &device->transform.transform_wv_r);
-//        matrix_apply(&t2->pos, &t2->pos, &device->transform.transform_wv_r);
-//        matrix_apply(&t3->pos, &t3->pos, &device->transform.transform_wv_r);
-//    } else {
-//        transform_apply(&device->transform, &c1, &t1->pos);
-//        transform_apply(&device->transform, &c2, &t2->pos);
-//        transform_apply(&device->transform, &c3, &t3->pos);
-//    }
+    matrix_apply(&t1->pos, &t1->pos, &device->transform.projection);
+    matrix_apply(&t2->pos, &t2->pos, &device->transform.projection);
+    matrix_apply(&t3->pos, &t3->pos, &device->transform.projection);
     
     // 法向量乘正规矩阵
 //    vector_t normals[3];
@@ -1587,14 +1504,7 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
             cliped = true;
         }
     }
-    
-//    if(cliped == false) {
-//        device_draw_primitive(device, v1, v2, v3, false);
-//    } else {
-//        device_draw_primitive(device, &p1, &p2, &p3, true);
-//    }
-    
-    //device_draw_primitive(device, v1, v2, v3, false);
+
     device_draw_primitive(device, &p1, &p2, &p3);
 }
 

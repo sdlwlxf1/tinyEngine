@@ -208,6 +208,7 @@ typedef struct {
     vertex_t *mesh;
     int mesh_num;
     int material_id;
+    int texture_id;
     bool shadow;
     
     bool dirty;
@@ -223,30 +224,93 @@ typedef struct {
 object_t objects[MAX_NUM_OBJECT];
 int object_count = 0;
 
+typedef struct {
+    IUINT32 **texture;           // mipmap纹理
+    bool use_mipmap;
+    int width;              // 纹理宽度
+    int height;             // 纹理高度
+} texture_t;
+#define MAX_NUM_TEXTURE 100
+texture_t textures[MAX_NUM_TEXTURE];
+int texture_count = 0;
 
-//void draw_plane(device_t *device, int a, int b, int c, int d) {
-//    vertex_t p1 = mesh[a], p2 = mesh[b], p3 = mesh[c], p4 = mesh[d];
-//    p1.tc.u = 0, p1.tc.v = 0, p2.tc.u = 0, p2.tc.v = 1;
-//    p3.tc.u = 1, p3.tc.v = 1, p4.tc.u = 1, p4.tc.v = 0;
-//    device_draw_primitive(device, &p1, &p2, &p3);
-//    device_draw_primitive(device, &p3, &p4, &p1);
-//}
+int generate_mipmaps(texture_t *texture, float gamma) {
+    IUINT32 **mipmaps = NULL;
+    int num_mip_levels = logbase2ofx(texture->width) + 1;
+    mipmaps = (IUINT32**)malloc(num_mip_levels * sizeof(IUINT32*));
+    mipmaps[0] = texture->texture[0];
+    int mip_width = texture->width;
+    int mip_height = texture->height;
+    for(int mip_level = 1; mip_level < num_mip_levels; mip_level++) {
+        mip_width = mip_width >> 1;
+        mip_height = mip_height >> 1;
+        mipmaps[mip_level] = (IUINT32*)malloc(mip_width * mip_height * sizeof(IUINT32));
+        IUINT32 *src_buffer = mipmaps[mip_level-1];
+        IUINT32 *dest_buffer = mipmaps[mip_level];
+        for(int x = 0; x < mip_width; x++)
+        {
+            for(int y = 0; y < mip_height; y++)
+            {
+                float r0, g0, b0,
+                r1, g1, b1,
+                r2, g2, b2,
+                r3, g3, b3;
+                int r_avg, g_avg, b_avg;
+                
+                IUINT32 c = src_buffer[(x*2+0) + (y*2+0)*mip_width*2];
+                b0 = c & 0xff;
+                g0 = (c >> 8) & 0xff;
+                r0 = (c >> 16) & 0xff;
+                
+                c = src_buffer[(x*2+1) + (y*2+0)*mip_width*2];
+                b1 = c & 0xff;
+                g1 = (c >> 8) & 0xff;
+                r1 = (c >> 16) & 0xff;
+                
+                c = src_buffer[(x*2+0) + (y*2+1)*mip_width*2];
+                b2 = c & 0xff;
+                g2 = (c >> 8) & 0xff;
+                r2 = (c >> 16) & 0xff;
+                
+                c = src_buffer[(x*2+1) + (y*2+1)*mip_width*2];
+                b3 = c & 0xff;
+                g3 = (c >> 8) & 0xff;
+                r3 = (c >> 16) & 0xff;
+                
+                r_avg = (IUINT32)(0.5f + gamma*(r0+r1+r2+r3)/4);
+                g_avg = (IUINT32)(0.5f + gamma*(g0+g1+g2+g3)/4);
+                b_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
+                
+                int R = CMID(r_avg, 0, 255);
+                int G = CMID(g_avg, 0, 255);
+                int B = CMID(b_avg, 0, 255);
+                
+                dest_buffer[x+y*mip_width] = (R << 16) | (G << 8) | B;
+            }
+        }
+    }
+    texture->texture = mipmaps;
+    return num_mip_levels;
+}
 
-//void draw_box(device_t *device, vector_t *axis, float theta, float x, float y, float z) {
-//    matrix_t m;
-//    matrix_set_rotate(&m, axis, theta);
-//    matrix_set_translate(&m, x, y, z);
-//    device->transform.world = m;
-//    transform_update(&device->transform);
-////    draw_plane(device, 0, 2, 3, 1);
-////    draw_plane(device, 0, 4, 6, 2);
-////    draw_plane(device, 0, 1, 5, 4);
-////    draw_plane(device, 4, 5, 7, 6);
-////    draw_plane(device, 1, 3, 7, 5);
-////    draw_plane(device, 2, 6, 7, 3);
-//    for(int i = 0; i < 36; i+=3)
-//        device_draw_primitive(device, &mesh[i], &mesh[i+1], &mesh[i+2]);
-//}
+void init_texture() {
+    int width = 256;
+    int height = 256;
+    IUINT32 *bits = (IUINT32*)malloc(sizeof(IUINT32) * width * height);
+    int i, j;
+    for (j = 0; j < height; j++) {
+        for (i = 0; i < width; i++) {
+            int x = i / 32, y = j / 32;
+            bits[j*width+i] = ((x + y) & 1)? 0xffffff : 0x3fbcef;
+        }
+    }
+    texture_t *texture = &textures[0];
+    texture->texture = &bits;
+    texture->height = height;
+    texture->width = width;
+    texture->use_mipmap = true;
+    generate_mipmaps(texture, 1.01);
+}
 
 void draw_object(device_t *device, object_t *objects, int obj_cnt) {
     for(int i = 0; i < obj_cnt; i++)
@@ -256,6 +320,9 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
             matrix_set_rotate_translate_scale(&object->matrix, &object->axis, object->theta, &object->pos, &object->scale);
             object->dirty = false;
         }
+        // 切换纹理
+        texture_t *texture = &textures[object->texture_id];
+        device_set_texture(device, texture->texture, texture->width, texture->height, false);
         device->material = materials[object->material_id];
         device->transform.world = object->matrix;
         transform_update(&device->transform);
@@ -282,7 +349,7 @@ void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
                 
                 float t0 = -pl.y / (vi.y - pl.y);
                 shadow_mesh[k].pos.x = pl.x + t0 * (vi.x - pl.x);
-                shadow_mesh[k].pos.y = 0.01f;
+                shadow_mesh[k].pos.y = 0.02f;
                 shadow_mesh[k].pos.z = pl.z + t0 * (vi.z - pl.z);
                 shadow_mesh[k].pos.w = 1.0f;
                 
@@ -299,17 +366,7 @@ void camera_at_zero(device_t *device, const point_t *eye, const vector_t *at, co
     transform_update(&device->transform);
 }
 
-void init_texture(device_t *device) {
-    static IUINT32 texture[256][256];
-    int i, j;
-    for (j = 0; j < 256; j++) {
-        for (i = 0; i < 256; i++) {
-            int x = i / 32, y = j / 32;
-            texture[j][i] = ((x + y) & 1)? 0xffffff : 0x3fbcef;
-        }
-    }
-    device_set_texture(device, texture, 256 * 4, 256, 256, false);
-}
+
 
 int screen_keys[512];	// 当前键盘按下状态
 float deltaTime = 0.0f;
@@ -354,7 +411,7 @@ int main( int argc, char* args[] )
             memset(screen_keys, 0, sizeof(int) * 512);
             device_init(&device, SCREEN_WIDTH, SCREEN_HEIGHT, 3.1415926 * 0.5f, 2.0f, 500.0f, NULL);
             
-            init_texture(&device);
+            init_texture();
             device.render_state = RENDER_STATE_TEXTURE;
             
             materials[0] = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
@@ -366,11 +423,11 @@ int main( int argc, char* args[] )
             materials[3] = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
             material_cnt++;
             
-            //dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
-            dirLight = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
+//            dirLight = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
             
             int i = 0;
-            for(i = 0; i < NR_POINT_LIGHTS; i++)
+            for(i = 0; i < 4; i++)
             {
                 pointLights[i] = {0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
                 pointlight_cnt++;
@@ -391,6 +448,7 @@ int main( int argc, char* args[] )
             ground->mesh = ground_mesh;
             ground->mesh_num = 6;
             ground->material_id = 0;
+            ground->texture_id = 0;
             ground->shadow = false;
             ground->dirty = true;
             object_count++;
@@ -404,20 +462,22 @@ int main( int argc, char* args[] )
             box->mesh = box_mesh;
             box->mesh_num = 36;
             box->material_id = 0;
+            box->texture_id = 0;
             box->shadow = true;
             box->dirty = true;
             object_count++;
             
             // box
             object_t *box1 = &objects[2];
-            box1->pos = {0, 0, 0, 1};
-            box1->scale = {1, 1, 1, 0};
-            box1->axis = {0, 5, 0, 1};
+            box1->pos = {0, 6, -1, 1};
+            box1->scale = {0.2, 0.2, 0.2, 0};
+            box1->axis = {0, 0, 0, 1};
             box1->theta = 0.0f;
             box1->mesh = box_mesh;
             box1->mesh_num = 36;
             box1->material_id = 0;
-            box1->shadow = true;
+            box1->texture_id = 0;
+            box1->shadow = false;
             box1->dirty = true;
             object_count++;
 
@@ -552,7 +612,7 @@ int main( int argc, char* args[] )
                     camera_at_zero(&device, &c_pos, &at, &c_up);
                     
                     matrix_apply(&dirLight.vdir, &dirLight.dir, &device.transform.view);
-                    for(i = 0; i < NR_POINT_LIGHTS; i++)
+                    for(i = 0; i < pointlight_cnt; i++)
                     {
                         matrix_apply(&pointLights[i].vpos, &pointLights[i].pos, &device.transform.view);
                     }
