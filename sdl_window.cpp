@@ -3,6 +3,7 @@ and may not be redistributed without written permission.*/
 
 //Using SDL, SDL_image, standard IO, math, and strings
 #include "SDL2/SDL.h"
+#include "png.h"
 #include <stdio.h>
 #include <string>
 #include <cmath>
@@ -93,6 +94,8 @@ bool loadMedia()
 {
 	//Loading success flag
 	bool success = true;
+    
+    //loadTexture();
 
 	//Nothing to load
 	return success;
@@ -142,12 +145,12 @@ void close()
 // 主程序
 //=====================================================================
 vertex_t ground_mesh[6] = {
-    {{-0.5f,  0.0f, -0.5f, 1.0f}, {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
-    {{-0.5f,  0.0f,  0.5f, 1.0f},  {0.0f,  0.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
-    {{0.5f,  0.0f,  0.5f, 1.0f},  {1.0f,  0.0f},{ 0.2f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
-    {{0.5f,  0.0f,  0.5f, 1.0f},  {1.0f,  0.0f}, { 0.2f, 1.0f, 1.0f }, 1 , { 0.0f,1.0f,  0.0f,0.0f}},
-    {{0.5f,  0.0f, -0.5f, 1.0f},  {1.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
-    {{-0.5f,  0.0f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
+    {{-0.5f,  0.0f, -0.5f, 1.0f}, {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
+    {{-0.5f,  0.0f,  0.5f, 1.0f},  {0.0f,  0.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
+    {{0.5f,  0.0f,  0.5f, 1.0f},  {1.0f,  0.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
+    {{0.5f,  0.0f,  0.5f, 1.0f},  {1.0f,  0.0f}, { 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f,1.0f,  0.0f,0.0f}},
+    {{0.5f,  0.0f, -0.5f, 1.0f},  {1.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
+    {{-0.5f,  0.0f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
 };
 
 vertex_t box_mesh[36] = {
@@ -161,47 +164,47 @@ vertex_t box_mesh[36] = {
 //    { { 1,  1,  1, 1 }, { 1, 0 }, { 0.2f, 1.0f, 0.3f }, 1 ,{ 1,  1,  1, 0 }},
     
     // Positions                  // Texture Coords  //color           //rhw // Normals
-    {{-0.5f, -0.5f, -0.5f, 1.0f},{ 0.0f,  0.0f},{ 1.0f, 0.2f, 0.2f }, 1 , { 0.0f,  0.0f,-1.0f,0.0f}},
-    {{-0.5f,  0.5f, -0.5f, 1.0f},{ 0.0f,  1.0f},{ 1.0f, 0.2f, 0.2f }, 1 , { 0.0f,  0.0f,-1.0f,0.0f}},
-    {{0.5f,  0.5f, -0.5f, 1.0f}, {1.0f,  1.0f}, { 1.0f, 0.2f, 0.2f }, 1 , {0.0f,  0.0f,-1.0f ,0.0f}},
-    {{0.5f,  0.5f, -0.5f, 1.0f}, { 1.0f,  1.0f}, { 1.0f, 0.2f, 0.2f }, 1 , {0.0f,  0.0f,-1.0f,0.0f}},
-    {{0.5f, -0.5f, -0.5f, 1.0f}, {1.0f,  0.0f}, { 1.0f, 0.2f, 0.2f }, 1 , {0.0f,  0.0f,-1.0f ,0.0f}},
-    {{-0.5f, -0.5f, -0.5f, 1.0f},{ 0.0f,  0.0f},{ 1.0f, 0.2f, 0.2f }, 1 , { 0.0f,  0.0f,-1.0f,0.0f}},
+    {{-0.5f, -0.5f, -0.5f, 1.0f},{ 0.0f,  0.0f},{ 1.0f, 0.2f, 0.2f, 1.0f }, 1 , { 0.0f,  0.0f,-1.0f,0.0f}},
+    {{-0.5f,  0.5f, -0.5f, 1.0f},{ 0.0f,  1.0f},{ 1.0f, 0.2f, 0.2f, 1.0f }, 1 , { 0.0f,  0.0f,-1.0f,0.0f}},
+    {{0.5f,  0.5f, -0.5f, 1.0f}, {1.0f,  1.0f}, { 1.0f, 0.2f, 0.2f, 1.0f }, 1 , {0.0f,  0.0f,-1.0f ,0.0f}},
+    {{0.5f,  0.5f, -0.5f, 1.0f}, { 1.0f,  1.0f}, { 1.0f, 0.2f, 0.2f, 1.0f }, 1 , {0.0f,  0.0f,-1.0f,0.0f}},
+    {{0.5f, -0.5f, -0.5f, 1.0f}, {1.0f,  0.0f}, { 1.0f, 0.2f, 0.2f, 1.0f }, 1 , {0.0f,  0.0f,-1.0f ,0.0f}},
+    {{-0.5f, -0.5f, -0.5f, 1.0f},{ 0.0f,  0.0f},{ 1.0f, 0.2f, 0.2f, 1.0f }, 1 , { 0.0f,  0.0f,-1.0f,0.0f}},
     
-    {{-0.5f, -0.5f,  0.5f, 1.0f},{ 0.0f,  0.0f},{ 0.2f, 1.0f, 0.2f }, 1 , { 0.0f,  0.0f, 1.0f,0.0f}},
-    {{0.5f, -0.5f,  0.5f, 1.0f},{ 1.0f,  0.0f}, { 0.2f, 1.0f, 0.2f }, 1 , {0.0f,  0.0f,  1.0f,0.0f}},
-    {{0.5f,  0.5f,  0.5f, 1.0f},{ 1.0f,  1.0f}, { 0.2f, 1.0f, 0.2f }, 1 , {0.0f,  0.0f,  1.0f,0.0f}},
-    {{0.5f,  0.5f,  0.5f, 1.0f},{ 1.0f,  1.0f}, { 0.2f, 1.0f, 0.2f }, 1 , {0.0f,  0.0f,  1.0f,0.0f}},
-    {{-0.5f,  0.5f,  0.5f, 1.0f},{ 0.0f,  1.0f},{ 0.2f, 1.0f, 0.2f }, 1 , { 0.0f,  0.0f,  1.0f,0.0f}},
-    {{-0.5f, -0.5f,  0.5f, 1.0f},{ 0.0f,  0.0f},{ 0.2f, 1.0f, 0.2f }, 1 , { 0.0f,  0.0f,  1.0f,0.0f}},
+    {{-0.5f, -0.5f,  0.5f, 1.0f},{ 0.0f,  0.0f},{ 0.2f, 1.0f, 0.2f, 1.0f }, 1 , { 0.0f,  0.0f, 1.0f,0.0f}},
+    {{0.5f, -0.5f,  0.5f, 1.0f},{ 1.0f,  0.0f}, { 0.2f, 1.0f, 0.2f, 1.0f }, 1 , {0.0f,  0.0f,  1.0f,0.0f}},
+    {{0.5f,  0.5f,  0.5f, 1.0f},{ 1.0f,  1.0f}, { 0.2f, 1.0f, 0.2f, 1.0f }, 1 , {0.0f,  0.0f,  1.0f,0.0f}},
+    {{0.5f,  0.5f,  0.5f, 1.0f},{ 1.0f,  1.0f}, { 0.2f, 1.0f, 0.2f, 1.0f }, 1 , {0.0f,  0.0f,  1.0f,0.0f}},
+    {{-0.5f,  0.5f,  0.5f, 1.0f},{ 0.0f,  1.0f},{ 0.2f, 1.0f, 0.2f, 1.0f }, 1 , { 0.0f,  0.0f,  1.0f,0.0f}},
+    {{-0.5f, -0.5f,  0.5f, 1.0f},{ 0.0f,  0.0f},{ 0.2f, 1.0f, 0.2f, 1.0f }, 1 , { 0.0f,  0.0f,  1.0f,0.0f}},
     
-    {{-0.5f,  0.5f,  0.5f, 1.0f}, { 1.0f,  0.0f},{ 0.2f, 0.2f, 1.0f}, 1 , {-1.0f,  0.0f,  0.0f,0.0f}},
-    {{-0.5f,  0.5f, -0.5f, 1.0f},{ 1.0f,  1.0f},{ 0.2f, 0.2f, 1.0f }, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
-    {{-0.5f, -0.5f, -0.5f, 1.0f},{ 0.0f,  1.0f},{ 0.2f, 0.2f, 1.0f }, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
-    {{-0.5f, -0.5f, -0.5f, 1.0f},{ 0.0f,  1.0f},{ 0.2f, 0.2f, 1.0f }, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
-    {{-0.5f, -0.5f,  0.5f, 1.0f},{ 0.0f,  0.0f},{ 0.2f, 0.2f, 1.0f}, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
-    {{-0.5f,  0.5f,  0.5f,1.0f},{ 1.0f,  0.0f},{ 0.2f, 0.2f, 1.0f }, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
+    {{-0.5f,  0.5f,  0.5f, 1.0f}, { 1.0f,  0.0f},{ 0.2f, 0.2f, 1.0f, 1.0f}, 1 , {-1.0f,  0.0f,  0.0f,0.0f}},
+    {{-0.5f,  0.5f, -0.5f, 1.0f},{ 1.0f,  1.0f},{ 0.2f, 0.2f, 1.0f, 1.0f }, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
+    {{-0.5f, -0.5f, -0.5f, 1.0f},{ 0.0f,  1.0f},{ 0.2f, 0.2f, 1.0f, 1.0f }, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
+    {{-0.5f, -0.5f, -0.5f, 1.0f},{ 0.0f,  1.0f},{ 0.2f, 0.2f, 1.0f, 1.0f }, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
+    {{-0.5f, -0.5f,  0.5f, 1.0f},{ 0.0f,  0.0f},{ 0.2f, 0.2f, 1.0f, 1.0f}, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
+    {{-0.5f,  0.5f,  0.5f,1.0f},{ 1.0f,  0.0f},{ 0.2f, 0.2f, 1.0f, 1.0f }, 1 , { -1.0f,  0.0f,  0.0f,0.0f}},
     
-    {{0.5f,  0.5f,  0.5f,1.0f}, { 1.0f,  0.0f}, { 1.0f, 0.2f, 1.0f }, 1 , {1.0f,  0.0f,  0.0f,0.0f}},
-    {{0.5f, -0.5f,  0.5f,1.0f},{ 0.0f,  0.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
-    {{0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
-    {{0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
-    {{0.5f,  0.5f, -0.5f,1.0f},{ 1.0f,  1.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
-    {{0.5f,  0.5f,  0.5f,1.0f},{ 1.0f,  0.0f}, { 1.0f, 0.2f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
+    {{0.5f,  0.5f,  0.5f,1.0f}, { 1.0f,  0.0f}, { 1.0f, 0.2f, 1.0f, 1.0f }, 1 , {1.0f,  0.0f,  0.0f,0.0f}},
+    {{0.5f, -0.5f,  0.5f,1.0f},{ 0.0f,  0.0f}, { 1.0f, 0.2f, 1.0f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
+    {{0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f}, { 1.0f, 0.2f, 1.0f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
+    {{0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f}, { 1.0f, 0.2f, 1.0f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
+    {{0.5f,  0.5f, -0.5f,1.0f},{ 1.0f,  1.0f}, { 1.0f, 0.2f, 1.0f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
+    {{0.5f,  0.5f,  0.5f,1.0f},{ 1.0f,  0.0f}, { 1.0f, 0.2f, 1.0f, 1.0f }, 1 , { 1.0f,  0.0f,  0.0f,0.0f}},
     
-    {{-0.5f, -0.5f, -0.5f,1.0f},{  0.0f,  1.0f},{ 1.0f, 1.0f, 0.2f }, 1 , {  0.0f, -1.0f,  0.0f,0.0f}},
-    {{0.5f, -0.5f, -0.5f,1.0f}, { 1.0f,  1.0f},{ 1.0f, 1.0f, 0.2f }, 1 ,  { 0.0f, -1.0f,  0.0f,0.0f}},
-    {{0.5f, -0.5f,  0.5f,1.0f}, { 1.0f,  0.0f}, { 1.0f, 1.0f, 0.2f }, 1 , { 0.0f, -1.0f,  0.0f,0.0f}},
-    {{0.5f, -0.5f,  0.5f,1.0f}, { 1.0f,  0.0f},{ 1.0f, 1.0f, 0.2f }, 1 ,  { 0.0f, -1.0f,  0.0f,0.0f}},
-    {{-0.5f, -0.5f,  0.5f,1.0f},{ 0.0f,  0.0f},{ 1.0f, 1.0f, 0.2f }, 1 , {  0.0f, -1.0f,  0.0f,0.0f}},
-    {{-0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f},{ 1.0f, 1.0f, 0.2f }, 1 , {  0.0f, -1.0f,  0.0f,0.0f}},
+    {{-0.5f, -0.5f, -0.5f,1.0f},{  0.0f,  1.0f},{ 1.0f, 1.0f, 0.2f, 1.0f }, 1 , {  0.0f, -1.0f,  0.0f,0.0f}},
+    {{0.5f, -0.5f, -0.5f,1.0f}, { 1.0f,  1.0f},{ 1.0f, 1.0f, 0.2f, 1.0f }, 1 ,  { 0.0f, -1.0f,  0.0f,0.0f}},
+    {{0.5f, -0.5f,  0.5f,1.0f}, { 1.0f,  0.0f}, { 1.0f, 1.0f, 0.2f, 1.0f }, 1 , { 0.0f, -1.0f,  0.0f,0.0f}},
+    {{0.5f, -0.5f,  0.5f,1.0f}, { 1.0f,  0.0f},{ 1.0f, 1.0f, 0.2f, 1.0f }, 1 ,  { 0.0f, -1.0f,  0.0f,0.0f}},
+    {{-0.5f, -0.5f,  0.5f,1.0f},{ 0.0f,  0.0f},{ 1.0f, 1.0f, 0.2f, 1.0f }, 1 , {  0.0f, -1.0f,  0.0f,0.0f}},
+    {{-0.5f, -0.5f, -0.5f,1.0f},{ 0.0f,  1.0f},{ 1.0f, 1.0f, 0.2f, 1.0f }, 1 , {  0.0f, -1.0f,  0.0f,0.0f}},
 
-    {{-0.5f,  0.5f, -0.5f, 1.0f}, {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
-    {{-0.5f,  0.5f,  0.5f, 1.0f},  {0.0f,  0.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
-    {{0.5f,  0.5f,  0.5f, 1.0f},  {1.0f,  0.0f},{ 0.2f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
-    {{0.5f,  0.5f,  0.5f, 1.0f},  {1.0f,  0.0f}, { 0.2f, 1.0f, 1.0f }, 1 , { 0.0f,1.0f,  0.0f,0.0f}},
-    {{0.5f,  0.5f, -0.5f, 1.0f},  {1.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
-    {{-0.5f,  0.5f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
+    {{-0.5f,  0.5f, -0.5f, 1.0f}, {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
+    {{-0.5f,  0.5f,  0.5f, 1.0f},  {0.0f,  0.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
+    {{0.5f,  0.5f,  0.5f, 1.0f},  {1.0f,  0.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
+    {{0.5f,  0.5f,  0.5f, 1.0f},  {1.0f,  0.0f}, { 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f,1.0f,  0.0f,0.0f}},
+    {{0.5f,  0.5f, -0.5f, 1.0f},  {1.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
+    {{-0.5f,  0.5f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
 };
 
 typedef struct {
@@ -251,41 +254,47 @@ int generate_mipmaps(texture_t *texture, float gamma) {
         {
             for(int y = 0; y < mip_height; y++)
             {
-                float r0, g0, b0,
-                r1, g1, b1,
-                r2, g2, b2,
-                r3, g3, b3;
-                int r_avg, g_avg, b_avg;
+                float r0, g0, b0, a0,
+                r1, g1, b1, a1,
+                r2, g2, b2, a2,
+                r3, g3, b3, a3;
+                int r_avg, g_avg, b_avg, a_avg;
                 
                 IUINT32 c = src_buffer[(x*2+0) + (y*2+0)*mip_width*2];
                 b0 = c & 0xff;
                 g0 = (c >> 8) & 0xff;
                 r0 = (c >> 16) & 0xff;
+                a0 = (c >> 24) & 0xff;
                 
                 c = src_buffer[(x*2+1) + (y*2+0)*mip_width*2];
                 b1 = c & 0xff;
                 g1 = (c >> 8) & 0xff;
                 r1 = (c >> 16) & 0xff;
+                a1 = (c >> 24) & 0xff;
                 
                 c = src_buffer[(x*2+0) + (y*2+1)*mip_width*2];
                 b2 = c & 0xff;
                 g2 = (c >> 8) & 0xff;
                 r2 = (c >> 16) & 0xff;
+                a2 = (c >> 24) & 0xff;
                 
                 c = src_buffer[(x*2+1) + (y*2+1)*mip_width*2];
                 b3 = c & 0xff;
                 g3 = (c >> 8) & 0xff;
                 r3 = (c >> 16) & 0xff;
+                a3 = (c >> 24) & 0xff;
                 
                 r_avg = (IUINT32)(0.5f + gamma*(r0+r1+r2+r3)/4);
                 g_avg = (IUINT32)(0.5f + gamma*(g0+g1+g2+g3)/4);
                 b_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
+                a_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
                 
                 int R = CMID(r_avg, 0, 255);
                 int G = CMID(g_avg, 0, 255);
                 int B = CMID(b_avg, 0, 255);
+                int A = CMID(a_avg, 0, 255);
                 
-                dest_buffer[x+y*mip_width] = (R << 16) | (G << 8) | B;
+                dest_buffer[x+y*mip_width] = (A << 24) | (R << 16) | (G << 8) | B;
             }
         }
     }
@@ -293,23 +302,120 @@ int generate_mipmaps(texture_t *texture, float gamma) {
     return num_mip_levels;
 }
 
+#define PNG_BYTES_TO_CHECK 4
+int load_png_image( const char *filepath, texture_t *texture )
+{
+    FILE *fp;
+    png_structp png_ptr;
+    png_infop info_ptr;
+    png_bytep* row_pointers;
+    char buf[PNG_BYTES_TO_CHECK];
+    int w, h, x, y, temp, color_type;
+    
+    fp = fopen( filepath, "rb" );
+    if( fp == NULL ) {
+        return 1; /* 返回值 */
+    }
+    
+    png_ptr = png_create_read_struct( PNG_LIBPNG_VER_STRING, 0, 0, 0 );
+    info_ptr = png_create_info_struct( png_ptr );
+    
+    setjmp( png_jmpbuf(png_ptr) );
+    /* 读取PNG_BYTES_TO_CHECK个字节的数据 */
+    temp = (int)fread( buf, 1, PNG_BYTES_TO_CHECK, fp );
+    /* 若读到的数据并没有PNG_BYTES_TO_CHECK个字节 */
+    if( temp < PNG_BYTES_TO_CHECK ) {
+        fclose(fp);
+        png_destroy_read_struct( &png_ptr, &info_ptr, 0);
+        return 2;/* 返回值 */
+    }
+    /* 检测数据是否为PNG的签名 */
+    temp = png_sig_cmp( (png_bytep)buf, (png_size_t)0, PNG_BYTES_TO_CHECK );
+    /* 如果不是PNG的签名，则说明该文件不是PNG文件 */
+    if( temp != 0 ) {
+        fclose(fp);
+        png_destroy_read_struct( &png_ptr, &info_ptr, 0);
+        return 3;/* 返回值 */
+    }
+    
+    /* 复位文件指针 */
+    rewind( fp );
+    /* 开始读文件 */
+    png_init_io( png_ptr, fp );
+    /* 读取PNG图片信息 */
+    png_read_png( png_ptr, info_ptr, PNG_TRANSFORM_EXPAND, 0 );
+    /* 获取图像的色彩类型 */
+    color_type = png_get_color_type( png_ptr, info_ptr );
+    /* 获取图像的宽高 */
+    w = png_get_image_width( png_ptr, info_ptr );
+    h = png_get_image_height( png_ptr, info_ptr );
+
+    IUINT32 *bits = (IUINT32*)malloc(sizeof(IUINT32) * w * h);
+    
+    /* 获取图像的所有行像素数据，row_pointers里边就是rgba数据 */
+    row_pointers = png_get_rows( png_ptr, info_ptr );
+    /* 根据不同的色彩类型进行相应处理 */
+    switch( color_type ) {
+        case PNG_COLOR_TYPE_RGB_ALPHA:
+            for( y=0; y<h; ++y ) {
+                for( x=0; x < w; ++x ) {
+                    bits[y*w+x] = 0;
+                    /* 以下是RGBA数据，需要自己补充代码，保存RGBA数据 */
+                    bits[y*w+x] |= row_pointers[y][4*x+0] << 16; // red
+                    bits[y*w+x] |= row_pointers[y][4*x+1] << 8; // green
+                    bits[y*w+x] |= row_pointers[y][4*x+2]; // blue
+                    bits[y*w+x] |= row_pointers[y][4*x+3] << 24; // alpha
+                }
+            }
+            break;
+            
+        case PNG_COLOR_TYPE_RGB:
+            for( y=0; y<h; ++y ) {
+                for( x=0; x<w; ++x ) {
+                    bits[y*w+x] = 0xff000000;
+                    bits[y*w+x] |= row_pointers[y][3*x+0] << 16; // red
+                    bits[y*w+x] |= row_pointers[y][3*x+1] << 8; // green
+                    bits[y*w+x] |= row_pointers[y][3*x+2]; // blue
+                }
+            }
+            break;
+            /* 其它色彩类型的图像就不读了 */
+        default:
+            fclose(fp);
+            png_destroy_read_struct( &png_ptr, &info_ptr, 0);
+            return 4/* 返回值 */;
+    }
+    png_destroy_read_struct( &png_ptr, &info_ptr, 0);
+    
+    texture->texture = &bits;
+    texture->height = h;
+    texture->width = w;
+    
+    return 0;
+}
+
 void init_texture() {
-    int width = 256;
-    int height = 256;
+    int width = 256, height = 256;
+    texture_t *texture = &textures[0];
     IUINT32 *bits = (IUINT32*)malloc(sizeof(IUINT32) * width * height);
     int i, j;
     for (j = 0; j < height; j++) {
         for (i = 0; i < width; i++) {
             int x = i / 32, y = j / 32;
-            bits[j*width+i] = ((x + y) & 1)? 0xffffff : 0x3fbcef;
+            bits[j*width+i] = ((x + y) & 1)? 0xffffffff : 0xff3fbcef;
         }
     }
-    texture_t *texture = &textures[0];
     texture->texture = &bits;
-    texture->height = height;
     texture->width = width;
+    texture->height = height;
     texture->use_mipmap = true;
     generate_mipmaps(texture, 1.01);
+    
+    texture = &textures[1];
+    if(load_png_image("mabu.png", texture) == 0) {
+        texture->use_mipmap = true;
+        generate_mipmaps(texture, 1.01);
+    }
 }
 
 void draw_object(device_t *device, object_t *objects, int obj_cnt) {
@@ -409,34 +515,34 @@ int main( int argc, char* args[] )
             bool c_dirty = true;
             
             memset(screen_keys, 0, sizeof(int) * 512);
-            device_init(&device, SCREEN_WIDTH, SCREEN_HEIGHT, 3.1415926 * 0.5f, 2.0f, 500.0f, NULL);
+            device_init(&device, SCREEN_WIDTH, SCREEN_HEIGHT, 3.1415926 * 0.5f, 1.0f, 500.0f, NULL);
             
             init_texture();
             device.render_state = RENDER_STATE_TEXTURE;
             
-            materials[0] = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
+            materials[0] = {0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
             material_cnt++;
-            materials[1] = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
+            materials[1] = {0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
             material_cnt++;
-            materials[2] = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
+            materials[2] = {0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
             material_cnt++;
-            materials[3] = {0.2f, 0.2f, 0.2f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 32.0f};
+            materials[3] = {0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
             material_cnt++;
             
-            dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
+            dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
 //            dirLight = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
             
             int i = 0;
             for(i = 0; i < 4; i++)
             {
-                pointLights[i] = {0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+                pointLights[i] = {0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
                 pointlight_cnt++;
             }
             
-            pointLights[0] = {{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f}, {0.4f, 0.4f, 0.4f}, {0.5f, 0.5f, 0.5f}};
-            //pointLights[1] = {-1.0f, 6.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
-            //pointLights[2] = {7.0f, -1.0f, -6.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
-            //pointLights[3] = {0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 0.4f, 0.4f, 0.4f, 0.5f, 0.5f, 0.5f};
+            pointLights[0] = {{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.5f, 0.5f, 0.5f, 1.0f}};
+            //pointLights[1] = {-1.0f, 6.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
+            //pointLights[2] = {7.0f, -1.0f, -6.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
+            //pointLights[3] = {0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
 
             // init object
             // ground
@@ -448,7 +554,7 @@ int main( int argc, char* args[] )
             ground->mesh = ground_mesh;
             ground->mesh_num = 6;
             ground->material_id = 0;
-            ground->texture_id = 0;
+            ground->texture_id = 1;
             ground->shadow = false;
             ground->dirty = true;
             object_count++;
@@ -462,7 +568,7 @@ int main( int argc, char* args[] )
             box->mesh = box_mesh;
             box->mesh_num = 36;
             box->material_id = 0;
-            box->texture_id = 0;
+            box->texture_id = 1;
             box->shadow = true;
             box->dirty = true;
             object_count++;

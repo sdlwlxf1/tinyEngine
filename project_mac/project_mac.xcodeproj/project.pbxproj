@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		162131981E1E39230068CFB3 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 162131971E1E39230068CFB3 /* libpng.a */; };
 		165434E21D99594D00F3B0C6 /* sdl_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 165434E11D99594D00F3B0C6 /* sdl_window.cpp */; };
 		165434E51D9959BF00F3B0C6 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 165434E41D9959BF00F3B0C6 /* libSDL2.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		165434E91D9C023300F3B0C6 /* mini3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 165434E81D9C023300F3B0C6 /* mini3d.c */; };
@@ -25,6 +26,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		162131971E1E39230068CFB3 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = ../../../../../usr/local/Cellar/libpng/1.6.25/lib/libpng.a; sourceTree = "<group>"; };
 		165434D71D99591E00F3B0C6 /* project_mac */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = project_mac; sourceTree = BUILT_PRODUCTS_DIR; };
 		165434E11D99594D00F3B0C6 /* sdl_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sdl_window.cpp; path = ../../sdl_window.cpp; sourceTree = "<group>"; };
 		165434E41D9959BF00F3B0C6 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = /usr/local/Cellar/sdl2/2.0.4/lib/libSDL2.a; sourceTree = "<absolute>"; };
@@ -39,6 +41,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				165434E51D9959BF00F3B0C6 /* libSDL2.a in Frameworks */,
+				162131981E1E39230068CFB3 /* libpng.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +70,7 @@
 				1654D4AB1E13CCBC0094B38A /* tiny3D_tmp_1.h */,
 				1697B7741E11631100E17972 /* tiny3D.h */,
 				165434E41D9959BF00F3B0C6 /* libSDL2.a */,
+				162131971E1E39230068CFB3 /* libpng.a */,
 				165434E11D99594D00F3B0C6 /* sdl_window.cpp */,
 				165434E81D9C023300F3B0C6 /* mini3d.c */,
 			);
@@ -224,10 +228,12 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/sdl2/2.0.4/include,
+					/usr/local/Cellar/libpng/1.6.25/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/sdl2/2.0.4/lib,
+					/usr/local/Cellar/libpng/1.6.25/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -239,10 +245,12 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/sdl2/2.0.4/include,
+					/usr/local/Cellar/libpng/1.6.25/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/Cellar/sdl2/2.0.4/lib,
+					/usr/local/Cellar/libpng/1.6.25/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

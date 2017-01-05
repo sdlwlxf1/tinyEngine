@@ -497,27 +497,31 @@ void transform_homogenize(const transform_t *ts, vector_t *y, const vector_t *x)
 }
 
 // 3. geometry calculation (vertex, scanline, border check, rect and so on)
-typedef struct { float r, g, b; } color_t;
+typedef struct { float r, g, b, a; } color_t;
 void color_init(color_t *c) {
     c->r = 0.0f;
     c->g = 0.0f;
     c->b = 0.0f;
+    c->a = 0.0f;
 }
 //      4)). product
 void color_product(color_t *c, const color_t *a, const color_t *b) {
     c->r = a->r * b->r;
     c->g = a->g * b->g;
     c->b = a->b * b->b;
+    c->a = a->a * b->a;
 }
 void color_scale(color_t *c, float k) {
     c->r *= k;
     c->g *= k;
     c->b *= k;
+    c->a *= k;
 }
 void color_add(color_t *c, const color_t *a, const color_t *b) {
     c->r = a->r + b->r;
     c->g = a->g + b->g;
     c->b = a->b + b->b;
+    c->a = a->a + b->a;
 }
 
 //point_t viewPos;
@@ -750,7 +754,7 @@ typedef struct {
 	transform_t transform;      // 坐标变换器
 	int width;                  // 窗口宽度
 	int height;                 // 窗口高度
-    float aspect;
+    float aspect;               // 宽高比
     material_t material;        // 当前材质
 	IUINT32 **framebuffer;      // 像素缓存：framebuffer[y] 代表第 y行
 	float **zbuffer;            // 深度缓存：zbuffer[y] 为第 y行指针
@@ -766,6 +770,9 @@ typedef struct {
     float fovy;                 // fov
     float zn;                   // 近裁剪面
     float zf;                   // 远裁剪面
+    bool blend;                 // 是否开启混合
+    float blend_sfactor;        // 混合源因子
+    float blend_dfactor;        // 混合目标因子
 }	device_t;
 
 #define RENDER_STATE_WIREFRAME      1		// 渲染线框
@@ -842,7 +849,7 @@ void device_clear(device_t *device, int mode) {
 		IUINT32 cc = (height - 1 - y) * 230 / (height - 1);
 		cc = (cc << 16) | (cc << 8) | cc;
 		if (mode == 0) cc = device->background;
-		for (x = device->width; x > 0; dst++, x--) dst[0] = cc;
+		for (x = device->width; x > 0; dst++, x--) dst[0] = 0xffffffff;
 	}
 	for (y = 0; y < device->height; y++) {
 		float *dst = device->zbuffer[y];
@@ -944,18 +951,22 @@ color_t device_texture_read(const device_t *device, float u, float v, float z, f
     textel01 = texture[(vint+0)*width + (uint_pls_1)];
     textel11 = texture[(vint_pls_1)*width + (uint_pls_1)];
 
+    int textel00_a = (textel00 >> 24) & 0xff;
     int textel00_r = (textel00 >> 16) & 0xff;
     int textel00_g = (textel00 >> 8) & 0xff;
     int textel00_b = textel00 & 0xff;
     
+    int textel10_a = (textel10 >> 24) & 0xff;
     int textel10_r = (textel10 >> 16) & 0xff;
     int textel10_g = (textel10 >> 8) & 0xff;
     int textel10_b = textel10 & 0xff;
     
+    int textel01_a = (textel01 >> 24) & 0xff;
     int textel01_r = (textel01 >> 16) & 0xff;
     int textel01_g = (textel01 >> 8) & 0xff;
     int textel01_b = textel01 & 0xff;
     
+    int textel11_a = (textel11 >> 24) & 0xff;
     int textel11_r = (textel11 >> 16) & 0xff;
     int textel11_g = (textel11 >> 8) & 0xff;
     int textel11_b = textel11 & 0xff;
@@ -971,6 +982,11 @@ color_t device_texture_read(const device_t *device, float u, float v, float z, f
     float dtu_x_dtv = (dtu) * (dtv);
     float one_minus_dtu_x_dtv = (one_minus_dtu) * (dtv);
 
+    color.a = one_minus_dtu_x_one_minus_dtv * textel00_a +
+        dtu_x_one_minus_dtv * textel01_a +
+        dtu_x_dtv * textel11_a +
+        one_minus_dtu_x_dtv * textel10_a;
+    
     color.r = one_minus_dtu_x_one_minus_dtv * textel00_r +
         dtu_x_one_minus_dtv * textel01_r +
         dtu_x_dtv * textel11_r + 
@@ -1054,7 +1070,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
             if(rhw >= zbuffer[x]) {
                 float w = 1.0f / rhw;
                 zbuffer[x] = rhw;
-                color_t color = {0.0f, 0.0f, 0.0f};
+                color_t color = {0.0f, 0.0f, 0.0f, 1.0f};
                 
                 point_t barycenter = {0.0f, 0.0f, 0.0f, 1.0f};
                 computeBarycentricCoords3d(&barycenter, &t1->pos, &t2->pos, &t3->pos, &scanline->v.pos);
@@ -1086,7 +1102,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                 vector_sub(&viewdir, &viewPos, &fragPos);
                 vector_normalize(&viewdir);
                 calc_dirlight(&color, &device->material, &dirLight, &normal, &viewdir);
-                color_t temp = {0.0f, 0.0f ,0.0f};
+                color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
                 int i = 0;
                 for(i = 0; i < pointlight_cnt; i++)
                 {
@@ -1094,11 +1110,13 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                     color_add(&color, &color, &temp);
                 }
                 
+                float a = 1.0f;
                 float r = 0.0f;
                 float g = 0.0f;
                 float b = 0.0f;
                 
                 if(render_state & RENDER_STATE_COLOR) {
+                    a = scanline->v.color.a * w * 255.0f;
                     r = scanline->v.color.r * w * 255.0f;
                     g = scanline->v.color.g * w * 255.0f;
                     b = scanline->v.color.b * w * 255.0f;
@@ -1107,13 +1125,16 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                     float u = scanline->v.tc.u * w;
                     float v = scanline->v.tc.v * w;
                     color_t cc = device_texture_read(device, u, v, w, 15);
+                    a = cc.a;
                     r = cc.r;
                     g = cc.g;
                     b = cc.b;
                 }
+                a *= color.a;
                 r *= color.r;
                 g *= color.g;
                 b *= color.b;
+                int A = CMID((int)a, 0, 255);
                 int R = CMID((int)r, 0, 255);
                 int G = CMID((int)g, 0, 255);
                 int B = CMID((int)b, 0, 255);
