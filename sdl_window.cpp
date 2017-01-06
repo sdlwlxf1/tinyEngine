@@ -510,8 +510,10 @@ int main( int argc, char* args[] )
             vector_t c_right = {1.0f, 0.0f, 0.0f, 0.0f};
             vector_t c_worldup = {0.0f, 1.0f, 0.0f, 0.0f};
             float c_movementspeed = 2.0f;
-            float c_mouse_sensitivity = 0.25f;
+            float c_mouse_sensitivity = 0.20f;
             float c_zoom = 45.0f;
+            float c_lastX = SCREEN_WIDTH >> 1, c_lastY = SCREEN_HEIGHT >> 1;
+            bool firstMouse = true;
             bool c_dirty = true;
             
             memset(screen_keys, 0, sizeof(int) * 512);
@@ -617,41 +619,74 @@ int main( int argc, char* args[] )
                     }
                     else if(e.type == SDL_MOUSEMOTION)
                     {
+                        if(firstMouse) {
+                            c_lastX = e.motion.x;
+                            c_lastY = e.motion.y;
+                            firstMouse = false;
+                            
+                        }
+                        float xoffset = e.motion.x - c_lastX;
+                        float yoffset = e.motion.y - c_lastY;
+                        c_lastX = e.motion.x;
+                        c_lastY = e.motion.y;
                         
+                        xoffset *= c_mouse_sensitivity;
+                        yoffset *= c_mouse_sensitivity;
+                        
+                        c_yaw += xoffset;
+                        c_pitch += yoffset;
+                        std::cout << e.motion.x << "  " << e.motion.y << endl;
+                        if(c_pitch > 89.0f)
+                            c_pitch = 89.0f;
+                        if(c_pitch < -89.0f)
+                            c_pitch = -89.0f;
+                        
+                        c_dirty = true;
                     }
                 }
                 
-                if (screen_keys[SDL_SCANCODE_UP]) {
-                    
+                if (screen_keys[SDL_SCANCODE_W]) {
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_front;
                     vector_scale(&temp, velocity);
                     vector_add(&c_pos, &c_pos, &temp);
                     c_dirty = true;
-                    
-                    //theta += 0.04f;
-                    //box->dirty = true;
                 }
-                if (screen_keys[SDL_SCANCODE_DOWN]) {
+                if (screen_keys[SDL_SCANCODE_S]) {
                     
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_front;
                     vector_scale(&temp, velocity);
                     vector_sub(&c_pos, &c_pos, &temp);
                     c_dirty = true;
-                    
-//                    theta -= 0.04f;
-//                    box->dirty = true;
                 }
-                if (screen_keys[SDL_SCANCODE_LEFT]) {
+                if (screen_keys[SDL_SCANCODE_A]) {
+                    float velocity = c_movementspeed * deltaTime;
+                    vector_t temp;
+                    vector_crossproduct(&temp, &c_front, &c_up);
+                    vector_normalize(&temp);
+                    vector_scale(&temp, velocity);
+                    vector_add(&c_pos, &c_pos, &temp);
+                    c_dirty = true;
+                }
+                if (screen_keys[SDL_SCANCODE_D]) {
+                    float velocity = c_movementspeed * deltaTime;
+                    vector_t temp;
+                    vector_crossproduct(&temp, &c_front, &c_up);
+                    vector_normalize(&temp);
+                    vector_scale(&temp, velocity);
+                    vector_sub(&c_pos, &c_pos, &temp);
+                    c_dirty = true;
+                }
+                if (screen_keys[SDL_SCANCODE_Q]) {
                     box->theta -= 0.04f;
                     box->dirty = true;
                 }
-                if (screen_keys[SDL_SCANCODE_RIGHT]) {
+                if (screen_keys[SDL_SCANCODE_E]) {
                     box->theta += 0.04f;
                     box->dirty = true;
                 }
-                if (screen_keys[SDL_SCANCODE_W]) {
+                if (screen_keys[SDL_SCANCODE_UP]) {
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_up;
                     vector_scale(&temp, velocity);
@@ -660,7 +695,7 @@ int main( int argc, char* args[] )
                     vector_add(&box->pos, &box->pos, &temp);
                     box->dirty = true;
                 }
-                if (screen_keys[SDL_SCANCODE_A]) {
+                if (screen_keys[SDL_SCANCODE_LEFT]) {
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_right;
                     vector_scale(&temp, velocity);
@@ -669,7 +704,7 @@ int main( int argc, char* args[] )
                     vector_sub(&box->pos, &box->pos, &temp);
                     box->dirty = true;
                 }
-                if (screen_keys[SDL_SCANCODE_S]) {
+                if (screen_keys[SDL_SCANCODE_DOWN]) {
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_up;
                     vector_scale(&temp, velocity);
@@ -678,7 +713,7 @@ int main( int argc, char* args[] )
                     vector_sub(&box->pos, &box->pos, &temp);
                     box->dirty = true;
                 }
-                if (screen_keys[SDL_SCANCODE_D]) {
+                if (screen_keys[SDL_SCANCODE_RIGHT]) {
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_right;
                     vector_scale(&temp, velocity);
@@ -729,7 +764,7 @@ int main( int argc, char* args[] )
                 draw_object(&device, objects, object_count);
                 
                 // 渲染阴影
-                draw_shadow(&device, objects, object_count);
+                //draw_shadow(&device, objects, object_count);
 
                 for(int i = 0; i < SCREEN_WIDTH; i++)
                 {
