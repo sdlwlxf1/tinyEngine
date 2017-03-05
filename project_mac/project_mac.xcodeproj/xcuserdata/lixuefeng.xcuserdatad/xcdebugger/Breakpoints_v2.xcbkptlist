@@ -15,7 +15,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "307"
             endingLineNumber = "307"
-            landmarkName = "init_texture()"
+            landmarkName = "load_png_image( const char *filepath, texture_t *texture )"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -30,9 +30,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "921"
-            endingLineNumber = "921"
-            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
-            landmarkType = "9">
+            endingLineNumber = "921">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -78,9 +76,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "238"
-            endingLineNumber = "238"
-            landmarkName = "generate_mipmaps(texture_t *texture, float gamma)"
-            landmarkType = "9">
+            endingLineNumber = "238">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -96,6 +92,22 @@
             startingLineNumber = "293"
             endingLineNumber = "293"
             landmarkName = "generate_mipmaps(texture_t *texture, float gamma)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../sdl_window.cpp"
+            timestampString = "510381234.072413"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "309"
+            endingLineNumber = "309"
+            landmarkName = "load_png_image( const char *filepath, texture_t *texture )"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
