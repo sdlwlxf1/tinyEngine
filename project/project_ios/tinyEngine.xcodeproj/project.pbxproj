@@ -34,6 +34,8 @@
 		79B508D91E6BFFA0001AF007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		79B509071E6C4E65001AF007 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../external/sdl2/prebuild/ios/libSDL2.a; sourceTree = "<group>"; };
 		79B509091E6C4F80001AF007 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = ../../external/libpng/prebuild/ios/libpng.a; sourceTree = "<group>"; };
+		79B509311E706E4A001AF007 /* sdl_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sdl_window.h; path = ../../../resources/code/sdl_window.h; sourceTree = "<group>"; };
+		79B509321E706E4A001AF007 /* tiny3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tiny3D.h; path = ../../../resources/code/tiny3D.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +71,8 @@
 		79B508C31E6BFFA0001AF007 /* tinyEngine */ = {
 			isa = PBXGroup;
 			children = (
+				79B509311E706E4A001AF007 /* sdl_window.h */,
+				79B509321E706E4A001AF007 /* tiny3D.h */,
 				79B508C71E6BFFA0001AF007 /* AppDelegate.h */,
 				79B508C81E6BFFA0001AF007 /* AppDelegate.m */,
 				79B508CA1E6BFFA0001AF007 /* Shader.fsh */,

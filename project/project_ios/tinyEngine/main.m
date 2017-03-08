@@ -10,8 +10,8 @@
 #import "AppDelegate.h"
 #include "sdl_window.h"
 int main(int argc, char * argv[]) {
-//    @autoreleasepool {
-//        return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
-//    }
-    return start();
+    @autoreleasepool {
+        return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
+    }
+//    return start();
 }

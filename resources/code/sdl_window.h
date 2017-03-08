@@ -100,7 +100,7 @@ bool loadMedia()
 	return success;
 }
 
-void close()
+void sdl_close()
 {
 	//Destroy window	
 	SDL_DestroyRenderer( gRenderer );
@@ -463,7 +463,7 @@ void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
                 shadow_mesh[k].pos.z = pl.z + t0 * (vi.z - pl.z);
                 shadow_mesh[k].pos.w = 1.0f;
                 
-                shadow_mesh[k].normal = {0.0f, 1.0f, 0.0f, 0.0f};
+                shadow_mesh[k].normal = (vector_t){0.0f, 1.0f, 0.0f, 0.0f};
             }
             for(int k = 0; k < object->mesh_num; k+=3)
                 clip_polys(device, &shadow_mesh[k], &shadow_mesh[k+1], &shadow_mesh[k+2], true);
@@ -526,26 +526,26 @@ int start()
             init_texture();
             device.render_state = RENDER_STATE_TEXTURE;
             
-            materials[0] = {0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
+            materials[0] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
             material_cnt++;
-            materials[1] = {0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
+            materials[1] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
             material_cnt++;
-            materials[2] = {0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
+            materials[2] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
             material_cnt++;
-            materials[3] = {0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
+            materials[3] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 32.0f};
             material_cnt++;
             
-            dirLight = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
+            dirLight = (dirlight_t){0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
 //            dirLight = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
             
             int i = 0;
             for(i = 0; i < 4; i++)
             {
-                pointLights[i] = {0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+                pointLights[i] = (pointlight_t){0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
                 pointlight_cnt++;
             }
             
-            pointLights[0] = {{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.5f, 0.5f, 0.5f, 1.0f}};
+            pointLights[0] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.5f, 0.5f, 0.5f, 1.0f}};
             //pointLights[1] = {-1.0f, 6.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
             //pointLights[2] = {7.0f, -1.0f, -6.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
             //pointLights[3] = {0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
@@ -553,9 +553,9 @@ int start()
             // init object
             // ground
             object_t *ground = &objects[0];
-            ground->pos = {0, 0, 0, 1};
-            ground->scale = {10, 1, 10, 0};
-            ground->axis = {0, 0, 0, 1};
+            ground->pos = (point_t){0, 0, 0, 1};
+            ground->scale = (vector_t){10, 1, 10, 0};
+            ground->axis = (vector_t){0, 0, 0, 1};
             ground->theta = 0.0f;
             ground->mesh = ground_mesh;
             ground->mesh_num = 6;
@@ -567,9 +567,9 @@ int start()
             
             // box
             object_t *box = &objects[1];
-            box->pos = {0, 5, 0, 1};
-            box->scale = {1, 1, 1, 0};
-            box->axis = {0, 5, 0, 1};
+            box->pos = (point_t){0, 5, 0, 1};
+            box->scale = (vector_t){1, 1, 1, 0};
+            box->axis = (vector_t){0, 5, 0, 1};
             box->theta = 0.0f;
             box->mesh = box_mesh;
             box->mesh_num = 36;
@@ -581,9 +581,9 @@ int start()
             
             // box
             object_t *box1 = &objects[2];
-            box1->pos = {0, 6, -1, 1};
-            box1->scale = {0.2, 0.2, 0.2, 0};
-            box1->axis = {0, 0, 0, 1};
+            box1->pos = (point_t){0, 6, -1, 1};
+            box1->scale = (vector_t){0.2, 0.2, 0.2, 0};
+            box1->axis = (vector_t){0, 0, 0, 1};
             box1->theta = 0.0f;
             box1->mesh = box_mesh;
             box1->mesh_num = 36;
@@ -639,7 +639,7 @@ int start()
                         
                         c_yaw += xoffset;
                         c_pitch += yoffset;
-                        std::cout << e.motion.x << "  " << e.motion.y << endl;
+                        //std::cout << e.motion.x << "  " << e.motion.y << endl;
                         if(c_pitch > 89.0f)
                             c_pitch = 89.0f;
                         if(c_pitch < -89.0f)
@@ -787,7 +787,7 @@ int start()
 	}
 
 	//Free resources and close SDL
-	close();
+	sdl_close();
 
 	return 0;
 }
