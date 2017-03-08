@@ -1,0 +1,274 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		79B508E11E6C018B001AF007 /* sdl_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B508DF1E6C018B001AF007 /* sdl_window.cpp */; };
+		79B508E21E6C018B001AF007 /* tiny3D.h in Sources */ = {isa = PBXBuildFile; fileRef = 79B508E01E6C018B001AF007 /* tiny3D.h */; };
+		79B508ED1E6C0E1D001AF007 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B508E61E6C0D14001AF007 /* libSDL2.a */; };
+		79B509021E6C2FB7001AF007 /* libpng.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B509011E6C2FB7001AF007 /* libpng.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		165434D71D99591E00F3B0C6 /* tinyEngine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tinyEngine; sourceTree = BUILT_PRODUCTS_DIR; };
+		79B508DF1E6C018B001AF007 /* sdl_window.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sdl_window.cpp; path = ../../resources/code/sdl_window.cpp; sourceTree = "<group>"; };
+		79B508E01E6C018B001AF007 /* tiny3D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tiny3D.h; path = ../../resources/code/tiny3D.h; sourceTree = "<group>"; };
+		79B508E61E6C0D14001AF007 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../external/sdl2/prebuild/mac/libSDL2.a; sourceTree = "<group>"; };
+		79B509011E6C2FB7001AF007 /* libpng.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpng.dylib; path = ../../external/libpng/prebuild/mac/libpng.dylib; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		165434D41D99591E00F3B0C6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				79B508ED1E6C0E1D001AF007 /* libSDL2.a in Frameworks */,
+				79B509021E6C2FB7001AF007 /* libpng.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		165434CE1D99591E00F3B0C6 = {
+			isa = PBXGroup;
+			children = (
+				79B508DF1E6C018B001AF007 /* sdl_window.cpp */,
+				79B508E01E6C018B001AF007 /* tiny3D.h */,
+				165434D81D99591E00F3B0C6 /* Products */,
+				79B508E31E6C0D0B001AF007 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		165434D81D99591E00F3B0C6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				165434D71D99591E00F3B0C6 /* tinyEngine */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		79B508E31E6C0D0B001AF007 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				79B509011E6C2FB7001AF007 /* libpng.dylib */,
+				79B508E61E6C0D14001AF007 /* libSDL2.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		165434D61D99591E00F3B0C6 /* tinyEngine */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 165434DE1D99591E00F3B0C6 /* Build configuration list for PBXNativeTarget "tinyEngine" */;
+			buildPhases = (
+				165434D31D99591E00F3B0C6 /* Sources */,
+				165434D41D99591E00F3B0C6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = tinyEngine;
+			productName = project_mac;
+			productReference = 165434D71D99591E00F3B0C6 /* tinyEngine */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		165434CF1D99591E00F3B0C6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = tuyoo;
+				TargetAttributes = {
+					165434D61D99591E00F3B0C6 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 165434D21D99591E00F3B0C6 /* Build configuration list for PBXProject "tinyEngine" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 165434CE1D99591E00F3B0C6;
+			productRefGroup = 165434D81D99591E00F3B0C6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				165434D61D99591E00F3B0C6 /* tinyEngine */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		165434D31D99591E00F3B0C6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				79B508E11E6C018B001AF007 /* sdl_window.cpp in Sources */,
+				79B508E21E6C018B001AF007 /* tiny3D.h in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		165434DC1D99591E00F3B0C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		165434DD1D99591E00F3B0C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		165434DF1D99591E00F3B0C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					../../external/sdl2/include,
+					../../external/libpng/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					../../external/sdl2/prebuild/mac,
+					../../external/libpng/prebuild/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		165434E01D99591E00F3B0C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					../../external/sdl2/include,
+					../../external/libpng/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					../../external/sdl2/prebuild/mac,
+					../../external/libpng/prebuild/mac,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		165434D21D99591E00F3B0C6 /* Build configuration list for PBXProject "tinyEngine" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				165434DC1D99591E00F3B0C6 /* Debug */,
+				165434DD1D99591E00F3B0C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		165434DE1D99591E00F3B0C6 /* Build configuration list for PBXNativeTarget "tinyEngine" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				165434DF1D99591E00F3B0C6 /* Debug */,
+				165434E01D99591E00F3B0C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 165434CF1D99591E00F3B0C6 /* Project object */;
+}
