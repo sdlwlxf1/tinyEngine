@@ -7,13 +7,26 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		166002E81E717EE800252926 /* mabu.png in Resources */ = {isa = PBXBuildFile; fileRef = 166002E71E717EE800252926 /* mabu.png */; };
 		166002EA1E717F7F00252926 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 166002E91E717F7F00252926 /* libpng.a */; };
 		166002EC1E71837700252926 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 166002EB1E71837700252926 /* libSDL2.a */; };
 		166002EE1E7183F700252926 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 166002ED1E7183F700252926 /* utils.m */; };
+		166002F11E7186B800252926 /* mabu.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 166002E71E717EE800252926 /* mabu.png */; };
 		79B508E11E6C018B001AF007 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 79B508DF1E6C018B001AF007 /* main.c */; };
 		79B508E21E6C018B001AF007 /* tiny3D.h in Sources */ = {isa = PBXBuildFile; fileRef = 79B508E01E6C018B001AF007 /* tiny3D.h */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		166002F01E7186AF00252926 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				166002F11E7186B800252926 /* mabu.png in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		165434D71D99591E00F3B0C6 /* tinyEngine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tinyEngine; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -76,7 +89,7 @@
 			buildPhases = (
 				165434D31D99591E00F3B0C6 /* Sources */,
 				165434D41D99591E00F3B0C6 /* Frameworks */,
-				166002E61E717EDB00252926 /* Resources */,
+				166002F01E7186AF00252926 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -117,17 +130,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXResourcesBuildPhase section */
-		166002E61E717EDB00252926 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				166002E81E717EE800252926 /* mabu.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		165434D31D99591E00F3B0C6 /* Sources */ = {
