@@ -295,6 +295,7 @@
 					../../external/libpng/prebuild/ios,
 					../../external/sdl2/prebuild/ios,
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-lz";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sdlwlxf.tinyEngine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
