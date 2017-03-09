@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "79B508C01E6BFFA0001AF007"
+               BlueprintIdentifier = "166002AC1E710FB700252926"
                BuildableName = "tinyEngine.app"
                BlueprintName = "tinyEngine"
                ReferencedContainer = "container:tinyEngine.xcodeproj">
@@ -32,7 +32,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "79B508C01E6BFFA0001AF007"
+            BlueprintIdentifier = "166002AC1E710FB700252926"
             BuildableName = "tinyEngine.app"
             BlueprintName = "tinyEngine"
             ReferencedContainer = "container:tinyEngine.xcodeproj">
@@ -55,7 +55,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "79B508C01E6BFFA0001AF007"
+            BlueprintIdentifier = "166002AC1E710FB700252926"
             BuildableName = "tinyEngine.app"
             BlueprintName = "tinyEngine"
             ReferencedContainer = "container:tinyEngine.xcodeproj">
@@ -74,7 +74,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "79B508C01E6BFFA0001AF007"
+            BlueprintIdentifier = "166002AC1E710FB700252926"
             BuildableName = "tinyEngine.app"
             BlueprintName = "tinyEngine"
             ReferencedContainer = "container:tinyEngine.xcodeproj">

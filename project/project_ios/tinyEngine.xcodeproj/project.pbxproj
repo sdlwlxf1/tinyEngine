@@ -7,100 +7,66 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		79B508C61E6BFFA0001AF007 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B508C51E6BFFA0001AF007 /* main.m */; };
-		79B508C91E6BFFA0001AF007 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B508C81E6BFFA0001AF007 /* AppDelegate.m */; };
-		79B508CB1E6BFFA0001AF007 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 79B508CA1E6BFFA0001AF007 /* Shader.fsh */; };
-		79B508CD1E6BFFA0001AF007 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 79B508CC1E6BFFA0001AF007 /* Shader.vsh */; };
-		79B508D01E6BFFA0001AF007 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 79B508CF1E6BFFA0001AF007 /* GameViewController.m */; };
-		79B508D31E6BFFA0001AF007 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 79B508D11E6BFFA0001AF007 /* Main.storyboard */; };
-		79B508D51E6BFFA0001AF007 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 79B508D41E6BFFA0001AF007 /* Assets.xcassets */; };
-		79B508D81E6BFFA0001AF007 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 79B508D61E6BFFA0001AF007 /* LaunchScreen.storyboard */; };
-		79B509081E6C4E65001AF007 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B509071E6C4E65001AF007 /* libSDL2.a */; };
-		79B5090A1E6C4F80001AF007 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B509091E6C4F80001AF007 /* libpng.a */; };
+		166002C91E71105A00252926 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 166002C81E71105A00252926 /* libpng.a */; };
+		166002CB1E71106E00252926 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 166002CA1E71106E00252926 /* libSDL2.a */; };
+		166002CD1E7125D300252926 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 166002CC1E7125D300252926 /* Info.plist */; };
+		166002DC1E7175EB00252926 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 166002DB1E7175EB00252926 /* utils.m */; };
+		166002DE1E71779B00252926 /* mabu.png in Resources */ = {isa = PBXBuildFile; fileRef = 166002DD1E71779B00252926 /* mabu.png */; };
+		166002E11E71797300252926 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 166002E01E71797300252926 /* main.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		79B508C11E6BFFA0001AF007 /* tinyEngine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tinyEngine.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		79B508C51E6BFFA0001AF007 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		79B508C71E6BFFA0001AF007 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		79B508C81E6BFFA0001AF007 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		79B508CA1E6BFFA0001AF007 /* Shader.fsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.fsh; path = Shaders/Shader.fsh; sourceTree = "<group>"; };
-		79B508CC1E6BFFA0001AF007 /* Shader.vsh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = Shader.vsh; path = Shaders/Shader.vsh; sourceTree = "<group>"; };
-		79B508CE1E6BFFA0001AF007 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
-		79B508CF1E6BFFA0001AF007 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
-		79B508D21E6BFFA0001AF007 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		79B508D41E6BFFA0001AF007 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		79B508D71E6BFFA0001AF007 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		79B508D91E6BFFA0001AF007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		79B509071E6C4E65001AF007 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../external/sdl2/prebuild/ios/libSDL2.a; sourceTree = "<group>"; };
-		79B509091E6C4F80001AF007 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = ../../external/libpng/prebuild/ios/libpng.a; sourceTree = "<group>"; };
-		79B509311E706E4A001AF007 /* sdl_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sdl_window.h; path = ../../../resources/code/sdl_window.h; sourceTree = "<group>"; };
-		79B509321E706E4A001AF007 /* tiny3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tiny3D.h; path = ../../../resources/code/tiny3D.h; sourceTree = "<group>"; };
+		166002AD1E710FB700252926 /* tinyEngine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tinyEngine.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		166002C81E71105A00252926 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = ../../external/libpng/prebuild/ios/libpng.a; sourceTree = "<group>"; };
+		166002CA1E71106E00252926 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../external/sdl2/prebuild/ios/libSDL2.a; sourceTree = "<group>"; };
+		166002CC1E7125D300252926 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = tinyEngine/Info.plist; sourceTree = "<group>"; };
+		166002D01E71280B00252926 /* tiny3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tiny3D.h; path = ../../resources/code/tiny3D.h; sourceTree = "<group>"; };
+		166002DB1E7175EB00252926 /* utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = utils.m; path = tinyEngine/utils.m; sourceTree = "<group>"; };
+		166002DD1E71779B00252926 /* mabu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = mabu.png; path = ../../resources/image/mabu.png; sourceTree = "<group>"; };
+		166002DF1E71790500252926 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../../resources/code/utils.h; sourceTree = "<group>"; };
+		166002E01E71797300252926 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../../resources/code/main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		79B508BE1E6BFFA0001AF007 /* Frameworks */ = {
+		166002AA1E710FB700252926 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				79B5090A1E6C4F80001AF007 /* libpng.a in Frameworks */,
-				79B509081E6C4E65001AF007 /* libSDL2.a in Frameworks */,
+				166002CB1E71106E00252926 /* libSDL2.a in Frameworks */,
+				166002C91E71105A00252926 /* libpng.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		79B508B81E6BFFA0001AF007 = {
+		166002A41E710FB700252926 = {
 			isa = PBXGroup;
 			children = (
-				79B508C31E6BFFA0001AF007 /* tinyEngine */,
-				79B508C21E6BFFA0001AF007 /* Products */,
-				79B509061E6C4E65001AF007 /* Frameworks */,
+				166002DD1E71779B00252926 /* mabu.png */,
+				166002DB1E7175EB00252926 /* utils.m */,
+				166002CC1E7125D300252926 /* Info.plist */,
+				166002E01E71797300252926 /* main.c */,
+				166002DF1E71790500252926 /* utils.h */,
+				166002D01E71280B00252926 /* tiny3D.h */,
+				166002AE1E710FB700252926 /* Products */,
+				166002C71E71105A00252926 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		79B508C21E6BFFA0001AF007 /* Products */ = {
+		166002AE1E710FB700252926 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				79B508C11E6BFFA0001AF007 /* tinyEngine.app */,
+				166002AD1E710FB700252926 /* tinyEngine.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		79B508C31E6BFFA0001AF007 /* tinyEngine */ = {
+		166002C71E71105A00252926 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				79B509311E706E4A001AF007 /* sdl_window.h */,
-				79B509321E706E4A001AF007 /* tiny3D.h */,
-				79B508C71E6BFFA0001AF007 /* AppDelegate.h */,
-				79B508C81E6BFFA0001AF007 /* AppDelegate.m */,
-				79B508CA1E6BFFA0001AF007 /* Shader.fsh */,
-				79B508CC1E6BFFA0001AF007 /* Shader.vsh */,
-				79B508CE1E6BFFA0001AF007 /* GameViewController.h */,
-				79B508CF1E6BFFA0001AF007 /* GameViewController.m */,
-				79B508D11E6BFFA0001AF007 /* Main.storyboard */,
-				79B508D41E6BFFA0001AF007 /* Assets.xcassets */,
-				79B508D61E6BFFA0001AF007 /* LaunchScreen.storyboard */,
-				79B508D91E6BFFA0001AF007 /* Info.plist */,
-				79B508C41E6BFFA0001AF007 /* Supporting Files */,
-			);
-			path = tinyEngine;
-			sourceTree = "<group>";
-		};
-		79B508C41E6BFFA0001AF007 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				79B508C51E6BFFA0001AF007 /* main.m */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		79B509061E6C4E65001AF007 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				79B509091E6C4F80001AF007 /* libpng.a */,
-				79B509071E6C4E65001AF007 /* libSDL2.a */,
+				166002CA1E71106E00252926 /* libSDL2.a */,
+				166002C81E71105A00252926 /* libpng.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -108,13 +74,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		79B508C01E6BFFA0001AF007 /* tinyEngine */ = {
+		166002AC1E710FB700252926 /* tinyEngine */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 79B508DC1E6BFFA0001AF007 /* Build configuration list for PBXNativeTarget "tinyEngine" */;
+			buildConfigurationList = 166002C41E710FB700252926 /* Build configuration list for PBXNativeTarget "tinyEngine" */;
 			buildPhases = (
-				79B508BD1E6BFFA0001AF007 /* Sources */,
-				79B508BE1E6BFFA0001AF007 /* Frameworks */,
-				79B508BF1E6BFFA0001AF007 /* Resources */,
+				166002A91E710FB700252926 /* Sources */,
+				166002AA1E710FB700252926 /* Frameworks */,
+				166002AB1E710FB700252926 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -122,26 +88,26 @@
 			);
 			name = tinyEngine;
 			productName = tinyEngine;
-			productReference = 79B508C11E6BFFA0001AF007 /* tinyEngine.app */;
+			productReference = 166002AD1E710FB700252926 /* tinyEngine.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		79B508B91E6BFFA0001AF007 /* Project object */ = {
+		166002A51E710FB700252926 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0820;
-				ORGANIZATIONNAME = "李雪峰";
+				ORGANIZATIONNAME = sdlwlxf;
 				TargetAttributes = {
-					79B508C01E6BFFA0001AF007 = {
+					166002AC1E710FB700252926 = {
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = E2DRF2XY67;
 						ProvisioningStyle = Automatic;
 					};
 				};
 			};
-			buildConfigurationList = 79B508BC1E6BFFA0001AF007 /* Build configuration list for PBXProject "tinyEngine" */;
+			buildConfigurationList = 166002A81E710FB700252926 /* Build configuration list for PBXProject "tinyEngine" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -149,65 +115,42 @@
 				en,
 				Base,
 			);
-			mainGroup = 79B508B81E6BFFA0001AF007;
-			productRefGroup = 79B508C21E6BFFA0001AF007 /* Products */;
+			mainGroup = 166002A41E710FB700252926;
+			productRefGroup = 166002AE1E710FB700252926 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				79B508C01E6BFFA0001AF007 /* tinyEngine */,
+				166002AC1E710FB700252926 /* tinyEngine */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		79B508BF1E6BFFA0001AF007 /* Resources */ = {
+		166002AB1E710FB700252926 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				79B508D31E6BFFA0001AF007 /* Main.storyboard in Resources */,
-				79B508CD1E6BFFA0001AF007 /* Shader.vsh in Resources */,
-				79B508D51E6BFFA0001AF007 /* Assets.xcassets in Resources */,
-				79B508D81E6BFFA0001AF007 /* LaunchScreen.storyboard in Resources */,
-				79B508CB1E6BFFA0001AF007 /* Shader.fsh in Resources */,
+				166002DE1E71779B00252926 /* mabu.png in Resources */,
+				166002CD1E7125D300252926 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		79B508BD1E6BFFA0001AF007 /* Sources */ = {
+		166002A91E710FB700252926 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				79B508C91E6BFFA0001AF007 /* AppDelegate.m in Sources */,
-				79B508D01E6BFFA0001AF007 /* GameViewController.m in Sources */,
-				79B508C61E6BFFA0001AF007 /* main.m in Sources */,
+				166002DC1E7175EB00252926 /* utils.m in Sources */,
+				166002E11E71797300252926 /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXVariantGroup section */
-		79B508D11E6BFFA0001AF007 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				79B508D21E6BFFA0001AF007 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		79B508D61E6BFFA0001AF007 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				79B508D71E6BFFA0001AF007 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
 /* Begin XCBuildConfiguration section */
-		79B508DA1E6BFFA0001AF007 /* Debug */ = {
+		166002C21E710FB700252926 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -255,7 +198,7 @@
 			};
 			name = Debug;
 		};
-		79B508DB1E6BFFA0001AF007 /* Release */ = {
+		166002C31E710FB700252926 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -297,82 +240,90 @@
 			};
 			name = Release;
 		};
-		79B508DD1E6BFFA0001AF007 /* Debug */ = {
+		166002C51E710FB700252926 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULE_DEBUGGING = YES;
+				CLANG_WARN_INFINITE_RECURSION = NO;
+				CLANG_WARN_SUSPICIOUS_MOVE = NO;
+				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = E2DRF2XY67;
-				ENABLE_BITCODE = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				ENABLE_BITCODE = NO;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				HEADER_SEARCH_PATHS = (
+					../../external/libpng/include,
 					../../external/sdl2/include,
-					"../../external/libpng/include/**",
 					../../resources/code,
 				);
 				INFOPLIST_FILE = tinyEngine/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					../../external/sdl2/prebuild/ios,
 					../../external/libpng/prebuild/ios,
-					../../resources/code,
+					../../external/sdl2/prebuild/ios,
 				);
 				OTHER_LDFLAGS = "-lz";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sdlwlxf.tinyEngine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = NO;
 			};
 			name = Debug;
 		};
-		79B508DE1E6BFFA0001AF007 /* Release */ = {
+		166002C61E710FB700252926 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_MODULE_DEBUGGING = YES;
+				CLANG_WARN_INFINITE_RECURSION = NO;
+				CLANG_WARN_SUSPICIOUS_MOVE = NO;
+				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = E2DRF2XY67;
-				ENABLE_BITCODE = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				ENABLE_BITCODE = NO;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				HEADER_SEARCH_PATHS = (
+					../../external/libpng/include,
 					../../external/sdl2/include,
-					"../../external/libpng/include/**",
 					../../resources/code,
 				);
 				INFOPLIST_FILE = tinyEngine/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					../../external/sdl2/prebuild/ios,
 					../../external/libpng/prebuild/ios,
-					../../resources/code,
+					../../external/sdl2/prebuild/ios,
 				);
 				OTHER_LDFLAGS = "-lz";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sdlwlxf.tinyEngine;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = NO;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		79B508BC1E6BFFA0001AF007 /* Build configuration list for PBXProject "tinyEngine" */ = {
+		166002A81E710FB700252926 /* Build configuration list for PBXProject "tinyEngine" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				79B508DA1E6BFFA0001AF007 /* Debug */,
-				79B508DB1E6BFFA0001AF007 /* Release */,
+				166002C21E710FB700252926 /* Debug */,
+				166002C31E710FB700252926 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		79B508DC1E6BFFA0001AF007 /* Build configuration list for PBXNativeTarget "tinyEngine" */ = {
+		166002C41E710FB700252926 /* Build configuration list for PBXNativeTarget "tinyEngine" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				79B508DD1E6BFFA0001AF007 /* Debug */,
-				79B508DE1E6BFFA0001AF007 /* Release */,
+				166002C51E710FB700252926 /* Debug */,
+				166002C61E710FB700252926 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 79B508B91E6BFFA0001AF007 /* Project object */;
+	rootObject = 166002A51E710FB700252926 /* Project object */;
 }

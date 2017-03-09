@@ -2,11 +2,13 @@
 and may not be redistributed without written permission.*/
 
 //Using SDL, SDL_image, standard IO, math, and strings
+#include <stdbool.h>
 #include "SDL.h"
 #include "png.h"
 #include <stdio.h>
 //#include "mini3d.c"
 #include "tiny3D.h"
+#include "utils.h"
 
 
 #define PI 3.141592653
@@ -303,7 +305,7 @@ int generate_mipmaps(texture_t *texture, float gamma) {
 }
 
 #define PNG_BYTES_TO_CHECK 4
-int load_png_image( const char *filepath, texture_t *texture )
+int load_png_image( const char *name, const char *type, texture_t *texture )
 {
     FILE *fp;
     png_structp png_ptr;
@@ -312,7 +314,7 @@ int load_png_image( const char *filepath, texture_t *texture )
     char buf[PNG_BYTES_TO_CHECK];
     int w, h, x, y, temp, color_type;
     
-    fp = fopen( filepath, "rb" );
+    fp = fopen( getFilePath(name, type), "rb" );
     if( fp == NULL ) {
         return 1; /* 返回值 */
     }
@@ -414,7 +416,7 @@ void init_texture() {
     generate_mipmaps(texture, 1.01);
     
     texture = &textures[1];
-    if(load_png_image("mabu.png", texture) == 0) {
+    if(load_png_image("mabu", "png", texture) == 0) {
         texture->use_mipmap = true;
         generate_mipmaps(texture, 1.01);
     } else {
@@ -476,13 +478,11 @@ void camera_at_zero(device_t *device, const point_t *eye, const vector_t *at, co
     transform_update(&device->transform);
 }
 
-
-
 int screen_keys[512];	// 当前键盘按下状态
 float deltaTime = 0.0f;
 Uint32 lastFrame = 0;
 
-int start()
+int main(int argc, char * argv[])
 {
     //Start up SDL and create window
     if( !init(SCREEN_WIDTH, SCREEN_HEIGHT, "lixuefeng") )

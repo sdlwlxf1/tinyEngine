@@ -7,18 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		79B508E11E6C018B001AF007 /* sdl_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 79B508DF1E6C018B001AF007 /* sdl_window.cpp */; };
+		166002E81E717EE800252926 /* mabu.png in Resources */ = {isa = PBXBuildFile; fileRef = 166002E71E717EE800252926 /* mabu.png */; };
+		166002EA1E717F7F00252926 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 166002E91E717F7F00252926 /* libpng.a */; };
+		166002EC1E71837700252926 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 166002EB1E71837700252926 /* libSDL2.a */; };
+		166002EE1E7183F700252926 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 166002ED1E7183F700252926 /* utils.m */; };
+		79B508E11E6C018B001AF007 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 79B508DF1E6C018B001AF007 /* main.c */; };
 		79B508E21E6C018B001AF007 /* tiny3D.h in Sources */ = {isa = PBXBuildFile; fileRef = 79B508E01E6C018B001AF007 /* tiny3D.h */; };
-		79B508ED1E6C0E1D001AF007 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B508E61E6C0D14001AF007 /* libSDL2.a */; };
-		79B509021E6C2FB7001AF007 /* libpng.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 79B509011E6C2FB7001AF007 /* libpng.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		165434D71D99591E00F3B0C6 /* tinyEngine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tinyEngine; sourceTree = BUILT_PRODUCTS_DIR; };
-		79B508DF1E6C018B001AF007 /* sdl_window.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sdl_window.cpp; path = ../../resources/code/sdl_window.cpp; sourceTree = "<group>"; };
+		166002E71E717EE800252926 /* mabu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = mabu.png; path = ../../resources/image/mabu.png; sourceTree = "<group>"; };
+		166002E91E717F7F00252926 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = ../../external/libpng/prebuild/mac/libpng.a; sourceTree = "<group>"; };
+		166002EB1E71837700252926 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../external/sdl2/prebuild/mac/libSDL2.a; sourceTree = "<group>"; };
+		166002ED1E7183F700252926 /* utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = utils.m; path = tinyEngine/utils.m; sourceTree = "<group>"; };
+		79B508DF1E6C018B001AF007 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../../resources/code/main.c; sourceTree = "<group>"; };
 		79B508E01E6C018B001AF007 /* tiny3D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tiny3D.h; path = ../../resources/code/tiny3D.h; sourceTree = "<group>"; };
-		79B508E61E6C0D14001AF007 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../external/sdl2/prebuild/mac/libSDL2.a; sourceTree = "<group>"; };
-		79B509011E6C2FB7001AF007 /* libpng.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpng.dylib; path = ../../external/libpng/prebuild/mac/libpng.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -26,8 +30,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				79B508ED1E6C0E1D001AF007 /* libSDL2.a in Frameworks */,
-				79B509021E6C2FB7001AF007 /* libpng.dylib in Frameworks */,
+				166002EC1E71837700252926 /* libSDL2.a in Frameworks */,
+				166002EA1E717F7F00252926 /* libpng.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -37,7 +41,9 @@
 		165434CE1D99591E00F3B0C6 = {
 			isa = PBXGroup;
 			children = (
-				79B508DF1E6C018B001AF007 /* sdl_window.cpp */,
+				166002E71E717EE800252926 /* mabu.png */,
+				166002ED1E7183F700252926 /* utils.m */,
+				79B508DF1E6C018B001AF007 /* main.c */,
 				79B508E01E6C018B001AF007 /* tiny3D.h */,
 				165434D81D99591E00F3B0C6 /* Products */,
 				79B508E31E6C0D0B001AF007 /* Frameworks */,
@@ -55,8 +61,8 @@
 		79B508E31E6C0D0B001AF007 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				79B509011E6C2FB7001AF007 /* libpng.dylib */,
-				79B508E61E6C0D14001AF007 /* libSDL2.a */,
+				166002E91E717F7F00252926 /* libpng.a */,
+				166002EB1E71837700252926 /* libSDL2.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -70,6 +76,7 @@
 			buildPhases = (
 				165434D31D99591E00F3B0C6 /* Sources */,
 				165434D41D99591E00F3B0C6 /* Frameworks */,
+				166002E61E717EDB00252926 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -111,12 +118,24 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		166002E61E717EDB00252926 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				166002E81E717EE800252926 /* mabu.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		165434D31D99591E00F3B0C6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				79B508E11E6C018B001AF007 /* sdl_window.cpp in Sources */,
+				166002EE1E7183F700252926 /* utils.m in Sources */,
+				79B508E11E6C018B001AF007 /* main.c in Sources */,
 				79B508E21E6C018B001AF007 /* tiny3D.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -208,8 +227,8 @@
 		165434DF1D99591E00F3B0C6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -222,6 +241,7 @@
 					../../external/libpng/prebuild/mac,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				OTHER_LDFLAGS = "-lz";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -229,8 +249,8 @@
 		165434E01D99591E00F3B0C6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -243,6 +263,7 @@
 					../../external/libpng/prebuild/mac,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				OTHER_LDFLAGS = "-lz";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

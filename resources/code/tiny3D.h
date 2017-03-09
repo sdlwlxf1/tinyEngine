@@ -92,7 +92,7 @@ void vector_reflect(vector_t *r, const vector_t *v, const vector_t *n) {
 //      7)). normalize
 void vector_normalize(vector_t *v) {
     float len = vector_length(v);
-    if(abs(len) < 1e-6) return;
+    if(fabsf(len) < 1e-6) return;
     float k = 1 / len;
     v->x *= k;
     v->y *= k;
@@ -1044,7 +1044,7 @@ bool computeBarycentricCoords3d(point_t *res, const point_t *p0, const point_t *
     }
     
     float denom = v1 * u2 - v2 * u1;
-    if (abs(denom) < 1e-6) {
+    if (fabsf(denom) < 1e-6) {
         return false;
     }
     float oneOverDenom = 1.0f / denom;
