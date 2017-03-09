@@ -521,7 +521,7 @@ int main(int argc, char * argv[])
             bool c_dirty = true;
             
             memset(screen_keys, 0, sizeof(int) * 512);
-            device_init(&device, SCREEN_WIDTH, SCREEN_HEIGHT, 3.1415926 * 0.5f, 1.0f, 500.0f, NULL);
+            device_init(&device, SCREEN_WIDTH, SCREEN_HEIGHT, 3.1415926 * 0.5f, 0.1f, 500.0f, NULL);
             
             init_texture();
             device.render_state = RENDER_STATE_TEXTURE;
@@ -546,9 +546,9 @@ int main(int argc, char * argv[])
             }
             
             pointLights[0] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.5f, 0.5f, 0.5f, 1.0f}};
-            //pointLights[1] = {-1.0f, 6.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
-            //pointLights[2] = {7.0f, -1.0f, -6.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
-            //pointLights[3] = {0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
+            pointLights[1] = (pointlight_t){-1.0f, 6.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
+            pointLights[2] = (pointlight_t){7.0f, -1.0f, -6.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
+            pointLights[3] = (pointlight_t){0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
 
             // init object
             // ground
@@ -567,9 +567,9 @@ int main(int argc, char * argv[])
             
             // box
             object_t *box = &objects[1];
-            box->pos = (point_t){0, 5, 0, 1};
+            box->pos = (point_t){0, 1, 0, 1};
             box->scale = (vector_t){1, 1, 1, 0};
-            box->axis = (vector_t){0, 5, 0, 1};
+            box->axis = (vector_t){0, 5, 2, 1};
             box->theta = 0.0f;
             box->mesh = box_mesh;
             box->mesh_num = 36;
@@ -581,9 +581,9 @@ int main(int argc, char * argv[])
             
             // box
             object_t *box1 = &objects[2];
-            box1->pos = (point_t){0, 6, -1, 1};
-            box1->scale = (vector_t){0.2, 0.2, 0.2, 0};
-            box1->axis = (vector_t){0, 0, 0, 1};
+            box1->pos = (point_t){0, 2, -1, 1};
+            box1->scale = (vector_t){0.5, 0.5, 0.5, 0};
+            box1->axis = (vector_t){1, 0, 1, 1};
             box1->theta = 0.0f;
             box1->mesh = box_mesh;
             box1->mesh_num = 36;
@@ -627,7 +627,6 @@ int main(int argc, char * argv[])
                             c_lastX = e.motion.x;
                             c_lastY = e.motion.y;
                             firstMouse = false;
-                            
                         }
                         float xoffset = e.motion.x - c_lastX;
                         float yoffset = e.motion.y - c_lastY;
@@ -637,15 +636,14 @@ int main(int argc, char * argv[])
                         xoffset *= c_mouse_sensitivity;
                         yoffset *= c_mouse_sensitivity;
                         
-                        c_yaw += xoffset;
-                        c_pitch += yoffset;
-                        //std::cout << e.motion.x << "  " << e.motion.y << endl;
-                        if(c_pitch > 89.0f)
-                            c_pitch = 89.0f;
-                        if(c_pitch < -89.0f)
-                            c_pitch = -89.0f;
-                        
-                        c_dirty = true;
+//                        c_yaw += xoffset;
+//                        c_pitch += yoffset;
+//                        if(c_pitch > 89.0f)
+//                            c_pitch = 89.0f;
+//                        if(c_pitch < -89.0f)
+//                            c_pitch = -89.0f;
+//                        
+//                        c_dirty = true;
                     }
                 }
                 
@@ -694,8 +692,6 @@ int main(int argc, char * argv[])
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_up;
                     vector_scale(&temp, velocity);
-//                    vector_add(&c_pos, &c_pos, &temp);
-//                    c_dirty = true;
                     vector_add(&box->pos, &box->pos, &temp);
                     box->dirty = true;
                 }
@@ -703,8 +699,6 @@ int main(int argc, char * argv[])
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_right;
                     vector_scale(&temp, velocity);
-                    //vector_sub(&c_pos, &c_pos, &temp);
-                    //c_dirty = true;
                     vector_sub(&box->pos, &box->pos, &temp);
                     box->dirty = true;
                 }
@@ -712,8 +706,6 @@ int main(int argc, char * argv[])
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_up;
                     vector_scale(&temp, velocity);
-//                    vector_sub(&c_pos, &c_pos, &temp);
-//                    c_dirty = true;
                     vector_sub(&box->pos, &box->pos, &temp);
                     box->dirty = true;
                 }
@@ -721,8 +713,6 @@ int main(int argc, char * argv[])
                     float velocity = c_movementspeed * deltaTime;
                     vector_t temp = c_right;
                     vector_scale(&temp, velocity);
-                    //vector_add(&c_pos, &c_pos, &temp);
-                    //c_dirty = true;
                     vector_add(&box->pos, &box->pos, &temp);
                     box->dirty = true;
                 }
@@ -736,6 +726,14 @@ int main(int argc, char * argv[])
                 }   else {
                     kbhit = 0;
                 }
+                
+                // box auto rotate
+                box->theta -= 0.04f;
+                box->dirty = true;
+                
+                // box auto rotate
+                box1->theta += 0.04f;
+                box1->dirty = true;
                 
                 //Clear screen
                 SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
@@ -768,7 +766,7 @@ int main(int argc, char * argv[])
                 draw_object(&device, objects, object_count);
                 
                 // 渲染阴影
-                //draw_shadow(&device, objects, object_count);
+                // draw_shadow(&device, objects, object_count);
 
                 for(int i = 0; i < SCREEN_WIDTH; i++)
                 {
