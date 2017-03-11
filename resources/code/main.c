@@ -414,14 +414,14 @@ void init_texture() {
     texture->height = height;
     texture->use_mipmap = true;
     generate_mipmaps(texture, 1.01);
-    
+    /*
     texture = &textures[1];
     if(load_png_image("mabu", "png", texture) == 0) {
         texture->use_mipmap = true;
         generate_mipmaps(texture, 1.01);
     } else {
         exit(0);
-    }
+    }*/
 }
 
 void draw_object(device_t *device, object_t *objects, int obj_cnt) {
@@ -443,7 +443,7 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
             clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2], false);
     }
 }
-
+/*
 void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
     for(int i = 0; i < pointlight_cnt; i++) {
         vector_t pl = pointLights[i].pos;
@@ -472,7 +472,7 @@ void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
         }
     }
 }
-
+*/
 void camera_at_zero(device_t *device, const point_t *eye, const vector_t *at, const vector_t *up) {
     matrix_set_lookat(&device->transform.view, eye, at, up);
     transform_update(&device->transform);
@@ -560,7 +560,7 @@ int main(int argc, char * argv[])
             ground->mesh = ground_mesh;
             ground->mesh_num = 6;
             ground->material_id = 0;
-            ground->texture_id = 1;
+            ground->texture_id = 0;
             ground->shadow = false;
             ground->dirty = true;
             object_count++;
@@ -574,7 +574,7 @@ int main(int argc, char * argv[])
             box->mesh = box_mesh;
             box->mesh_num = 36;
             box->material_id = 0;
-            box->texture_id = 1;
+            box->texture_id = 0;
             box->shadow = true;
             box->dirty = true;
             object_count++;
