@@ -359,6 +359,7 @@ void init_texture() {
     texture_count++;
     
     // libpng读取外部纹理
+
     texture = &textures[1];
     if(load_png_image("mabu", "png", texture) == 0) {
         texture->use_mipmap = true;
@@ -411,7 +412,7 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
             clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2], false);
     }
 }
-
+/*
 void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
     for(int i = 0; i < pointlight_cnt; i++) {
         vector_t pl = pointLights[i].pos;
@@ -440,7 +441,7 @@ void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
         }
     }
 }
-
+*/
 void camera_at_zero(device_t *device, const point_t *eye, const vector_t *at, const vector_t *up) {
     matrix_set_lookat(&device->transform.view, eye, at, up);
     transform_update(&device->transform);
