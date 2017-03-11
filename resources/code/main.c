@@ -470,13 +470,13 @@ int main(int argc, char * argv[])
         
         float c_yaw = 0.0f;
         float c_pitch = 0.0f;
-        vector_t c_pos = {0.0f, 1.0f, -3.0f, 1.0f};
+        vector_t c_pos = {0.0f, 1.0f, -2.0f, 1.0f};
         vector_t c_front = {0.0f, 0.0f, 1.0f, 0.0f};
         vector_t c_up = {0.0f, 1.0f, 0.0f, 0.0f};
         vector_t c_right = {1.0f, 0.0f, 0.0f, 0.0f};
         vector_t c_worldup = {0.0f, 1.0f, 0.0f, 0.0f};
         float c_movementspeed = 2.0f;
-        float c_mouse_sensitivity = 3.0f;
+        float c_mouse_sensitivity = 0.7f;
         float c_zoom = 45.0f;
         float c_lastX = SCREEN_WIDTH >> 1, c_lastY = SCREEN_HEIGHT >> 1;
         bool firstMouse = true;
@@ -585,28 +585,27 @@ int main(int argc, char * argv[])
                 }
                 else if(e.type == SDL_MOUSEMOTION)
                 {
-//                    if(firstMouse) {
-//                        c_lastX = e.motion.x;
-//                        c_lastY = e.motion.y;
-//                        firstMouse = false;
-//                    }
-//                    float xoffset = e.motion.x - c_lastX;
-//                    float yoffset = e.motion.y - c_lastY;
-//                    c_lastX = e.motion.x;
-//                    c_lastY = e.motion.y;
-//                    
-//                    xoffset *= c_mouse_sensitivity;
-//                    yoffset *= c_mouse_sensitivity;
-//                    
-//                    c_yaw += xoffset;
-//                    c_pitch += yoffset;
-//                    if(c_pitch > 89.0f)
-//                        c_pitch = 89.0f;
-//                    if(c_pitch < -89.0f)
-//                        c_pitch = -89.0f;
+                    if(firstMouse) {
+                        c_lastX = e.motion.x;
+                        c_lastY = e.motion.y;
+                        firstMouse = false;
+                    }
+                    float xoffset = e.motion.x - c_lastX;
+                    float yoffset = e.motion.y - c_lastY;
+                    c_lastX = e.motion.x;
+                    c_lastY = e.motion.y;
                     
-                    e.motion.x;
-                    e.motion.y;
+                    xoffset *= c_mouse_sensitivity;
+                    yoffset *= c_mouse_sensitivity;
+                    
+                    c_yaw += xoffset;
+                    c_pitch += yoffset;
+                    if(c_pitch > 89.0f)
+                        c_pitch = 89.0f;
+                    if(c_pitch < -89.0f)
+                        c_pitch = -89.0f;
+                    
+                    //c_front = (vector_t){e.motion.x*2.0/SCREEN_WIDTH-1, 1-e.motion.y*2.0/SCREEN_HEIGHT, 1, 1};
                     
                     c_dirty = true;
                 }

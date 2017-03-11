@@ -446,8 +446,9 @@ typedef struct {
     matrix_t world;
     matrix_t view;
     matrix_t projection;
+    matrix_t projection_r;
     matrix_t transform_wv;
-    matrix_t transform_wv_r;
+    //matrix_t transform_wv_r;
     matrix_t transform;
     float w, h;
 } transform_t;
@@ -456,8 +457,8 @@ typedef struct {
 void transform_update(transform_t *ts) {
     matrix_mul(&ts->transform_wv, &ts->world, &ts->view);
     matrix_mul(&ts->transform, &ts->transform_wv, &ts->projection);
-    matrix_clone(&ts->transform_wv_r, &ts->transform_wv);
-    matrix_inverse(&ts->transform_wv_r);
+    //matrix_clone(&ts->transform_wv_r, &ts->transform_wv);
+    //matrix_inverse(&ts->transform_wv_r);
 }
 //  2). transform_init (ts, width, height)
 void transform_init(transform_t *ts, int width, int height, float fovy, float zn, float zf) {
@@ -465,6 +466,8 @@ void transform_init(transform_t *ts, int width, int height, float fovy, float zn
     matrix_set_identity(&ts->world);
     matrix_set_identity(&ts->view);
     matrix_set_perspective(&ts->projection, fovy, aspect, zn , zf);
+    matrix_clone(&ts->projection_r, &ts->projection);
+    matrix_inverse(&ts->projection_r);
     ts->w = (float)width;
     ts->h = (float)height;
     transform_update(ts);
