@@ -1,0 +1,2 @@
+﻿    正在创建库 C:\Users\lxf\tinyEngine\project\project_windows\Release\tinyEngine.lib 和对象 C:\Users\lxf\tinyEngine\project\project_windows\Release\tinyEngine.exp
+LINK : fatal error LNK1561: 必须定义入口点
