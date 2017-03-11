@@ -21,8 +21,6 @@ const int SCREEN_HEIGHT = 300;
 const int REAL_WIDTH = 300;
 const int REAL_HEIGHT = 300;
 
-//Starts up SDL and creates window
-bool init();
 
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
@@ -30,12 +28,9 @@ SDL_Window* gWindow = NULL;
 //The window renderer
 SDL_Renderer* gRenderer = NULL;
 
-bool init(int width, int height, const char *title)
+bool sdl_init(int width, int height, const char *title)
 {
-	//Initialization flag
 	bool success = true;
-
-	//Initialize SDL
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
@@ -48,7 +43,6 @@ bool init(int width, int height, const char *title)
 		{
 			printf( "Warning: Linear texture filtering not enabled!" );
 		}
-
 		//Create window
 		gWindow = SDL_CreateWindow( title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
@@ -454,7 +448,7 @@ Uint32 lastFrame = 0;
 int main(int argc, char * argv[])
 {
     //Start up SDL and create window
-    if( !init(SCREEN_WIDTH, SCREEN_HEIGHT, "lixuefeng") )
+    if( !sdl_init(SCREEN_WIDTH, SCREEN_HEIGHT, "lixuefeng") )
     {
         printf( "Failed to initialize!\n" );
     }

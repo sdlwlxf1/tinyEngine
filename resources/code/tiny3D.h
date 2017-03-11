@@ -127,118 +127,8 @@ void matrix_scale(matrix_t *m, float k) {
         for(int j = 0; j < 4; j++)
             m->m[i][j] *= k;
 }
-#define N 3
-float getA(float arcs[N][N], int n)//按第一行展开计算|A|
-{
-    if(n==1)
-    {
-        return arcs[0][0];
-    }
-    float ans = 0;
-    float temp[N][N];
-    int i,j,k;
-    for(i=0;i<n;i++)
-    {
-        for(j=0;j<n-1;j++)
-        {
-            for(k=0;k<n-1;k++)
-            {
-                temp[j][k] = arcs[j+1][(k>=i)?k+1:k];
-                
-            }
-        }
-        float t = getA(temp,n-1);
-        if(i%2==0)
-        {
-            ans += arcs[0][i]*t;
-        }
-        else
-        {
-            ans -= arcs[0][i]*t;
-        }
-    }
-    return ans;
-}
-void getAStart(float arcs[N][N], int n, float ans[N][N])//计算每一行每一列的每个元素所对应的余子式，组成A*
-{
-    if(n==1)
-    {
-        ans[0][0] = 1;
-        return;
-    }
-    int i,j,k,t;
-    float temp[N][N];
-    for(i=0;i<n;i++)
-    {
-        for(j=0;j<n;j++)
-        {
-            for(k=0;k<n-1;k++)
-            {
-                for(t=0;t<n-1;t++)
-                {
-                    temp[k][t] = arcs[k>=i?k+1:k][t>=j?t+1:t];
-                }
-            }
-            
-            
-            ans[j][i] = getA(temp,n-1);
-            if((i+j)%2 == 1)
-            {
-                ans[j][i] = -ans[j][i];
-            }
-        }
-    }  
-}
-
-
 //      5)). inverse
 void matrix_inverse(matrix_t *m) {
-//    float arcs[3][3];
-//    float astar[3][3];
-//    int i, j;
-//
-//    for(i = 0; i < 3; i++)
-//        for(j = 0; j < 3; j++)
-//            arcs[i][j] = m->m[i][j];
-//    
-//    float a = getA(arcs, 3);
-//    if(a==0)
-//    {
-//        printf("can not transform!\n");
-//    }
-//    else
-//    {
-//        getAStart(arcs, 3, astar);
-//        for(i = 0; i < 3; i++)
-//        {
-//            for(j = 0; j <3 ; j++)
-//            {
-//                m->m[i][j] = astar[i][j]/a;
-//            }
-//        }
-//    }
-    
-    
-//    matrix_t res;
-//    double determinant =    +m->m[0][0] * (m->m[1][1]*m->m[2][2] - m->m[2][1]*m->m[1][2])
-//    - m->m[0][1] * (m->m[1][0]*m->m[2][2] - m->m[1][2]*m->m[2][0])
-//    + m->m[0][2] * (m->m[1][0]*m->m[2][1] - m->m[1][1]*m->m[2][0]);
-//    double invdet = 1/determinant;
-//    res.m[0][0] =  (m->m[1][1]*m->m[2][2]-m->m[2][1]*m->m[1][2])*invdet;
-//    res.m[1][0] = -(m->m[0][1]*m->m[2][2]-m->m[0][2]*m->m[2][1])*invdet;
-//    res.m[2][0] =  (m->m[0][1]*m->m[1][2]-m->m[0][2]*m->m[1][1])*invdet;
-//    res.m[0][1] = -(m->m[1][0]*m->m[2][2]-m->m[1][2]*m->m[2][0])*invdet;
-//    res.m[1][1] =  (m->m[0][0]*m->m[2][2]-m->m[0][2]*m->m[2][0])*invdet;
-//    res.m[2][1] = -(m->m[0][0]*m->m[1][2]-m->m[1][0]*m->m[0][2])*invdet;
-//    res.m[0][2] =  (m->m[1][0]*m->m[2][1]-m->m[2][0]*m->m[1][1])*invdet;
-//    res.m[1][2] = -(m->m[0][0]*m->m[2][1]-m->m[2][0]*m->m[0][1])*invdet;
-//    res.m[2][2] =  (m->m[0][0]*m->m[1][1]-m->m[1][0]*m->m[0][1])*invdet;
-//    
-//    int i, j;
-//    for(i = 0; i < 3; i++)
-//        for(j = 0; j < 3; j++)
-//            m->m[i][j-3] = res.m[i][j];
-    
     float t[3][6];
     int i, j, k;
     float f;
@@ -1187,7 +1077,7 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     vector_normalize(&t2->normal);
     vector_normalize(&t3->normal);
     
-//    简单的裁剪，整个三角形裁减掉
+//    简单的cvv裁剪，整个三角形裁减掉
 //    if (transform_check_cvv(&c1) != 0) return;
 //    if (transform_check_cvv(&c2) != 0) return;
 //    if (transform_check_cvv(&c3) != 0) return;
