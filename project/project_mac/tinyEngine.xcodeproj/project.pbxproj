@@ -11,6 +11,7 @@
 		166002EC1E71837700252926 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 166002EB1E71837700252926 /* libSDL2.a */; };
 		166002EE1E7183F700252926 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 166002ED1E7183F700252926 /* utils.m */; };
 		166002F11E7186B800252926 /* mabu.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 166002E71E717EE800252926 /* mabu.png */; };
+		166002F51E72C78C00252926 /* dimian.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 166002F41E72C78C00252926 /* dimian.png */; };
 		79B508E11E6C018B001AF007 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 79B508DF1E6C018B001AF007 /* main.c */; };
 		79B508E21E6C018B001AF007 /* tiny3D.h in Sources */ = {isa = PBXBuildFile; fileRef = 79B508E01E6C018B001AF007 /* tiny3D.h */; };
 /* End PBXBuildFile section */
@@ -22,6 +23,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
+				166002F51E72C78C00252926 /* dimian.png in CopyFiles */,
 				166002F11E7186B800252926 /* mabu.png in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -34,6 +36,7 @@
 		166002E91E717F7F00252926 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = ../../external/libpng/prebuild/mac/libpng.a; sourceTree = "<group>"; };
 		166002EB1E71837700252926 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../external/sdl2/prebuild/mac/libSDL2.a; sourceTree = "<group>"; };
 		166002ED1E7183F700252926 /* utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = utils.m; path = tinyEngine/utils.m; sourceTree = "<group>"; };
+		166002F41E72C78C00252926 /* dimian.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dimian.png; path = ../../resources/image/dimian.png; sourceTree = "<group>"; };
 		79B508DF1E6C018B001AF007 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../../resources/code/main.c; sourceTree = "<group>"; };
 		79B508E01E6C018B001AF007 /* tiny3D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tiny3D.h; path = ../../resources/code/tiny3D.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -54,6 +57,7 @@
 		165434CE1D99591E00F3B0C6 = {
 			isa = PBXGroup;
 			children = (
+				166002F41E72C78C00252926 /* dimian.png */,
 				166002E71E717EE800252926 /* mabu.png */,
 				166002ED1E7183F700252926 /* utils.m */,
 				79B508DF1E6C018B001AF007 /* main.c */,

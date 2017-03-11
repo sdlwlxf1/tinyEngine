@@ -522,8 +522,6 @@ void color_add(color_t *c, const color_t *a, const color_t *b) {
     c->a = a->a + b->a;
 }
 
-//point_t viewPos;
-
 typedef struct { float u, v; } texcoord_t;
 typedef struct { point_t pos; texcoord_t tc; color_t color; float rhw; vector_t normal; } vertex_t;
 
@@ -905,17 +903,6 @@ void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 
     }
 }
 
-//IUINT32 device_texture_read(const device_t *device, float u, float v) {
-//    int x, y;
-//    u = u * device->max_u;
-//    v = v * device->max_v;
-//    x = (int)(u + 0.5f);
-//    y = (int)(v + 0.5f);
-//    x = CMID(x, 0, device->tex_width - 1);
-//    y = CMID(y, 0, device->tex_height - 1);
-//    return device->texture[y][x];
-//}
-
 // 双线性插值和mipmap
 color_t device_texture_read(const device_t *device, float u, float v, float z, float maxz) {
     color_t color;
@@ -933,8 +920,8 @@ color_t device_texture_read(const device_t *device, float u, float v, float z, f
             height = height >> 1;
         }
     }
-    u = u * (width-1);
-    v = v * (height-1);
+    u = (u-(int)u) * (width-1);
+    v = (v-(int)v) * (height-1);
     int uint = (int)u;
     int vint = (int)v;
     int uint_pls_1 = uint+1;
@@ -999,11 +986,6 @@ color_t device_texture_read(const device_t *device, float u, float v, float z, f
         dtu_x_one_minus_dtv * textel01_b +
         dtu_x_dtv * textel11_b + 
         one_minus_dtu_x_dtv * textel10_b;
-    
-//    color.r = textel00_r;
-//    color.g = textel00_g;
-//    color.b = textel00_b;
-
     return color;
 }
 
@@ -1168,7 +1150,7 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     p1 = t1->pos;
     p2 = t2->pos;
     p3 = t3->pos;
-    // 使用法向量
+    // 使用法向量背面剔除
     //    matrix_apply(&c1, &t1->pos, &device->transform.world);
     //    matrix_apply(&c2, &t2->pos, &device->transform.world);
     //    matrix_apply(&c3, &t3->pos, &device->transform.world);
@@ -1191,7 +1173,6 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     matrix_apply(&t3->pos, &t3->pos, &device->transform.projection);
     
     // 法向量乘正规矩阵
-//    vector_t normals[3];
     matrix_t nm;
     matrix_clone(&nm, &device->transform.transform_wv);
     matrix_inverse(&nm);
@@ -1203,6 +1184,7 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     vector_normalize(&t2->normal);
     vector_normalize(&t3->normal);
     
+//    简单的裁剪，整个三角形裁减掉
 //    if (transform_check_cvv(&c1) != 0) return;
 //    if (transform_check_cvv(&c2) != 0) return;
 //    if (transform_check_cvv(&c3) != 0) return;
@@ -1219,33 +1201,12 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     vector_t t21, t32;
     vector_sub(&t21, &t2->pos, &t1->pos);
     vector_sub(&t32, &t3->pos, &t2->pos);
-    // 计算叉积
-    if(t21.x * t32.y - t32.x * t21.y <= 0)
+    if(t21.x * t32.y - t32.x * t21.y <= 0)    // 计算叉积
         return;
     
     if (render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
-//        vertex_t t[3];
-//        point_t p[3];
-//        t[0] = *t1, t[1] = *t2, t[2] = *t3;
         trapezoid_t traps[2];
-        int n;
-        
-//        p[0] = p1;
-//        p[1] = p2;
-//        p[2] = p3;
-//        t[0].pos = p1;
-//        t[1].pos = p2;
-//        t[2].pos = p3;
-//        t[0].pos.w = c1.w;
-//        t[1].pos.w = c2.w;
-//        t[2].pos.w = c3.w;
-        
-        n = trapezoid_init_triangle(traps, t1, t2, t3);
-        
-//        matrix_apply(&t[0].pos, &t1->pos, &device->transform.world);
-//        matrix_apply(&t[1].pos, &t2->pos, &device->transform.world);
-//        matrix_apply(&t[2].pos, &t3->pos, &device->transform.world);
-        
+        int n = trapezoid_init_triangle(traps, t1, t2, t3);
         if(n >= 1) device_render_trap(device, &traps[0], t1, t2, t3, &p1, &p2, &p3);
         if(n >= 2) device_render_trap(device, &traps[1], t1, t2, t3, &p1, &p2, &p3);
     }

@@ -13,6 +13,7 @@
 		166002DC1E7175EB00252926 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 166002DB1E7175EB00252926 /* utils.m */; };
 		166002DE1E71779B00252926 /* mabu.png in Resources */ = {isa = PBXBuildFile; fileRef = 166002DD1E71779B00252926 /* mabu.png */; };
 		166002E11E71797300252926 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 166002E01E71797300252926 /* main.c */; };
+		166002F31E72C69600252926 /* dimian.png in Resources */ = {isa = PBXBuildFile; fileRef = 166002F21E72C69600252926 /* dimian.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +26,7 @@
 		166002DD1E71779B00252926 /* mabu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = mabu.png; path = ../../resources/image/mabu.png; sourceTree = "<group>"; };
 		166002DF1E71790500252926 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../../resources/code/utils.h; sourceTree = "<group>"; };
 		166002E01E71797300252926 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../../resources/code/main.c; sourceTree = "<group>"; };
+		166002F21E72C69600252926 /* dimian.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dimian.png; path = ../../resources/image/dimian.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +45,7 @@
 		166002A41E710FB700252926 = {
 			isa = PBXGroup;
 			children = (
+				166002F21E72C69600252926 /* dimian.png */,
 				166002DD1E71779B00252926 /* mabu.png */,
 				166002DB1E7175EB00252926 /* utils.m */,
 				166002CC1E7125D300252926 /* Info.plist */,
@@ -130,6 +133,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				166002F31E72C69600252926 /* dimian.png in Resources */,
 				166002DE1E71779B00252926 /* mabu.png in Resources */,
 				166002CD1E7125D300252926 /* Info.plist in Resources */,
 			);
