@@ -235,7 +235,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "924"
             endingLineNumber = "924"
-            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
+            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *p0, const point_t *p1,const point_t *p2,const point_t *p)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -251,7 +251,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "926"
             endingLineNumber = "926"
-            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
+            landmarkName = "computeBarycentricCoords3d(point_t *res, const point_t *p0, const point_t *p1,const point_t *p2,const point_t *p)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -267,7 +267,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "949"
             endingLineNumber = "949"
-            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
+            landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t *t1, const vertex_t *t2, const vertex_t *t3, const point_t *p1, const point_t *p2, const point_t *p3)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -299,7 +299,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "839"
             endingLineNumber = "839"
-            landmarkName = "device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool use_mipmap)"
+            landmarkName = "device_texture_read(const device_t *device, float u, float v, float z, float maxz)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
