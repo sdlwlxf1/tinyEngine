@@ -15,11 +15,11 @@ and may not be redistributed without written permission.*/
 #define radian_to_angle(X) ((X)/PI*180)
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 300;
-const int SCREEN_HEIGHT = 300;
+const int SCREEN_WIDTH = 600;
+const int SCREEN_HEIGHT = 600;
 
-const int REAL_WIDTH = 300;
-const int REAL_HEIGHT = 300;
+const int REAL_WIDTH = 600;
+const int REAL_HEIGHT = 600;
 
 
 //The window we'll be rendering to
