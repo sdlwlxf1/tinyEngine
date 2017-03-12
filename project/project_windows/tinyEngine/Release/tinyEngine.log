@@ -1,2 +1,42 @@
-﻿    正在创建库 C:\Users\lxf\tinyEngine\project\project_windows\Release\tinyEngine.lib 和对象 C:\Users\lxf\tinyEngine\project\project_windows\Release\tinyEngine.exp
+﻿  main.c
+..\..\..\resources\code\main.c : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+c:\users\lxf\tinyengine\resources\code\tiny3D.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+c:\users\lxf\tinyengine\resources\code\tiny3D.h(33): warning C4244: “return”: 从“double”转换到“float”，可能丢失数据
+c:\users\lxf\tinyengine\resources\code\tiny3D.h(873): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+c:\users\lxf\tinyengine\resources\code\tiny3D.h(808): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+c:\users\lxf\tinyengine\resources\code\tiny3D.h(855): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+c:\users\lxf\tinyengine\resources\code\tiny3D.h(856): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+c:\users\lxf\tinyengine\resources\code\tiny3D.h(1153): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\lxf\tinyengine\resources\code\utils.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+..\..\..\resources\code\main.c(198): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(199): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(200): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(201): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(204): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(205): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(206): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(207): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(210): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(211): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(212): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(213): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(216): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(217): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(218): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(219): warning C4244: “=”: 从“IUINT32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(353): warning C4305: “函数”: 从“double”到“float”截断
+..\..\..\resources\code\main.c(361): warning C4305: “函数”: 从“double”到“float”截断
+..\..\..\resources\code\main.c(371): warning C4305: “函数”: 从“double”到“float”截断
+..\..\..\resources\code\main.c(382): warning C4018: “<”: 有符号/无符号不匹配
+..\..\..\resources\code\main.c(481): warning C4305: “函数”: 从“double”到“float”截断
+..\..\..\resources\code\main.c(584): warning C4244: “=”: 从“Sint32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(585): warning C4244: “=”: 从“Sint32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(590): warning C4244: “=”: 从“Sint32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(591): warning C4244: “=”: 从“Sint32”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(705): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(706): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(707): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+..\..\..\resources\code\main.c(476): warning C4244: “初始化”: 从“const int”转换到“float”，可能丢失数据
+  utils.c
+    正在创建库 C:\Users\lxf\tinyEngine\project\project_windows\Release\tinyEngine.lib 和对象 C:\Users\lxf\tinyEngine\project\project_windows\Release\tinyEngine.exp
 LINK : fatal error LNK1561: 必须定义入口点

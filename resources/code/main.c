@@ -247,7 +247,8 @@ int load_png_image( const char *name, const char *type, texture_t *texture )
     char buf[PNG_BYTES_TO_CHECK];
     int w, h, x, y, temp, color_type;
     
-    fp = fopen( getFilePath(name, type), "rb" );
+	char path[100];
+    fp = fopen( getFilePath(name, type, path), "rb" );
     if( fp == NULL ) {
         return 1; /* 返回值 */
     }

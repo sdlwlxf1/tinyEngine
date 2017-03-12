@@ -8,5 +8,5 @@
 
 #ifndef utils_h
 #define utils_h
-const char* getFilePath(const char* name, const char* type);
+const char* getFilePath(const char* name, const char* type, char* path);
 #endif /* utils_h */

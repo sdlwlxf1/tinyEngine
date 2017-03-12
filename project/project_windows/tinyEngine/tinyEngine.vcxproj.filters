@@ -30,4 +30,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\resources\image\dimian.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\..\..\resources\image\mabu.png">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
