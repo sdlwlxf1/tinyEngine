@@ -347,8 +347,6 @@ typedef struct {
 void transform_update(transform_t *ts) {
     matrix_mul(&ts->transform_wv, &ts->world, &ts->view);
     matrix_mul(&ts->transform, &ts->transform_wv, &ts->projection);
-    //matrix_clone(&ts->transform_wv_r, &ts->transform_wv);
-    //matrix_inverse(&ts->transform_wv_r);
 }
 //  2). transform_init (ts, width, height)
 void transform_init(transform_t *ts, int width, int height, float fovy, float zn, float zf) {
@@ -487,6 +485,7 @@ void calc_dirlight(color_t *color, const material_t *material, const dirlight_t 
     vector_inverse(&lightDir);
     vector_normalize(&lightDir);
     float diff = fmaxf(vector_dotproduct(normal, &lightDir), 0.0f);
+    //printf("%f\n", diff);
     lightDir = light->vdir;
     vector_normalize(&lightDir);
     vector_t vec;
@@ -970,7 +969,6 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                 vector_scale(&ptemp, barycenter.z);
                 vector_add(&normal, &normal, &ptemp);
                 vector_normalize(&normal);
-                //printf("%f, %f, %f\n", normal.x, normal.y, normal.z);
                 vector_t viewdir, viewPos = {0.0f, 0.0f ,0.0f};
                 vector_sub(&viewdir, &viewPos, &fragPos);
                 vector_normalize(&viewdir);
