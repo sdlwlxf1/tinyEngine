@@ -15,11 +15,11 @@ and may not be redistributed without written permission.*/
 #define radian_to_angle(X) ((X)/PI*180)
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 600;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 400;
+const int SCREEN_HEIGHT = 400;
 
-const int REAL_WIDTH = 600;
-const int REAL_HEIGHT = 600;
+const int REAL_WIDTH = 400;
+const int REAL_HEIGHT = 400;
 
 
 //The window we'll be rendering to
@@ -403,8 +403,17 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
         device->transform.world = object->matrix;
         transform_update(&device->transform);
         vertex_t *mesh = object->mesh;
-        for(int i = 0; i < object->mesh_num; i+=3)
+        
+        for(int i = 0; i < object->mesh_num; i+=3) {
+//            vertex_t p1 = mesh[i], p2 = mesh[i+1], p3 = mesh[i+2];
+//            matrix_apply(&p1.pos, &p1.pos, &device->transform.transform_wv);
+//            matrix_apply(&p2.pos, &p2.pos, &device->transform.transform_wv);
+//            matrix_apply(&p3.pos, &p3.pos, &device->transform.transform_wv);
+//            device_draw_primitive(device, &p1, &p2, &p3);
             clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2], false);
+        }
+        
+        
     }
 }
 /*
@@ -437,9 +446,44 @@ void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
     }
 }
 */
+
+typedef struct {
+    vector_t pos;
+    vector_t front;
+    vector_t worldup;
+    int width;
+    int height;
+    float fovy;
+    float zn;
+    float zf;
+    bool dirty;
+    int type;
+} camera_t;
+#define MAX_NUM_CAMERA 10
+camera_t cameras[MAX_NUM_CAMERA];
+int camera_count = 0;
+
 void camera_at_zero(device_t *device, const point_t *eye, const vector_t *at, const vector_t *up) {
     matrix_set_lookat(&device->transform.view, eye, at, up);
     transform_update(&device->transform);
+}
+
+// 利用欧拉角原理来实现摄像机旋转
+void camera_init_by_euler(camera_t *camera, float yaw, float pitch) {
+    camera->front.x = sin(angle_to_radian(yaw)) * cos(angle_to_radian(pitch));
+    camera->front.y = -sin(angle_to_radian(pitch));
+    camera->front.z = cos(angle_to_radian(yaw)) * cos(angle_to_radian(pitch));
+    vector_normalize(&camera->front);
+}
+
+void camera_update(camera_t *camera, device_t *device) {
+    vector_t right, at, up;
+    vector_crossproduct(&right, &camera->worldup, &camera->front);
+    vector_normalize(&right);
+    vector_crossproduct(&up, &camera->front, &right);
+    vector_normalize(&up);
+    vector_add(&at, &camera->pos, &camera->front);
+    camera_at_zero(device, &camera->pos, &at, &up);
 }
 
 int screen_keys[512];	// 当前键盘按下状态
@@ -463,25 +507,32 @@ int main(int argc, char * argv[])
         int indicator = 0;
         int kbhit = 0;
         
+        camera_t *camera1 = &cameras[0];
+        camera1->pos = (vector_t){0.0f, 0.0f, -3.0f, 1.0f};
+        camera1->front = (vector_t){0.0f, 0.0f, 1.0f, 0.0f};
+        camera1->worldup = (vector_t){0.0f, 1.0f, 0.0f, 0.0f};
+        camera1->fovy = 3.1415926 * 0.5f;
+        camera1->zn = 0.1f;
+        camera1->zf = 500.0f;
+        camera1->width = REAL_WIDTH;
+        camera1->height = REAL_HEIGHT;
+        camera1->dirty = true;
+        camera_count++;
+        
         float c_yaw = 0.0f;
         float c_pitch = 0.0f;
-        vector_t c_pos = {0.0f, 1.0f, -3.0f, 1.0f};
-        vector_t c_front = {0.0f, 0.0f, 1.0f, 0.0f};
-        vector_t c_up = {0.0f, 1.0f, 0.0f, 0.0f};
-        vector_t c_right = {-1.0f, 0.0f, 0.0f, 0.0f};
-        vector_t c_worldup = {0.0f, 1.0f, 0.0f, 0.0f};
         float c_movementspeed = 2.0f;
         float c_mouse_sensitivity = 0.7f;
-        float c_zoom = 45.0f;
         float c_lastX = SCREEN_WIDTH >> 1, c_lastY = SCREEN_HEIGHT >> 1;
         bool firstMouse = true;
-        bool c_dirty = true;
         
         memset(screen_keys, 0, sizeof(int) * 512);
-        device_init(&device, REAL_WIDTH, REAL_HEIGHT, 3.1415926 * 0.5f, 0.1f, 500.0f, NULL);
+        
+        IUINT32 framebuffer[REAL_HEIGHT][REAL_WIDTH];
+        float zbuffer[REAL_HEIGHT][REAL_WIDTH];
+        int render_state = RENDER_STATE_TEXTURE;
         
         init_texture();
-        device.render_state = RENDER_STATE_TEXTURE;
         
         materials[0] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
         material_cnt++;
@@ -492,18 +543,22 @@ int main(int argc, char * argv[])
         materials[3] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
         material_cnt++;
         
-        dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}};
+        dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, true};
+        if(dirLight.shadow == true)
+        {
+            
+        }
 //        dirLight = (dirlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
         
         int i = 0;
         for(i = 0; i < 4; i++)
         {
-            pointLights[i] = (pointlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+            pointLights[i] = (pointlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
             pointlight_cnt++;
         }
         
-        pointLights[0] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}};
-        pointLights[1] = (pointlight_t){-1.0f, 6.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f};
+        pointLights[0] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}, false};
+//        pointLights[1] = (pointlight_t){-1.0f, 6.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f};
 //        pointLights[2] = (pointlight_t){7.0f, -1.0f, -6.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
 //        pointLights[3] = (pointlight_t){0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
 
@@ -602,42 +657,42 @@ int main(int argc, char * argv[])
                     
                     //c_front = (vector_t){e.motion.x*2.0/SCREEN_WIDTH-1, 1-e.motion.y*2.0/SCREEN_HEIGHT, 1, 1};
                     
-                    c_dirty = true;
+                    camera1->dirty = true;
                 }
             }
             
             if (screen_keys[SDL_SCANCODE_W]) {
                 float velocity = c_movementspeed * deltaTime;
-                vector_t temp = c_front;
+                vector_t temp = camera1->front;
                 vector_scale(&temp, velocity);
-                vector_add(&c_pos, &c_pos, &temp);
-                c_dirty = true;
+                vector_add(&camera1->pos, &camera1->pos, &temp);
+                camera1->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_S]) {
                 
                 float velocity = c_movementspeed * deltaTime;
-                vector_t temp = c_front;
+                vector_t temp = camera1->front;
                 vector_scale(&temp, velocity);
-                vector_sub(&c_pos, &c_pos, &temp);
-                c_dirty = true;
+                vector_sub(&camera1->pos, &camera1->pos, &temp);
+                camera1->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_A]) {
                 float velocity = c_movementspeed * deltaTime;
                 vector_t temp;
-                vector_crossproduct(&temp, &c_front, &c_up);
+                vector_crossproduct(&temp, &camera1->front, &camera1->worldup);
                 vector_normalize(&temp);
                 vector_scale(&temp, velocity);
-                vector_add(&c_pos, &c_pos, &temp);
-                c_dirty = true;
+                vector_add(&camera1->pos, &camera1->pos, &temp);
+                camera1->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_D]) {
                 float velocity = c_movementspeed * deltaTime;
                 vector_t temp;
-                vector_crossproduct(&temp, &c_front, &c_up);
+                vector_crossproduct(&temp, &camera1->front, &camera1->worldup);
                 vector_normalize(&temp);
                 vector_scale(&temp, velocity);
-                vector_sub(&c_pos, &c_pos, &temp);
-                c_dirty = true;
+                vector_sub(&camera1->pos, &camera1->pos, &temp);
+                camera1->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_Q]) {
                 box->theta -= 0.04f;
@@ -649,28 +704,28 @@ int main(int argc, char * argv[])
             }
             if (screen_keys[SDL_SCANCODE_UP]) {
                 float velocity = c_movementspeed * deltaTime;
-                vector_t temp = c_up;
+                vector_t temp = {0.0f, 0.0f, 0.0f, 0.0f};
                 vector_scale(&temp, velocity);
                 vector_add(&box->pos, &box->pos, &temp);
                 box->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_LEFT]) {
                 float velocity = c_movementspeed * deltaTime;
-                vector_t temp = c_right;
+                vector_t temp = {0.0f, 0.0f, 0.0f, 0.0f};
                 vector_scale(&temp, velocity);
                 vector_sub(&box->pos, &box->pos, &temp);
                 box->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_DOWN]) {
                 float velocity = c_movementspeed * deltaTime;
-                vector_t temp = c_up;
+                vector_t temp = {0.0f, 0.0f, 0.0f, 0.0f};
                 vector_scale(&temp, velocity);
                 vector_sub(&box->pos, &box->pos, &temp);
                 box->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_RIGHT]) {
                 float velocity = c_movementspeed * deltaTime;
-                vector_t temp = c_right;
+                vector_t temp = {0.0f, 0.0f, 0.0f, 0.0f};
                 vector_scale(&temp, velocity);
                 vector_add(&box->pos, &box->pos, &temp);
                 box->dirty = true;
@@ -680,7 +735,7 @@ int main(int argc, char * argv[])
                 if (kbhit == 0) {
                     kbhit = 1;
                     if (++indicator >= 3) indicator = 0;
-                    device.render_state = states[indicator];
+                        render_state = states[indicator];
                 }
             }   else {
                 kbhit = 0;
@@ -698,33 +753,31 @@ int main(int argc, char * argv[])
             SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
             SDL_RenderClear( gRenderer );
             
-            device_clear(&device, 1);
+            device_clear(&device);
             
-            if(c_dirty == true) {
-                // 利用欧拉角原理来实现摄像机旋转
-                c_front.x = sin(angle_to_radian(c_yaw)) * cos(angle_to_radian(c_pitch));
-                c_front.y = -sin(angle_to_radian(c_pitch));
-                c_front.z = cos(angle_to_radian(c_yaw)) * cos(angle_to_radian(c_pitch));
-                
-                vector_normalize(&c_front);
-                vector_crossproduct(&c_right, &c_worldup, &c_front);
-                vector_normalize(&c_right);
-                vector_crossproduct(&c_up, &c_front, &c_right);
-                vector_normalize(&c_up);
-                vector_t at;
-                vector_add(&at, &c_pos, &c_front);
-                camera_at_zero(&device, &c_pos, &at, &c_up);
-                
-                matrix_apply(&dirLight.vdir, &dirLight.dir, &device.transform.view);
-                vector_normalize(&dirLight.vdir);
-                //printf("%f, %f, %f\n", dirLight.vdir.x, dirLight.vdir.y, dirLight.vdir.z);
-                for(i = 0; i < pointlight_cnt; i++)
-                {
-                    matrix_apply(&pointLights[i].vpos, &pointLights[i].pos, &device.transform.view);
-                    vector_normalize(&pointLights[i].vpos);
+            if(camera1->dirty)
+                camera_init_by_euler(camera1, c_yaw, c_pitch);
+            
+            for(int i = 0; i < camera_count; i++)
+            {
+                camera_t *camera = &cameras[i];
+                if(camera->dirty == true) {
+                    device_init(&device, (IUINT32*)framebuffer, (float*)zbuffer, camera->width, camera->height, camera->fovy, camera->zn, camera->zf);
+                    
+                    device.render_state = render_state;
+                    
+                    camera_update(camera, &device);
+                    
+                    matrix_apply(&dirLight.vdir, &dirLight.dir, &device.transform.view);
+                    vector_normalize(&dirLight.vdir);
+                    for(i = 0; i < pointlight_cnt; i++)
+                    {
+                        matrix_apply(&pointLights[i].vpos, &pointLights[i].pos, &device.transform.view);
+                        vector_normalize(&pointLights[i].vpos);
+                    }
+                    
+                    camera->dirty = false;
                 }
-                
-                c_dirty = false;
             }
             
             draw_object(&device, objects, object_count);
@@ -732,13 +785,15 @@ int main(int argc, char * argv[])
             // 渲染阴影
             // draw_shadow(&device, objects, object_count);
 
-            for(int i = 0; i < SCREEN_WIDTH; i++)
+            
+            for(int y = 0; y < SCREEN_HEIGHT; y++)
             {
-                for(int j = 0; j < SCREEN_HEIGHT; j++)
+                IUINT32 *buffer = device.framebuffer + y * SCREEN_WIDTH;
+                for(int x = 0; x < SCREEN_WIDTH; x++)
                 {
-                    IUINT32 color = device.framebuffer[j][i];
-                    SDL_SetRenderDrawColor( gRenderer, (0xff<<16&color)>>16, (0xff<<8&color)>>8, 0xff&color, (0xff<<24&color)>>24);
-                    SDL_RenderDrawPoint( gRenderer, i, j);
+                    IUINT32 color = buffer[x];
+                    SDL_SetRenderDrawColor(gRenderer, (0xff<<16&color)>>16, (0xff<<8&color)>>8, 0xff&color, (0xff<<24&color)>>24);
+                    SDL_RenderDrawPoint(gRenderer, x, y);
                 }
             }
 

@@ -354,8 +354,6 @@ void transform_init(transform_t *ts, int width, int height, float fovy, float zn
     matrix_set_identity(&ts->world);
     matrix_set_identity(&ts->view);
     matrix_set_perspective(&ts->projection, fovy, aspect, zn , zf);
-    matrix_clone(&ts->projection_r, &ts->projection);
-    matrix_inverse(&ts->projection_r);
     ts->w = (float)width;
     ts->h = (float)height;
     transform_update(ts);
@@ -439,6 +437,7 @@ typedef struct {
     color_t ambi;
     color_t diff;
     color_t spec;
+    bool shadow;
 } pointlight_t;
 #define NR_POINT_LIGHTS 100
 pointlight_t pointLights[NR_POINT_LIGHTS];
@@ -477,6 +476,7 @@ typedef struct {
     color_t ambi;
     color_t diff;
     color_t spec;
+    bool shadow;
 } dirlight_t;
 dirlight_t dirLight;
 
@@ -644,14 +644,12 @@ typedef struct {
 	int height;                 // 窗口高度
     float aspect;               // 宽高比
     material_t material;        // 当前材质
-	IUINT32 **framebuffer;      // 像素缓存：framebuffer[y] 代表第 y行
-	float **zbuffer;            // 深度缓存：zbuffer[y] 为第 y行指针
+	IUINT32 *framebuffer;       // 像素缓存
+	float *zbuffer;             // 深度缓存
 	IUINT32 **texture;          // 纹理
     bool use_mipmap;            // 是否开启mipmap
 	int tex_width;              // 纹理宽度
 	int tex_height;             // 纹理高度
-	float max_u;                // 纹理最大宽度：tex_width - 1
-	float max_v;                // 纹理最大高度：tex_height - 1
 	int render_state;           // 渲染状态
 	IUINT32 background;         // 背景颜色
 	IUINT32 foreground;         // 线框颜色
@@ -667,50 +665,22 @@ typedef struct {
 #define RENDER_STATE_TEXTURE        2		// 渲染纹理
 #define RENDER_STATE_COLOR          4		// 渲染颜色
 
-// 设备初始化，fb为外部帧缓存，非 NULL 将引用外部帧缓存（每行 4字节对齐）
-void device_init(device_t *device, int width, int height, float fovy, float zn, float zf, void *fb) {
-	int need = sizeof(void*) * (height * 2 + 1024 + 1) + width * height * 8;
-	char *ptr = (char*)malloc(need + 64);
-	char *framebuf, *zbuf;
-	int j;
-	device->framebuffer = (IUINT32**)ptr;
-    ptr += sizeof(void*) * height;
- 
-	device->zbuffer = (float**)ptr;
-	ptr += sizeof(void*) * height;
-
-    device->use_mipmap = false;
-    device->texture = (IUINT32**)ptr;
-    ptr += sizeof(IUINT32*) * 1;
-
-    // framebuf和zbuf的内存数据直接初始化
-	framebuf = (char*)ptr;
-	zbuf = (char*)ptr + width * height * 4;
-	ptr += width * height * 8;
-	if (fb != NULL) framebuf = (char*)fb;
-	for (j = 0; j < height; j++) {
-		device->framebuffer[j] = (IUINT32*)(framebuf + width * 4 * j);
-		device->zbuffer[j] = (float*)(zbuf + width * 4 * j);
-	}
-    // texture暂时初始化一下，以后还会重新赋值
-	device->texture[0] = (IUINT32*)ptr;
-	device->texture[1] = (IUINT32*)(ptr + 16);
-	memset(device->texture[0], 0, 64);
-	device->tex_width = 2;
-	device->tex_height = 2;
-	device->max_u = 1.0f;
-	device->max_v = 1.0f;
-    device->use_mipmap = false;
-	device->width = width;
-	device->height = height;
+void device_init(device_t *device, IUINT32 *framebuffer, float *zbuffer, int width, int height, float fovy, float zn, float zf)
+{
+    device->framebuffer = framebuffer;
+    device->zbuffer = zbuffer;
+    
+    device->width = width;
+    device->height = height;
     device->aspect = (float)width / (float)height;
-	device->background = 0xc0c0c0;
-	device->foreground = 0;
+    device->use_mipmap = false;
+    device->background = 0xFFFFFF;
+    device->foreground = 0;
     device->fovy = fovy;
     device->zn = zn;
     device->zf = zf;
-	transform_init(&device->transform, width, height, fovy, zn, zf);
-	device->render_state = RENDER_STATE_WIREFRAME;
+    transform_init(&device->transform, width, height, fovy, zn, zf);
+    device->render_state = RENDER_STATE_WIREFRAME;
 }
 
 void device_destroy(device_t *device) {
@@ -725,31 +695,23 @@ void device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool 
     device->texture = texture;
 	device->tex_width = w;
 	device->tex_height = h;
-	device->max_u = (float)(w - 1);
-	device->max_v = (float)(h - 1);
     device->use_mipmap = use_mipmap;
 }
 
-void device_clear(device_t *device, int mode) {
-	int y, x, height = device->height;
-	for (y = 0; y < device->height; y++) {
-		IUINT32 *dst = device->framebuffer[y];
-		IUINT32 cc = (height - 1 - y) * 230 / (height - 1);
-		cc = (cc << 16) | (cc << 8) | cc;
-		if (mode == 0) cc = device->background;
-		for (x = device->width; x > 0; dst++, x--) dst[0] = 0xffffffff;
-	}
-	for (y = 0; y < device->height; y++) {
-		float *dst = device->zbuffer[y];
-		for (x = device->width; x > 0; dst++, x--) dst[0] = 0.0f;
-	}
+void device_pixel(device_t *device, int x, int y, IUINT32 color) {
+    if (x >= 0 && x < device->width && y >= 0 && y < device->height) {
+        device->framebuffer[y * device->width + x] = color;
+    }
 }
 
-void device_pixel(device_t *device, int x, int y, IUINT32 color) {
-	if (((IUINT32)x) < (IUINT32)device->width && ((IUINT32)y) < (IUINT32)device->height) {
-		device->framebuffer[y][x] = color;
-	}
+void device_clear(device_t *device) {
+    for(int y = 0; y < device->height; y++)
+        for(int x = 0; x < device->width; x++)
+            device->framebuffer[y * device->width + x] = device->background;
+    // memset(device->framebuffer, 0xff, device->width * device->height * sizeof(IUINT32));
+    memset(device->zbuffer, 0, device->width * device->height * sizeof(float));
 }
+
 
 ///*
 //    m = dy / dx
@@ -930,8 +892,8 @@ bool computeBarycentricCoords3d(point_t *res, const point_t *p0, const point_t *
 
 // now is the core realize for rendering, so just do it.
 void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t *t1, const vertex_t *t2, const vertex_t *t3, const point_t *p1, const point_t *p2, const point_t *p3) {
-    IUINT32 *framebuffer = device->framebuffer[scanline->y];
-    float *zbuffer = device->zbuffer[scanline->y];
+    IUINT32 *framebuffer = device->framebuffer + scanline->y * device->width;
+    float *zbuffer = device->zbuffer + scanline->y * device->width;
     int x = scanline->x;
     int width = device->width;
     int render_state = device->render_state;
