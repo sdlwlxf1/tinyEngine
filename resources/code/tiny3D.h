@@ -2,6 +2,9 @@
 #include "math.h"
 
 typedef unsigned int IUINT32;
+#define PI 3.141592653
+#define angle_to_radian(X) ((X)/180*PI)
+#define radian_to_angle(X) ((X)/PI*180)
 
 // modules:
 // 1. math library
@@ -278,6 +281,22 @@ void matrix_set_rotate_translate_scale(matrix_t *m, const vector_t *axis, float 
     m->m[3][1] = pos->y;
     m->m[3][2] = pos->z;
 }
+void matrix_set_axis(matrix_t *m, const vector_t *xaxis, const vector_t *yaxis, const vector_t *zaxis, const point_t *pos) {
+    m->m[0][0] = xaxis->x;
+    m->m[0][1] = xaxis->y;
+    m->m[0][2] = xaxis->z;
+    m->m[1][0] = yaxis->x;
+    m->m[1][1] = yaxis->y;
+    m->m[1][2] = yaxis->z;
+    m->m[2][0] = zaxis->x;
+    m->m[2][1] = zaxis->y;
+    m->m[2][2] = zaxis->z;
+    m->m[3][0] = pos->x;
+    m->m[3][1] = pos->y;
+    m->m[3][2] = pos->z;
+    m->m[0][3] = m->m[1][3] = m->m[2][3] = 0.0f;
+    m->m[3][3] = 1.0f;
+}
 //      11)).set_lookat m, eye, at, up
 // zaxis = normal(At - Eye)
 // xaxis = normal(cross(Up, zaxis))
@@ -329,34 +348,36 @@ void matrix_set_perspective(matrix_t *m, float fovy, float aspect, float zn, flo
     m->m[0][1] = m->m[0][2] = m->m[0][3] = m->m[1][0] = m->m[1][2] = m->m[1][3] = 0.0f;
     m->m[2][0] = m->m[2][1] = m->m[3][0] = m->m[3][1] = m->m[3][3] = 0.0f;
 }
-
+//      13)).set_ortho m, left, right, bottom, top, near, far
+// 2/(r-l)      0            0           0
+// 0            2/(t-b)      0           0
+// 0            0            1/(zf-zn)   0
+// (l+r)/(l-r)  (t+b)/(b-t)  zn/(zn-zf)  1
+void matrix_set_ortho(matrix_t *m, float l, float r, float b, float t, float zn, float zf) {
+    m->m[0][0] = 2.0f / (r - l);
+    m->m[1][1] = 2.0f / (t - b);
+    m->m[2][2] = 1.0f / (zf - zn);
+    m->m[3][0] = (l+r)/(l-r);
+    m->m[3][1] = (t+b)/(b-t);
+    m->m[3][2] = zn / (zn-zf);
+    m->m[3][3] = 1.0f;
+    m->m[0][1] = m->m[0][2] = m->m[0][3] = m->m[1][0] = m->m[1][2] = m->m[1][3] = 0.0f;
+    m->m[2][0] = m->m[2][1] = m->m[2][3] = 0.0f;
+}
 // I have realized the math library. Then I should realize the core data structure of computer graphics.
 // 2. transform_t
 typedef struct {
     matrix_t world;
     matrix_t view;
     matrix_t projection;
-    matrix_t projection_r;
     matrix_t transform_wv;
-    //matrix_t transform_wv_r;
     matrix_t transform;
-    float w, h;
 } transform_t;
 
 //  1). transform_update (world * view * projection
 void transform_update(transform_t *ts) {
     matrix_mul(&ts->transform_wv, &ts->world, &ts->view);
     matrix_mul(&ts->transform, &ts->transform_wv, &ts->projection);
-}
-//  2). transform_init (ts, width, height)
-void transform_init(transform_t *ts, int width, int height, float fovy, float zn, float zf) {
-    float aspect = (float)width / (float)height;
-    matrix_set_identity(&ts->world);
-    matrix_set_identity(&ts->view);
-    matrix_set_perspective(&ts->projection, fovy, aspect, zn , zf);
-    ts->w = (float)width;
-    ts->h = (float)height;
-    transform_update(ts);
 }
 //  3). transform_apply
 void transform_apply(const transform_t *ts, vector_t *y, const vector_t *x) {
@@ -375,10 +396,10 @@ int transform_check_cvv(const vector_t *v) {
     return check;
 }
 //  5). transform_homogenize(ts, y, x)
-void transform_homogenize(const transform_t *ts, vector_t *y, const vector_t *x) {
+void transform_homogenize(vector_t *y, const vector_t *x, float width, float height) {
     float rhw = 1.0f / x->w;
-    y->x = (x->x * rhw + 1.0f) * ts->w * 0.5f;
-    y->y = (1.0f - x->y * rhw) * ts->h * 0.5f;
+    y->x = (x->x * rhw + 1.0f) * width * 0.5f;
+    y->y = (1.0f - x->y * rhw) * height * 0.5f;
     y->z = x->z * rhw;
     y->w = 1.0f;
 }
@@ -410,13 +431,13 @@ void color_add(color_t *c, const color_t *a, const color_t *b) {
     c->b = a->b + b->b;
     c->a = a->a + b->a;
 }
+void color_sub(color_t *c, const color_t *a, const color_t *b) {
+    c->r = a->r - b->r;
+    c->g = a->g - b->g;
+    c->b = a->b - b->b;
+    c->a = a->a - b->a;
+}
 
-typedef struct { float u, v; } texcoord_t;
-typedef struct { point_t pos; texcoord_t tc; color_t color; float rhw; vector_t normal; } vertex_t;
-
-typedef struct { vertex_t v, v1, v2; } edge_t;
-typedef struct { float top, bottom; edge_t left, right; } trapezoid_t;
-typedef struct { vertex_t v, step; int x, y, w; } scanline_t;
 
 typedef struct {
     color_t ambi;
@@ -443,7 +464,7 @@ typedef struct {
 pointlight_t pointLights[NR_POINT_LIGHTS];
 int pointlight_cnt;
 
-void calc_pointlight(color_t *color, const material_t *material, const pointlight_t *light, const vector_t *normal, const vector_t *fpos, const vector_t *viewdir) {
+void calc_pointlight(color_t *color, const material_t *material, const pointlight_t *light, const vector_t *normal, const vector_t *fpos, const vector_t *viewdir, const vector_t *fragPos) {
     vector_t lightDir;
     vector_sub(&lightDir, &light->vpos, fpos);
     float distance = vector_length(&lightDir);
@@ -456,7 +477,7 @@ void calc_pointlight(color_t *color, const material_t *material, const pointligh
     float temp = light->constant + light->linear * distance + light->quadratic * (distance * distance);
     float attenuation = 0;
     if(temp != 0)
-     attenuation = 1.0f / temp;
+        attenuation = 1.0f / temp;
     
     color_t c;
     color_product(&c, &light->ambi, &material->ambi);
@@ -480,17 +501,15 @@ typedef struct {
 } dirlight_t;
 dirlight_t dirLight;
 
-void calc_dirlight(color_t *color, const material_t *material, const dirlight_t *light, const vector_t *normal, const vector_t *viewdir) {
+void calc_dirlight(color_t *color, const material_t *material, const dirlight_t *light, const vector_t *normal, const vector_t *viewdir, const vector_t *fragPos) {
     vector_t lightDir = light->vdir;
     vector_inverse(&lightDir);
     vector_normalize(&lightDir);
     float diff = fmaxf(vector_dotproduct(normal, &lightDir), 0.0f);
-    //printf("%f\n", diff);
     lightDir = light->vdir;
     vector_normalize(&lightDir);
     vector_t vec;
     vector_reflect(&vec, &lightDir, normal);
-    //vector_inverse(&vec);
     float spec = powf(fmaxf(vector_dotproduct(viewdir, &vec), 0.0f), material->shininess);
     
     color_t temp;
@@ -503,6 +522,75 @@ void calc_dirlight(color_t *color, const material_t *material, const dirlight_t 
     color_scale(&temp, spec);
     color_add(color, color, &temp);
 }
+
+typedef enum {
+    perspective,
+    orthographic
+} PROJECTION;
+typedef struct {
+    // public
+    vector_t pos;
+    vector_t front;
+    vector_t worldup;
+    matrix_t view_matrix;
+    matrix_t projection_matrix;
+    matrix_t view_matrix_t;
+    int width;
+    int height;
+    float fovy;
+    float zn;
+    float zf;
+    
+    float left;
+    float right;
+    float bottom;
+    float top;
+    
+    bool dirty;
+    PROJECTION projection;
+    bool main;
+    
+    // private
+    float aspect;
+} camera_t;
+#define MAX_NUM_CAMERA 10
+camera_t cameras[MAX_NUM_CAMERA];
+int camera_count = 0;
+
+// 利用欧拉角原理来实现摄像机旋转
+void camera_init_by_euler(camera_t *camera, float yaw, float pitch) {
+    camera->front.x = sin(angle_to_radian(yaw)) * cos(angle_to_radian(pitch));
+    camera->front.y = -sin(angle_to_radian(pitch));
+    camera->front.z = cos(angle_to_radian(yaw)) * cos(angle_to_radian(pitch));
+    vector_normalize(&camera->front);
+}
+
+void camera_init_projection(camera_t *camera)
+{
+    if(camera->projection == perspective)
+        matrix_set_perspective(&camera->projection_matrix, camera->fovy, camera->aspect, camera->zn , camera->zf);
+    else if(camera->projection == orthographic)
+        matrix_set_ortho(&camera->projection_matrix, camera->left, camera->right, camera->bottom, camera->top, camera->zn, camera->zf);
+}
+
+void camera_update(camera_t *camera) {
+    vector_t right, at, up;
+    vector_crossproduct(&right, &camera->worldup, &camera->front);
+    vector_normalize(&right);
+    vector_crossproduct(&up, &camera->front, &right);
+    vector_normalize(&up);
+    vector_add(&at, &camera->pos, &camera->front);
+    
+    matrix_set_lookat(&camera->view_matrix, &camera->pos,  &at,  &up);
+    matrix_set_axis(&camera->view_matrix_t, &right, &up, &camera->front, &camera->pos);
+}
+
+typedef struct { float u, v; } texcoord_t;
+typedef struct { point_t pos; texcoord_t tc; color_t color; float rhw; vector_t normal; } vertex_t;
+
+typedef struct { vertex_t v, v1, v2; } edge_t;
+typedef struct { float top, bottom; edge_t left, right; } trapezoid_t;
+typedef struct { vertex_t v, step; int x, y, w; } scanline_t;
 
 // 注意是除坐标意外颜色和纹理索引除以w
 void vertex_rhw_init(vertex_t *v) {
@@ -638,14 +726,14 @@ void trapezoid_init_scan_line(const trapezoid_t *trap, scanline_t *scanline, int
 	vertex_division(&scanline->step, &trap->left.v, &trap->right.v, width);
 }
 
+float *pshadowbuffer;
+
 typedef struct {
 	transform_t transform;      // 坐标变换器
-	int width;                  // 窗口宽度
-	int height;                 // 窗口高度
-    float aspect;               // 宽高比
     material_t material;        // 当前材质
 	IUINT32 *framebuffer;       // 像素缓存
 	float *zbuffer;             // 深度缓存
+    float *shadowbuffer;        // 阴影缓存
 	IUINT32 **texture;          // 纹理
     bool use_mipmap;            // 是否开启mipmap
 	int tex_width;              // 纹理宽度
@@ -653,42 +741,53 @@ typedef struct {
 	int render_state;           // 渲染状态
 	IUINT32 background;         // 背景颜色
 	IUINT32 foreground;         // 线框颜色
-    float fovy;                 // fov
-    float zn;                   // 近裁剪面
-    float zf;                   // 远裁剪面
+    camera_t *camera;           // 摄像机
     bool blend;                 // 是否开启混合
     float blend_sfactor;        // 混合源因子
     float blend_dfactor;        // 混合目标因子
+    int cull;                   // 0:不裁剪;1:裁剪反面;2:裁剪正面
 }	device_t;
 
 #define RENDER_STATE_WIREFRAME      1		// 渲染线框
 #define RENDER_STATE_TEXTURE        2		// 渲染纹理
 #define RENDER_STATE_COLOR          4		// 渲染颜色
 
-void device_init(device_t *device, IUINT32 *framebuffer, float *zbuffer, int width, int height, float fovy, float zn, float zf)
+void device_init(device_t *device)
 {
-    device->framebuffer = framebuffer;
-    device->zbuffer = zbuffer;
-    
-    device->width = width;
-    device->height = height;
-    device->aspect = (float)width / (float)height;
     device->use_mipmap = false;
     device->background = 0xFFFFFF;
     device->foreground = 0;
-    device->fovy = fovy;
-    device->zn = zn;
-    device->zf = zf;
-    transform_init(&device->transform, width, height, fovy, zn, zf);
-    device->render_state = RENDER_STATE_WIREFRAME;
+    device->render_state = RENDER_STATE_TEXTURE;
+    matrix_set_identity(&device->transform.world);
+    matrix_set_identity(&device->transform.view);
 }
 
-void device_destroy(device_t *device) {
-	if (device->framebuffer) 
-		free(device->framebuffer);
-	device->framebuffer = NULL;
-	device->zbuffer = NULL;
-	device->texture = NULL;
+void device_set_background(device_t *device, IUINT32 color)
+{
+    device->background = color;
+}
+
+void device_set_framebuffer(device_t *device, IUINT32 *framebuffer)
+{
+    device->framebuffer = framebuffer;
+}
+
+void device_set_zbuffer(device_t *device, float *zbuffer)
+{
+    device->zbuffer = zbuffer;
+}
+
+void device_set_shadowbuffer(device_t *device, float *shadowbuffer)
+{
+    device->shadowbuffer = shadowbuffer;
+}
+
+void device_set_camera(device_t *device, camera_t *camera)
+{
+    device->camera = camera;
+    device->transform.view = camera->view_matrix;
+    device->transform.projection = camera->projection_matrix;
+    //transform_update(&device->transform);
 }
 
 void device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool use_mipmap) {
@@ -699,17 +798,25 @@ void device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool 
 }
 
 void device_pixel(device_t *device, int x, int y, IUINT32 color) {
-    if (x >= 0 && x < device->width && y >= 0 && y < device->height) {
-        device->framebuffer[y * device->width + x] = color;
+    if (x >= 0 && x < device->camera->width && y >= 0 && y < device->camera->height) {
+        device->framebuffer[y * device->camera->width + x] = color;
     }
 }
 
 void device_clear(device_t *device) {
-    for(int y = 0; y < device->height; y++)
-        for(int x = 0; x < device->width; x++)
-            device->framebuffer[y * device->width + x] = device->background;
-    // memset(device->framebuffer, 0xff, device->width * device->height * sizeof(IUINT32));
-    memset(device->zbuffer, 0, device->width * device->height * sizeof(float));
+    if(device->framebuffer != NULL) {
+        for(int y = 0; y < device->camera->height; y++)
+            for(int x = 0; x < device->camera->width; x++)
+                device->framebuffer[y * device->camera->width + x] = device->background;
+    }
+    // memset(device->framebuffer, 0xff, device->camera->width * device->camera->height * sizeof(IUINT32));
+    if(device->zbuffer != NULL)
+        memset(device->zbuffer, 0, device->camera->width * device->camera->height * sizeof(float));
+    if(device->shadowbuffer != NULL) {
+        for(int y = 0; y < device->camera->height; y++)
+            for(int x = 0; x < device->camera->width; x++)
+                device->shadowbuffer[y * device->camera->width + x] = 1.0f;
+    }
 }
 
 
@@ -892,87 +999,120 @@ bool computeBarycentricCoords3d(point_t *res, const point_t *p0, const point_t *
 
 // now is the core realize for rendering, so just do it.
 void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t *t1, const vertex_t *t2, const vertex_t *t3, const point_t *p1, const point_t *p2, const point_t *p3) {
-    IUINT32 *framebuffer = device->framebuffer + scanline->y * device->width;
-    float *zbuffer = device->zbuffer + scanline->y * device->width;
+    
+    int y = scanline->y;
     int x = scanline->x;
-    int width = device->width;
+    int width = device->camera->width;
     int render_state = device->render_state;
     int count = scanline->w;
     for(; count > 0 && x < width; x++, count--) {
         if(x >= 0) {
+            if(device->shadowbuffer != NULL) {
+                float z = scanline->v.pos.z;
+                if(z <= device->shadowbuffer[y*width+x]) {
+                    device->shadowbuffer[y*width+x] = z;
+                    //printf("%f\n", z);
+                }
+                
+            }
+            
             float rhw = scanline->v.rhw;
-            if(rhw >= zbuffer[x]) {
-                float w = 1.0f / rhw;
-                zbuffer[x] = rhw;
-                color_t color = {0.0f, 0.0f, 0.0f, 1.0f};
+            if(device->zbuffer == NULL || rhw >= device->zbuffer[y*width+x]) {
+                if(device->zbuffer != NULL)
+                    device->zbuffer[y*width+x] = rhw;
                 
-                point_t barycenter = {0.0f, 0.0f, 0.0f, 1.0f};
-                computeBarycentricCoords3d(&barycenter, &t1->pos, &t2->pos, &t3->pos, &scanline->v.pos);
-                
-                point_t fragPos = {0.0f, 0.0f, 0.0f, 1.0f};
-                point_t ptemp = *p1;
-                vector_scale(&ptemp, barycenter.x);
-                vector_add(&fragPos, &fragPos, &ptemp);
-                ptemp = *p2;
-                vector_scale(&ptemp, barycenter.y);
-                vector_add(&fragPos, &fragPos, &ptemp);
-                ptemp = *p3;
-                vector_scale(&ptemp, barycenter.z);
-                vector_add(&fragPos, &fragPos, &ptemp);
-                
-                vector_t normal = {0.0f, 0.0f, 0.0f, 0.0f};
-                ptemp = t1->normal;
-                vector_scale(&ptemp, barycenter.x);
-                vector_add(&normal, &normal, &ptemp);
-                ptemp = t2->normal;
-                vector_scale(&ptemp, barycenter.y);
-                vector_add(&normal, &normal, &ptemp);
-                ptemp = t3->normal;
-                vector_scale(&ptemp, barycenter.z);
-                vector_add(&normal, &normal, &ptemp);
-                vector_normalize(&normal);
-                vector_t viewdir, viewPos = {0.0f, 0.0f ,0.0f};
-                vector_sub(&viewdir, &viewPos, &fragPos);
-                vector_normalize(&viewdir);
-                calc_dirlight(&color, &device->material, &dirLight, &normal, &viewdir);
-                color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
-                int i = 0;
-                for(i = 0; i < pointlight_cnt; i++)
-                {
-                    calc_pointlight(&temp, &device->material, &pointLights[i], &normal, &fragPos, &viewdir);
-                    color_add(&color, &color, &temp);
+                if(device->framebuffer != NULL) {
+                    color_t color = {0.0f, 0.0f, 0.0f, 1.0f};
+                    
+                    point_t barycenter = {0.0f, 0.0f, 0.0f, 1.0f};
+                    computeBarycentricCoords3d(&barycenter, &t1->pos, &t2->pos, &t3->pos, &scanline->v.pos);
+                    
+                    point_t fragPos = {0.0f, 0.0f, 0.0f, 1.0f};
+                    point_t ptemp = *p1;
+                    vector_scale(&ptemp, barycenter.x);
+                    vector_add(&fragPos, &fragPos, &ptemp);
+                    ptemp = *p2;
+                    vector_scale(&ptemp, barycenter.y);
+                    vector_add(&fragPos, &fragPos, &ptemp);
+                    ptemp = *p3;
+                    vector_scale(&ptemp, barycenter.z);
+                    vector_add(&fragPos, &fragPos, &ptemp);
+                    
+                    vector_t normal = {0.0f, 0.0f, 0.0f, 0.0f};
+                    ptemp = t1->normal;
+                    vector_scale(&ptemp, barycenter.x);
+                    vector_add(&normal, &normal, &ptemp);
+                    ptemp = t2->normal;
+                    vector_scale(&ptemp, barycenter.y);
+                    vector_add(&normal, &normal, &ptemp);
+                    ptemp = t3->normal;
+                    vector_scale(&ptemp, barycenter.z);
+                    vector_add(&normal, &normal, &ptemp);
+                    vector_normalize(&normal);
+                    vector_t viewdir, viewPos = {0.0f, 0.0f ,0.0f};
+                    vector_sub(&viewdir, &viewPos, &fragPos);
+                    vector_normalize(&viewdir);
+                    calc_dirlight(&color, &device->material, &dirLight, &normal, &viewdir, &fragPos);
+                    
+                    // 计算阴影
+                    if(dirLight.shadow)
+                    {
+                        // fragPos -> 世界坐标系 -> 灯的坐标系 -> 灯的透视矩阵 -> 求得z坐标比较
+                        point_t tempPos = fragPos;
+                        matrix_apply(&tempPos, &tempPos, &device->camera->view_matrix_t);
+                        camera_t *camera = &cameras[0];
+                        matrix_apply(&tempPos, &tempPos, &camera->view_matrix);
+                        matrix_apply(&tempPos, &tempPos, &camera->projection_matrix);
+                        transform_homogenize(&tempPos, &tempPos, camera->width, camera->height);
+                        //printf("%f\n", tempPos.z);
+                        int y = (int)(tempPos.y+0.5);
+                        int x = (int)(tempPos.x+0.5);
+                        if(y >= 0 && x >= 0 && y < camera->height && x < camera->height && tempPos.z - 0.005f > pshadowbuffer[y*camera->width+x]) {
+                            color_t temp = {0.3f,0.3f,0.3f,0.3f};
+                            color_sub(&color, &color, &temp);
+                        }
+                    }
+                    
+                    color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
+                    int i = 0;
+                    for(i = 0; i < pointlight_cnt; i++)
+                    {
+                        calc_pointlight(&temp, &device->material, &pointLights[i], &normal, &fragPos, &viewdir, &fragPos);
+                        color_add(&color, &color, &temp);
+                    }
+                    
+                    float a = 1.0f;
+                    float r = 0.0f;
+                    float g = 0.0f;
+                    float b = 0.0f;
+                    
+                    float w = 1.0f / rhw;
+                    if(render_state & RENDER_STATE_COLOR) {
+                        a = scanline->v.color.a * w * 255.0f;
+                        r = scanline->v.color.r * w * 255.0f;
+                        g = scanline->v.color.g * w * 255.0f;
+                        b = scanline->v.color.b * w * 255.0f;
+                    }
+                    if(render_state & RENDER_STATE_TEXTURE) {
+                        float u = scanline->v.tc.u * w;
+                        float v = scanline->v.tc.v * w;
+                        color_t cc = device_texture_read(device, u, v, w, 15);
+                        a = cc.a;
+                        r = cc.r;
+                        g = cc.g;
+                        b = cc.b;
+                    }
+                    a *= color.a;
+                    r *= color.r;
+                    g *= color.g;
+                    b *= color.b;
+                    int A = CMID((int)a, 0, 255);
+                    int R = CMID((int)r, 0, 255);
+                    int G = CMID((int)g, 0, 255);
+                    int B = CMID((int)b, 0, 255);
+                    
+                    device->framebuffer[y*width+x] = (R << 16) | (G << 8) | B;
                 }
-                
-                float a = 1.0f;
-                float r = 0.0f;
-                float g = 0.0f;
-                float b = 0.0f;
-                
-                if(render_state & RENDER_STATE_COLOR) {
-                    a = scanline->v.color.a * w * 255.0f;
-                    r = scanline->v.color.r * w * 255.0f;
-                    g = scanline->v.color.g * w * 255.0f;
-                    b = scanline->v.color.b * w * 255.0f;
-                }
-                if(render_state & RENDER_STATE_TEXTURE) {
-                    float u = scanline->v.tc.u * w;
-                    float v = scanline->v.tc.v * w;
-                    color_t cc = device_texture_read(device, u, v, w, 15);
-                    a = cc.a;
-                    r = cc.r;
-                    g = cc.g;
-                    b = cc.b;
-                }
-                a *= color.a;
-                r *= color.r;
-                g *= color.g;
-                b *= color.b;
-                int A = CMID((int)a, 0, 255);
-                int R = CMID((int)r, 0, 255);
-                int G = CMID((int)g, 0, 255);
-                int B = CMID((int)b, 0, 255);
-                
-                framebuffer[x] = (R << 16) | (G << 8) | B;
             }
         }
         vertex_add(&scanline->v, &scanline->step);
@@ -986,12 +1126,12 @@ void device_render_trap(device_t *device, trapezoid_t *trap, const vertex_t *t1,
     top = (int)(trap->top + 0.5f);
     bottom = (int)(trap->bottom + 0.5f);
     for(j = top; j < bottom; j++) {
-        if(j >= 0 && j < device->height) {
+        if(j >= 0 && j < device->camera->height) {
             trapezoid_edge_interp(trap, (float)j + 0.5f);
             trapezoid_init_scan_line(trap, &scanline, j);
             device_draw_scanline(device, &scanline, t1, t2, t3, p1, p2, p3);
         }
-        if(j >= device->height)
+        if(j >= device->camera->height)
             break;
     }
 }
@@ -1046,16 +1186,24 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     vertex_rhw_init(t2);
     vertex_rhw_init(t3);
     
-    transform_homogenize(&device->transform, &t1->pos, &t1->pos);
-    transform_homogenize(&device->transform, &t2->pos, &t2->pos);
-    transform_homogenize(&device->transform, &t3->pos, &t3->pos);
+    transform_homogenize(&t1->pos, &t1->pos, device->camera->width, device->camera->height);
+    transform_homogenize(&t2->pos, &t2->pos, device->camera->width, device->camera->height);
+    transform_homogenize(&t3->pos, &t3->pos, device->camera->width, device->camera->height);
     
     // 背面剔除
-    vector_t t21, t32;
-    vector_sub(&t21, &t2->pos, &t1->pos);
-    vector_sub(&t32, &t3->pos, &t2->pos);
-    if(t21.x * t32.y - t32.x * t21.y <= 0)    // 计算叉积
-        return;
+    if(device->cull > 0) {
+        vector_t t21, t32;
+        vector_sub(&t21, &t2->pos, &t1->pos);
+        vector_sub(&t32, &t3->pos, &t2->pos);
+        if(device->cull == 1) {
+            if(t21.x * t32.y - t32.x * t21.y <= 0)    // 计算叉积
+                return;
+        }
+        else if(device->cull == 2) {
+            if(t21.x * t32.y - t32.x * t21.y > 0)     // 计算叉积
+                return;
+        }
+    }
     
     if (render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
         trapezoid_t traps[2];
@@ -1064,7 +1212,7 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
         if(n >= 2) device_render_trap(device, &traps[1], t1, t2, t3, &p1, &p2, &p3);
     }
     
-    if(render_state & RENDER_STATE_WIREFRAME) {
+    if((render_state & RENDER_STATE_WIREFRAME) && device->framebuffer != NULL) {
         device_draw_line(device, (int)t1->pos.x, (int)t1->pos.y, (int)t2->pos.x, (int)t2->pos.y, device->foreground);
         device_draw_line(device, (int)t1->pos.x, (int)t1->pos.y, (int)t3->pos.x, (int)t3->pos.y, device->foreground);
         device_draw_line(device, (int)t3->pos.x, (int)t3->pos.y, (int)t2->pos.x, (int)t2->pos.y, device->foreground);
@@ -1110,8 +1258,8 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
     }
     
     
-    z_factor_y = tan(device->fovy*0.5);
-    z_factor_x = z_factor_y / device->aspect;
+    z_factor_y = tan(device->camera->fovy*0.5);
+    z_factor_x = z_factor_y / device->camera->aspect;
     z_factor = z_factor_x;
     z_test = z_factor * p1.pos.z;
 
@@ -1179,18 +1327,18 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
     }
 
     // 是否完全在远裁剪面或近裁剪面外侧
-    if (p1.pos.z > device->zf)
+    if (p1.pos.z > device->camera->zf)
         vertex_ccodes[0] = CLIP_CODE_GZ;
-    else if (p1.pos.z < device->zn)
+    else if (p1.pos.z < device->camera->zn)
         vertex_ccodes[0] = CLIP_CODE_LZ;
     else {
         vertex_ccodes[0] = CLIP_CODE_IZ;
         num_verts_in++;
     }
 
-    if (p2.pos.z > device->zf)
+    if (p2.pos.z > device->camera->zf)
         vertex_ccodes[1] = CLIP_CODE_GZ;
-    else if (p2.pos.z < device->zn)
+    else if (p2.pos.z < device->camera->zn)
         vertex_ccodes[1] = CLIP_CODE_LZ;
     else {
         vertex_ccodes[1] = CLIP_CODE_IZ;
@@ -1198,9 +1346,9 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
     }
     
         
-    if (p3.pos.z > device->zf)
+    if (p3.pos.z > device->camera->zf)
         vertex_ccodes[2] = CLIP_CODE_GZ;
-    else if (p3.pos.z < device->zn)
+    else if (p3.pos.z < device->camera->zn)
         vertex_ccodes[2] = CLIP_CODE_LZ;
     else {
         vertex_ccodes[2] = CLIP_CODE_IZ;
@@ -1237,7 +1385,7 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
             // 对每条边进行裁剪
             // 创建参数化方程p = v0 + v01 * t
             vector_sub(&v, &p2.pos, &p1.pos);
-            t1 = (device->zn - p1.pos.z) / v.z;
+            t1 = (device->camera->zn - p1.pos.z) / v.z;
 
             xi = p1.pos.x + v.x * t1;
             yi = p1.pos.y + v.y * t1;
@@ -1245,11 +1393,11 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
             // 用交点覆盖原来的顶点
             p2.pos.x = xi;
             p2.pos.y = yi;
-            p2.pos.z = device->zn;
+            p2.pos.z = device->camera->zn;
 
             // 对三角形边v0->v2进行裁剪
             vector_sub(&v, &p3.pos, &p1.pos);
-            t2 = (device->zn - p1.pos.z) / v.z;
+            t2 = (device->camera->zn - p1.pos.z) / v.z;
 
             xi = p1.pos.x + v.x * t2;
             yi = p1.pos.y + v.y * t2;
@@ -1257,7 +1405,7 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
             // 用交点覆盖原来的顶点
             p3.pos.x = xi;
             p3.pos.y = yi;
-            p3.pos.z = device->zn;
+            p3.pos.z = device->camera->zn;
 
             // 对纹理进行裁剪
             ui = p1.tc.u + (p2.tc.u - p1.tc.u) * t1;
@@ -1292,14 +1440,14 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
             // 对每条边进行裁剪
             // 创建参数化方程p = v0 + v01 * t
             vector_sub(&v, &p2.pos, &p1.pos);
-            t1 = (device->zn - p1.pos.z) / v.z;
+            t1 = (device->camera->zn - p1.pos.z) / v.z;
 
             x01i = p1.pos.x + v.x * t1;
             y01i = p1.pos.y + v.y * t1;
 
             // 对三角形边v0->v2进行裁剪
             vector_sub(&v, &p3.pos, &p1.pos);
-            t2 = (device->zn - p1.pos.z) / v.z;
+            t2 = (device->camera->zn - p1.pos.z) / v.z;
 
             x02i = p1.pos.x + v.x * t2;
             y02i = p1.pos.y + v.y * t2;
@@ -1307,15 +1455,15 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
             // 用交点覆盖原来的顶点
             p1.pos.x = x01i;
             p1.pos.y = y01i;
-            p1.pos.z = device->zn;
+            p1.pos.z = device->camera->zn;
             
             np2.pos.x = x01i;
             np2.pos.y = y01i;
-            np2.pos.z = device->zn;
+            np2.pos.z = device->camera->zn;
 
             np1.pos.x = x02i;
             np1.pos.y = y02i;
-            np1.pos.z = device->zn;
+            np1.pos.z = device->camera->zn;
 
             // 对纹理进行裁剪
             u01i = p1.tc.u + (p2.tc.u - p1.tc.u) * t1;
