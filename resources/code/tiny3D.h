@@ -403,6 +403,13 @@ void transform_homogenize(vector_t *y, const vector_t *x, float width, float hei
     y->z = x->z * rhw;
     y->w = 1.0f;
 }
+//  6). transform_homogenize(ts, y, x)
+void transform_homogenize_reverse(vector_t *y, const vector_t *x, float w, float width, float height) {
+    y->x = (x->x * 2 / width - 1.0f) * w;
+    y->y = (1.0f - x->y * 2 / height) * w;
+    y->z = x->z * w;
+    y->w = w;
+}
 
 // 3. geometry calculation (vertex, scanline, border check, rect and so on)
 typedef struct { float r, g, b, a; } color_t;
@@ -574,7 +581,7 @@ void camera_init_projection(camera_t *camera)
 }
 
 void camera_update(camera_t *camera) {
-    vector_t right, at, up;
+    vector_t right, at, up, front = camera->front;
     vector_crossproduct(&right, &camera->worldup, &camera->front);
     vector_normalize(&right);
     vector_crossproduct(&up, &camera->front, &right);
@@ -582,7 +589,8 @@ void camera_update(camera_t *camera) {
     vector_add(&at, &camera->pos, &camera->front);
     
     matrix_set_lookat(&camera->view_matrix, &camera->pos,  &at,  &up);
-    matrix_set_axis(&camera->view_matrix_t, &right, &up, &camera->front, &camera->pos);
+    vector_normalize(&front);
+    matrix_set_axis(&camera->view_matrix_t, &right, &up, &front, &camera->pos);
 }
 
 typedef struct { float u, v; } texcoord_t;
@@ -720,9 +728,10 @@ void trapezoid_init_scan_line(const trapezoid_t *trap, scanline_t *scanline, int
 	float width = trap->right.v.pos.x - trap->left.v.pos.x;
 	scanline->x = (int)(trap->left.v.pos.x + 0.5f);
 	scanline->w = (int)(trap->right.v.pos.x + 0.5f) - scanline->x;
+    if (trap->left.v.pos.x >= trap->right.v.pos.x)
+        scanline->w = 0;
 	scanline->y = y;
 	scanline->v = trap->left.v;
-	if (trap->left.v.pos.x >= trap->right.v.pos.x) scanline->w = 0;
 	vertex_division(&scanline->step, &trap->left.v, &trap->right.v, width);
 }
 
@@ -1011,9 +1020,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                 float z = scanline->v.pos.z;
                 if(z <= device->shadowbuffer[y*width+x]) {
                     device->shadowbuffer[y*width+x] = z;
-                    //printf("%f\n", z);
                 }
-                
             }
             
             float rhw = scanline->v.rhw;
@@ -1023,9 +1030,12 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                 
                 if(device->framebuffer != NULL) {
                     color_t color = {0.0f, 0.0f, 0.0f, 1.0f};
+                    float w = 1.0f / rhw;
                     
                     point_t barycenter = {0.0f, 0.0f, 0.0f, 1.0f};
-                    computeBarycentricCoords3d(&barycenter, &t1->pos, &t2->pos, &t3->pos, &scanline->v.pos);
+                    point_t interpos = scanline->v.pos;
+                    transform_homogenize_reverse(&interpos, &interpos, w, device->camera->width, device->camera->height);
+                    computeBarycentricCoords3d(&barycenter, &t1->pos, &t2->pos, &t3->pos, &interpos);
                     
                     point_t fragPos = {0.0f, 0.0f, 0.0f, 1.0f};
                     point_t ptemp = *p1;
@@ -1060,11 +1070,11 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                         // fragPos -> 世界坐标系 -> 灯的坐标系 -> 灯的透视矩阵 -> 求得z坐标比较
                         point_t tempPos = fragPos;
                         matrix_apply(&tempPos, &tempPos, &device->camera->view_matrix_t);
+
                         camera_t *camera = &cameras[0];
                         matrix_apply(&tempPos, &tempPos, &camera->view_matrix);
                         matrix_apply(&tempPos, &tempPos, &camera->projection_matrix);
                         transform_homogenize(&tempPos, &tempPos, camera->width, camera->height);
-                        //printf("%f\n", tempPos.z);
                         int y = (int)(tempPos.y+0.5);
                         int x = (int)(tempPos.x+0.5);
                         if(y >= 0 && x >= 0 && y < camera->height && x < camera->height && tempPos.z - 0.005f > pshadowbuffer[y*camera->width+x]) {
@@ -1086,7 +1096,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                     float g = 0.0f;
                     float b = 0.0f;
                     
-                    float w = 1.0f / rhw;
+                    
                     if(render_state & RENDER_STATE_COLOR) {
                         a = scanline->v.color.a * w * 255.0f;
                         r = scanline->v.color.r * w * 255.0f;
@@ -1140,9 +1150,12 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     point_t p1, p2, p3;
     int render_state = device->render_state;
     
+    point_t z1, z2, z3;
+    
     p1 = t1->pos;
     p2 = t2->pos;
     p3 = t3->pos;
+    
     // 使用法向量背面剔除
     //    matrix_apply(&c1, &t1->pos, &device->transform.world);
     //    matrix_apply(&c2, &t2->pos, &device->transform.world);
@@ -1186,6 +1199,10 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     vertex_rhw_init(t2);
     vertex_rhw_init(t3);
     
+    z1 = t1->pos;
+    z2 = t2->pos;
+    z3 = t3->pos;
+    
     transform_homogenize(&t1->pos, &t1->pos, device->camera->width, device->camera->height);
     transform_homogenize(&t2->pos, &t2->pos, device->camera->width, device->camera->height);
     transform_homogenize(&t3->pos, &t3->pos, device->camera->width, device->camera->height);
@@ -1208,6 +1225,9 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     if (render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
         trapezoid_t traps[2];
         int n = trapezoid_init_triangle(traps, t1, t2, t3);
+        t1->pos = z1;
+        t2->pos = z2;
+        t3->pos = z3;
         if(n >= 1) device_render_trap(device, &traps[0], t1, t2, t3, &p1, &p2, &p3);
         if(n >= 2) device_render_trap(device, &traps[1], t1, t2, t3, &p1, &p2, &p3);
     }

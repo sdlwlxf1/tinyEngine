@@ -407,7 +407,11 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
 //            matrix_apply(&p1.pos, &p1.pos, &device->transform.transform_wv);
 //            matrix_apply(&p2.pos, &p2.pos, &device->transform.transform_wv);
 //            matrix_apply(&p3.pos, &p3.pos, &device->transform.transform_wv);
-//            device_draw_primitive(device, &p1, &p2, &p3);
+//            vertex_t h1 = mesh[i], h2 = mesh[i+1], h3 = mesh[i+2];
+//            matrix_apply(&h1.pos, &h1.pos, &device->transform.world);
+//            matrix_apply(&h2.pos, &h2.pos, &device->transform.world);
+//            matrix_apply(&h3.pos, &h3.pos, &device->transform.world);
+//            device_draw_primitive(device, &p1, &p2, &p3, &h1, &h2, &h3);
             clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2], false);
         }
         
@@ -511,10 +515,10 @@ int main(int argc, char * argv[])
             camera->aspect = (float)REAL_WIDTH / (float)REAL_HEIGHT;
             camera->projection = orthographic;
             
-            camera->left = -1.0f;
-            camera->right = 1.0f;
-            camera->bottom = -1.0f;
-            camera->top = 1.0f;
+            camera->left = -5.0f;
+            camera->right = 5.0f;
+            camera->bottom = -5.0f;
+            camera->top = 5.0f;
             camera->dirty = true;
             
             camera_init_projection(camera);
@@ -530,7 +534,7 @@ int main(int argc, char * argv[])
             pointlight_cnt++;
         }
         
-//        pointLights[0] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}, false};
+        pointLights[0] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}, false};
 //        pointLights[1] = (pointlight_t){-1.0f, 6.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f};
 //        pointLights[2] = (pointlight_t){7.0f, -1.0f, -6.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
 //        pointLights[3] = (pointlight_t){0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
@@ -538,7 +542,7 @@ int main(int argc, char * argv[])
         // 主摄像机
         camera_t *camera = &cameras[camera_count];
         camera->main = true;
-        camera->pos = (vector_t){0.0f, 1.0f, -3.0f, 1.0f};
+        camera->pos = (vector_t){0.0f, 2.0f, -3.0f, 1.0f};
         camera->front = (vector_t){0.0f, 0.0f, 1.0f, 0.0f};
         camera->worldup = (vector_t){0.0f, 1.0f, 0.0f, 0.0f};
         camera->fovy = 3.1415926 * 0.5f;
@@ -580,7 +584,7 @@ int main(int argc, char * argv[])
         
         // box
         object_t *box = &objects[1];
-        box->pos = (point_t){0, 1, 0, 1};
+        box->pos = (point_t){0, 0, 0, 1};
         box->scale = (vector_t){1, 1, 1, 0};
         box->axis = (vector_t){0, 5, 2, 1};
         box->theta = 0.0f;
