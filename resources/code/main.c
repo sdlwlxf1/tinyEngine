@@ -509,7 +509,7 @@ int main(int argc, char * argv[])
             camera->worldup = (vector_t){0.0f, 1.0f, 0.0f, 0.0f};
             camera->fovy = 3.1415926 * 0.5f;
             camera->zn = 0.1f;
-            camera->zf = 10.0f;
+            camera->zf = 20.0f;
             camera->width = REAL_WIDTH;
             camera->height = REAL_HEIGHT;
             camera->aspect = (float)REAL_WIDTH / (float)REAL_HEIGHT;
@@ -527,8 +527,7 @@ int main(int argc, char * argv[])
         }
 //        dirLight = (dirlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
         
-        int i = 0;
-        for(i = 0; i < 4; i++)
+        for(int i = 0; i < 4; i++)
         {
             pointLights[i] = (pointlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
             pointlight_cnt++;
@@ -571,7 +570,7 @@ int main(int argc, char * argv[])
         // ground
         object_t *ground = &objects[0];
         ground->pos = (point_t){0, 0, 0, 1};
-        ground->scale = (vector_t){10, 1, 10, 0};
+        ground->scale = (vector_t){20, 1, 20, 0};
         ground->axis = (vector_t){0, 0, 0, 1};
         ground->theta = 0.0f;
         ground->mesh = ground_mesh;
@@ -618,7 +617,7 @@ int main(int argc, char * argv[])
         {
             // Set frame time
             Uint32 currentFrame = SDL_GetTicks();
-            deltaTime = (currentFrame - lastFrame) * 1.0f /1000;
+            deltaTime = (currentFrame - lastFrame) * 1.0f / 1000;
             lastFrame = currentFrame;
             
             //Handle events on queue
@@ -775,7 +774,7 @@ int main(int argc, char * argv[])
                     device_set_zbuffer(&device, (float*)zbuffer);
                     device_set_shadowbuffer(&device, NULL);
                 } else {
-                    device.cull = 2;
+                    device.cull = 1;
                     device_set_framebuffer(&device, NULL);
                     device_set_zbuffer(&device, NULL);
                     device_set_shadowbuffer(&device, (float*)shadowbuffer);

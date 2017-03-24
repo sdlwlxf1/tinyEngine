@@ -649,8 +649,7 @@ void vertex_add(vertex_t *y, const vertex_t *x) {
 }
 
 // 根据三角形生成 0-2 个梯形，并且返回合法梯形的数量
-int trapezoid_init_triangle(trapezoid_t *trap, const vertex_t *p1, 
-	const vertex_t *p2, const vertex_t *p3) {
+int trapezoid_init_triangle(trapezoid_t *trap, const vertex_t *p1, const vertex_t *p2, const vertex_t *p3) {
 	const vertex_t *p;
 	float k, x;
 
@@ -1077,7 +1076,15 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                         transform_homogenize(&tempPos, &tempPos, camera->width, camera->height);
                         int y = (int)(tempPos.y+0.5);
                         int x = (int)(tempPos.x+0.5);
-                        if(y >= 0 && x >= 0 && y < camera->height && x < camera->height && tempPos.z - 0.005f > pshadowbuffer[y*camera->width+x]) {
+                        
+                        vector_t tempNormal = normal;
+                        matrix_apply(&tempNormal, &tempNormal, &device->camera->view_matrix_t);
+                        matrix_apply(&tempNormal, &tempNormal, &camera->view_matrix);
+                        float dot = vector_dotproduct(&tempNormal, &camera->front);
+                        float bias = 0.05 * (1.0 - dot);
+                        if(bias < 0.005f) bias = 0.005;
+                        float buffer = pshadowbuffer[y*camera->width+x];
+                        if(y >= 0 && x >= 0 && y < camera->height && x < camera->height &&  tempPos.z - bias > buffer) {
                             color_t temp = {0.3f,0.3f,0.3f,0.3f};
                             color_sub(&color, &color, &temp);
                         }
@@ -1199,6 +1206,7 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     vertex_rhw_init(t2);
     vertex_rhw_init(t3);
     
+    // 这里赋值是为了计算重心坐标
     z1 = t1->pos;
     z2 = t2->pos;
     z3 = t3->pos;
@@ -1225,6 +1233,7 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     if (render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
         trapezoid_t traps[2];
         int n = trapezoid_init_triangle(traps, t1, t2, t3);
+        // 这里赋值是为了计算重心坐标
         t1->pos = z1;
         t2->pos = z2;
         t3->pos = z3;
