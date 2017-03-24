@@ -774,7 +774,7 @@ int main(int argc, char * argv[])
                     device_set_zbuffer(&device, (float*)zbuffer);
                     device_set_shadowbuffer(&device, NULL);
                 } else {
-                    device.cull = 1;
+                    device.cull = 2;
                     device_set_framebuffer(&device, NULL);
                     device_set_zbuffer(&device, NULL);
                     device_set_shadowbuffer(&device, (float*)shadowbuffer);

@@ -40,14 +40,14 @@ void vector_add(vector_t *c, const vector_t *a, const vector_t *b) {
     c->x = a->x + b->x; 
     c->y = a->y + b->y; 
     c->z = a->z + b->z; 
-    c->w = 1.0f;
+    //c->w = 1.0f;
 }
 //      3)). sub
 void vector_sub(vector_t *c, const vector_t *a, const vector_t *b) {
     c->x = a->x - b->x; 
     c->y = a->y - b->y; 
     c->z = a->z - b->z; 
-    c->w = 1.0f;
+    //c->w = 1.0f;
 }
 //      4)). scale
 void vector_scale(vector_t *v, float k) {
@@ -1080,14 +1080,18 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                         vector_t tempNormal = normal;
                         matrix_apply(&tempNormal, &tempNormal, &device->camera->view_matrix_t);
                         matrix_apply(&tempNormal, &tempNormal, &camera->view_matrix);
+                        vector_inverse(&tempNormal);
                         float dot = vector_dotproduct(&tempNormal, &camera->front);
-                        float bias = 0.05 * (1.0 - dot);
-                        if(bias < 0.005f) bias = 0.005;
-                        float buffer = pshadowbuffer[y*camera->width+x];
-                        if(y >= 0 && x >= 0 && y < camera->height && x < camera->height &&  tempPos.z - bias > buffer) {
-                            color_t temp = {0.3f,0.3f,0.3f,0.3f};
-                            color_sub(&color, &color, &temp);
+                        if(dot > 0) {
+                            float bias = 0.015 * (1.0 - dot);
+                            if(bias < 0.002f) bias = 0.001;
+                            float buffer = pshadowbuffer[y*camera->width+x];
+                            if(y >= 0 && x >= 0 && y < camera->height && x < camera->height &&  tempPos.z - bias > buffer) {
+                                color_t temp = {0.3f,0.3f,0.3f,0.3f};
+                                color_sub(&color, &color, &temp);
+                            }
                         }
+                        
                     }
                     
                     color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
