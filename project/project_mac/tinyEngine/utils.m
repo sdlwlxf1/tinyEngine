@@ -2,7 +2,7 @@
 //  utils.m
 //  tinyEngine
 //
-//  Created by tuyoo on 2017/3/9.
+//  Created by lixuefeng on 2017/3/9.
 //  Copyright © 2017年 sdlwlxf. All rights reserved.
 //
 

@@ -3,21 +3,17 @@ and may not be redistributed without written permission.*/
 
 //Using SDL, SDL_image, standard IO, math, and strings
 #include <stdbool.h>
-#include "SDL.h"
-#include "png.h"
 #include <stdio.h>
-#include "tiny3D.h"
+#include "SDL.h"
 #include "utils.h"
 
 
-
-
 //Screen dimension constants
-const int SCREEN_WIDTH = 700;
-const int SCREEN_HEIGHT = 700;
+const int SCREEN_WIDTH = 400;
+const int SCREEN_HEIGHT = 400;
 
-const int REAL_WIDTH = 700;
-const int REAL_HEIGHT = 700;
+const int REAL_WIDTH = 400;
+const int REAL_HEIGHT = 400;
 
 
 //The window we'll be rendering to
@@ -136,198 +132,6 @@ vertex_t box_mesh[36] = {
     {{0.5f,  0.5f, -0.5f, 1.0f},  {1.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
     {{-0.5f,  0.5f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
 };
-
-typedef struct {
-    vertex_t *mesh;
-    int mesh_num;
-    int material_id;
-    int texture_id;
-    bool shadow;
-    
-    bool dirty;
-    point_t pos;
-    vector_t scale;
-    
-    vector_t axis;
-    float theta;
-    
-    matrix_t matrix;
-} object_t;
-#define MAX_NUM_OBJECT 100
-object_t objects[MAX_NUM_OBJECT];
-int object_count = 0;
-
-typedef struct {
-    IUINT32 **datas;           // 纹理数据
-    IUINT32 datas_len;
-    bool use_mipmap;        // 是否开启mipmap
-    IUINT32 width;              // 纹理宽度
-    IUINT32 height;             // 纹理高度
-} texture_t;
-#define MAX_NUM_TEXTURE 100
-texture_t textures[MAX_NUM_TEXTURE];
-int texture_count = 0;
-
-int generate_mipmaps(texture_t *texture, float gamma) {
-    IUINT32 **mipmaps = NULL;
-    int num_mip_levels = logbase2ofx(texture->width) + 1;
-    texture->datas_len = num_mip_levels;
-    mipmaps = (IUINT32**)malloc(num_mip_levels * sizeof(IUINT32*));
-    mipmaps[0] = texture->datas[0];
-    int mip_width = texture->width;
-    int mip_height = texture->height;
-    for(int mip_level = 1; mip_level < num_mip_levels; mip_level++) {
-        mip_width = mip_width >> 1;
-        mip_height = mip_height >> 1;
-        mipmaps[mip_level] = (IUINT32*)malloc(mip_width * mip_height * sizeof(IUINT32));
-        IUINT32 *src_buffer = mipmaps[mip_level-1];
-        IUINT32 *dest_buffer = mipmaps[mip_level];
-        for(int x = 0; x < mip_width; x++)
-        {
-            for(int y = 0; y < mip_height; y++)
-            {
-                float r0, g0, b0, a0,
-                r1, g1, b1, a1,
-                r2, g2, b2, a2,
-                r3, g3, b3, a3;
-                int r_avg, g_avg, b_avg, a_avg;
-                
-                IUINT32 c = src_buffer[(x*2+0) + (y*2+0)*mip_width*2];
-                b0 = c & 0xff;
-                g0 = (c >> 8) & 0xff;
-                r0 = (c >> 16) & 0xff;
-                a0 = (c >> 24) & 0xff;
-                
-                c = src_buffer[(x*2+1) + (y*2+0)*mip_width*2];
-                b1 = c & 0xff;
-                g1 = (c >> 8) & 0xff;
-                r1 = (c >> 16) & 0xff;
-                a1 = (c >> 24) & 0xff;
-                
-                c = src_buffer[(x*2+0) + (y*2+1)*mip_width*2];
-                b2 = c & 0xff;
-                g2 = (c >> 8) & 0xff;
-                r2 = (c >> 16) & 0xff;
-                a2 = (c >> 24) & 0xff;
-                
-                c = src_buffer[(x*2+1) + (y*2+1)*mip_width*2];
-                b3 = c & 0xff;
-                g3 = (c >> 8) & 0xff;
-                r3 = (c >> 16) & 0xff;
-                a3 = (c >> 24) & 0xff;
-                
-                r_avg = (IUINT32)(0.5f + gamma*(r0+r1+r2+r3)/4);
-                g_avg = (IUINT32)(0.5f + gamma*(g0+g1+g2+g3)/4);
-                b_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
-                a_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
-                
-                int R = CMID(r_avg, 0, 255);
-                int G = CMID(g_avg, 0, 255);
-                int B = CMID(b_avg, 0, 255);
-                int A = CMID(a_avg, 0, 255);
-                
-                dest_buffer[x+y*mip_width] = (A << 24) | (R << 16) | (G << 8) | B;
-            }
-        }
-    }
-    free(texture->datas);
-    texture->datas = mipmaps;
-    return num_mip_levels;
-}
-
-#define PNG_BYTES_TO_CHECK 4
-int load_png_image( const char *name, const char *type, texture_t *texture )
-{
-    FILE *fp;
-    png_structp png_ptr;
-    png_infop info_ptr;
-    png_bytep* row_pointers;
-    char buf[PNG_BYTES_TO_CHECK];
-    int w, h, x, y, temp, color_type;
-    
-	char path[100];
-    fp = fopen( getFilePath(name, type, path), "rb" );
-    if( fp == NULL ) {
-        return 1; /* 返回值 */
-    }
-    
-    png_ptr = png_create_read_struct( PNG_LIBPNG_VER_STRING, 0, 0, 0 );
-    info_ptr = png_create_info_struct( png_ptr );
-    
-    setjmp( png_jmpbuf(png_ptr) );
-    /* 读取PNG_BYTES_TO_CHECK个字节的数据 */
-    temp = (int)fread( buf, 1, PNG_BYTES_TO_CHECK, fp );
-    /* 若读到的数据并没有PNG_BYTES_TO_CHECK个字节 */
-    if( temp < PNG_BYTES_TO_CHECK ) {
-        fclose(fp);
-        png_destroy_read_struct( &png_ptr, &info_ptr, 0);
-        return 2;/* 返回值 */
-    }
-    /* 检测数据是否为PNG的签名 */
-    temp = png_sig_cmp( (png_bytep)buf, (png_size_t)0, PNG_BYTES_TO_CHECK );
-    /* 如果不是PNG的签名，则说明该文件不是PNG文件 */
-    if( temp != 0 ) {
-        fclose(fp);
-        png_destroy_read_struct( &png_ptr, &info_ptr, 0);
-        return 3;/* 返回值 */
-    }
-    
-    /* 复位文件指针 */
-    rewind( fp );
-    /* 开始读文件 */
-    png_init_io( png_ptr, fp );
-    /* 读取PNG图片信息 */
-    png_read_png( png_ptr, info_ptr, PNG_TRANSFORM_EXPAND, 0 );
-    /* 获取图像的色彩类型 */
-    color_type = png_get_color_type( png_ptr, info_ptr );
-    /* 获取图像的宽高 */
-    w = png_get_image_width( png_ptr, info_ptr );
-    h = png_get_image_height( png_ptr, info_ptr );
-
-    IUINT32 *bits = (IUINT32*)malloc(sizeof(IUINT32) * w * h);
-    
-    /* 获取图像的所有行像素数据，row_pointers里边就是rgba数据 */
-    row_pointers = png_get_rows( png_ptr, info_ptr );
-    /* 根据不同的色彩类型进行相应处理 */
-    switch( color_type ) {
-        case PNG_COLOR_TYPE_RGB_ALPHA:
-            for( y=0; y<h; ++y ) {
-                for( x=0; x < w; ++x ) {
-                    bits[y*w+x] = 0;
-                    /* 以下是RGBA数据，需要自己补充代码，保存RGBA数据 */
-                    bits[y*w+x] |= row_pointers[y][4*x+0] << 16; // red
-                    bits[y*w+x] |= row_pointers[y][4*x+1] << 8; // green
-                    bits[y*w+x] |= row_pointers[y][4*x+2]; // blue
-                    bits[y*w+x] |= row_pointers[y][4*x+3] << 24; // alpha
-                }
-            }
-            break;
-            
-        case PNG_COLOR_TYPE_RGB:
-            for( y=0; y<h; ++y ) {
-                for( x=0; x<w; ++x ) {
-                    bits[y*w+x] = 0xff000000;
-                    bits[y*w+x] |= row_pointers[y][3*x+0] << 16; // red
-                    bits[y*w+x] |= row_pointers[y][3*x+1] << 8; // green
-                    bits[y*w+x] |= row_pointers[y][3*x+2]; // blue
-                }
-            }
-            break;
-            /* 其它色彩类型的图像就不读了 */
-        default:
-            fclose(fp);
-            png_destroy_read_struct( &png_ptr, &info_ptr, 0);
-            return 4/* 返回值 */;
-    }
-    png_destroy_read_struct( &png_ptr, &info_ptr, 0);
-    
-    texture->datas = (IUINT32**)malloc(1 * sizeof(IUINT32*));
-    texture->datas[0] = bits;
-    texture->height = h;
-    texture->width = w;
-    
-    return 0;
-}
 
 void init_texture() {
     

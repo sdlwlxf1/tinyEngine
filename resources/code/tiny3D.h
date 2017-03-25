@@ -1,4 +1,7 @@
 // this tiny game engine is rendered by CPU. I make it for learing the pipline and rasterization. This is the first step to realise my own game engine. so just do it!
+#ifndef tiny3D_h
+#define tiny3D_h
+
 #include "math.h"
 
 typedef unsigned int IUINT32;
@@ -39,15 +42,13 @@ float vector_length(vector_t *v) {
 void vector_add(vector_t *c, const vector_t *a, const vector_t *b) {
     c->x = a->x + b->x; 
     c->y = a->y + b->y; 
-    c->z = a->z + b->z; 
-    //c->w = 1.0f;
+    c->z = a->z + b->z;
 }
 //      3)). sub
 void vector_sub(vector_t *c, const vector_t *a, const vector_t *b) {
     c->x = a->x - b->x; 
     c->y = a->y - b->y; 
-    c->z = a->z - b->z; 
-    //c->w = 1.0f;
+    c->z = a->z - b->z;
 }
 //      4)). scale
 void vector_scale(vector_t *v, float k) {
@@ -71,14 +72,12 @@ void vector_crossproduct(vector_t *c, const vector_t *a, const vector_t *b) {
     c->x = a->y*b->z - a->z*b->y;
     c->y = a->z*b->x - a->x*b->z;
     c->z = a->x*b->y - a->y*b->x;
-    c->w = 1.0f;
 }
 //      6)). interp t[0, 1]
 void vector_interp(vector_t *c, const vector_t *a, const vector_t *b, float t) {
     c->x = interp(a->x, b->x, t);
     c->y = interp(a->y, b->y, t);
     c->z = interp(a->z, b->z, t);
-    c->w = 1.0f;
 }
 void vector_clone(vector_t *dest, const vector_t *src) {
     dest->x = src->x;
@@ -1535,4 +1534,106 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
     device_draw_primitive(device, &p1, &p2, &p3);
 }
 
+// entity object
+typedef struct {
+    vertex_t *mesh;
+    int mesh_num;
+    int material_id;
+    int texture_id;
+    bool shadow;
+    
+    bool dirty;
+    point_t pos;
+    vector_t scale;
+    
+    vector_t axis;
+    float theta;
+    
+    matrix_t matrix;
+} object_t;
+#define MAX_NUM_OBJECT 100
+object_t objects[MAX_NUM_OBJECT];
+int object_count = 0;
 
+
+// texture
+typedef struct {
+    IUINT32 **datas;            // data
+    IUINT32 datas_len;
+    bool use_mipmap;            // able mipmap
+    IUINT32 width;
+    IUINT32 height;
+} texture_t;
+#define MAX_NUM_TEXTURE 100
+texture_t textures[MAX_NUM_TEXTURE];
+int texture_count = 0;
+
+int generate_mipmaps(texture_t *texture, float gamma) {
+    IUINT32 **mipmaps = NULL;
+    int num_mip_levels = logbase2ofx(texture->width) + 1;
+    texture->datas_len = num_mip_levels;
+    mipmaps = (IUINT32**)malloc(num_mip_levels * sizeof(IUINT32*));
+    mipmaps[0] = texture->datas[0];
+    int mip_width = texture->width;
+    int mip_height = texture->height;
+    for(int mip_level = 1; mip_level < num_mip_levels; mip_level++) {
+        mip_width = mip_width >> 1;
+        mip_height = mip_height >> 1;
+        mipmaps[mip_level] = (IUINT32*)malloc(mip_width * mip_height * sizeof(IUINT32));
+        IUINT32 *src_buffer = mipmaps[mip_level-1];
+        IUINT32 *dest_buffer = mipmaps[mip_level];
+        for(int x = 0; x < mip_width; x++)
+        {
+            for(int y = 0; y < mip_height; y++)
+            {
+                float r0, g0, b0, a0,
+                r1, g1, b1, a1,
+                r2, g2, b2, a2,
+                r3, g3, b3, a3;
+                int r_avg, g_avg, b_avg, a_avg;
+                
+                IUINT32 c = src_buffer[(x*2+0) + (y*2+0)*mip_width*2];
+                b0 = c & 0xff;
+                g0 = (c >> 8) & 0xff;
+                r0 = (c >> 16) & 0xff;
+                a0 = (c >> 24) & 0xff;
+                
+                c = src_buffer[(x*2+1) + (y*2+0)*mip_width*2];
+                b1 = c & 0xff;
+                g1 = (c >> 8) & 0xff;
+                r1 = (c >> 16) & 0xff;
+                a1 = (c >> 24) & 0xff;
+                
+                c = src_buffer[(x*2+0) + (y*2+1)*mip_width*2];
+                b2 = c & 0xff;
+                g2 = (c >> 8) & 0xff;
+                r2 = (c >> 16) & 0xff;
+                a2 = (c >> 24) & 0xff;
+                
+                c = src_buffer[(x*2+1) + (y*2+1)*mip_width*2];
+                b3 = c & 0xff;
+                g3 = (c >> 8) & 0xff;
+                r3 = (c >> 16) & 0xff;
+                a3 = (c >> 24) & 0xff;
+                
+                r_avg = (IUINT32)(0.5f + gamma*(r0+r1+r2+r3)/4);
+                g_avg = (IUINT32)(0.5f + gamma*(g0+g1+g2+g3)/4);
+                b_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
+                a_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
+                
+                int R = CMID(r_avg, 0, 255);
+                int G = CMID(g_avg, 0, 255);
+                int B = CMID(b_avg, 0, 255);
+                int A = CMID(a_avg, 0, 255);
+                
+                dest_buffer[x+y*mip_width] = (A << 24) | (R << 16) | (G << 8) | B;
+            }
+        }
+    }
+    free(texture->datas);
+    texture->datas = mipmaps;
+    return num_mip_levels;
+}
+
+
+#endif /* tiny3D_h */
