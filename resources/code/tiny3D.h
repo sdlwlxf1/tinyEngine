@@ -1085,9 +1085,22 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                         if(dot > 0) {
                             float bias = 0.015 * (1.0 - dot);
                             if(bias < 0.002f) bias = 0.001;
-                            float buffer = pshadowbuffer[y*camera->width+x];
-                            if(y >= 0 && x >= 0 && y < camera->height && x < camera->height &&  tempPos.z - bias > buffer) {
+                            if(y >= 0 && x >= 0 && y < camera->height && x < camera->width) {
+                                float shadow = 0.0;
+                                for(int i = -1; i <= 1; ++i)
+                                {
+                                    for(int j = -1; j <= 1; ++j)
+                                    {
+                                        if(y+j < 0 || y+j >= camera->height || x+i < 0 || x+i >= camera->width)
+                                            continue;
+                                        float pcfDepth = pshadowbuffer[(y+j)*camera->width+(x+i)];
+                                        shadow +=  tempPos.z - bias > pcfDepth ? 1.0 : 0.0;
+                                    }    
+                                }
+                                shadow /= 9.0;
+                                
                                 color_t temp = {0.3f,0.3f,0.3f,0.3f};
+                                color_scale(&temp, shadow);
                                 color_sub(&color, &color, &temp);
                             }
                         }

@@ -13,11 +13,11 @@ and may not be redistributed without written permission.*/
 
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 400;
-const int SCREEN_HEIGHT = 400;
+const int SCREEN_WIDTH = 700;
+const int SCREEN_HEIGHT = 700;
 
-const int REAL_WIDTH = 400;
-const int REAL_HEIGHT = 400;
+const int REAL_WIDTH = 700;
+const int REAL_HEIGHT = 700;
 
 
 //The window we'll be rendering to

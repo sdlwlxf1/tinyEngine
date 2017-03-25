@@ -1964,11 +1964,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.h"
-            timestampString = "512057773.984844"
+            timestampString = "512115497.098811"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1214"
-            endingLineNumber = "1214"
+            startingLineNumber = "1227"
+            endingLineNumber = "1227"
             landmarkName = "device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_t *t3)"
             landmarkType = "9">
          </BreakpointContent>
@@ -2028,11 +2028,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.h"
-            timestampString = "512057773.984844"
+            timestampString = "512115497.098811"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1114"
-            endingLineNumber = "1114"
+            startingLineNumber = "1127"
+            endingLineNumber = "1127"
             landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t *t1, const vertex_t *t2, const vertex_t *t3, const point_t *p1, const point_t *p2, const point_t *p3)"
             landmarkType = "9">
          </BreakpointContent>
@@ -2108,11 +2108,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.h"
-            timestampString = "512057773.984844"
+            timestampString = "512115497.098811"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1135"
-            endingLineNumber = "1135"
+            startingLineNumber = "1148"
+            endingLineNumber = "1148"
             landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t *t1, const vertex_t *t2, const vertex_t *t3, const point_t *p1, const point_t *p2, const point_t *p3)"
             landmarkType = "9">
          </BreakpointContent>
@@ -2124,11 +2124,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.h"
-            timestampString = "512057773.984844"
+            timestampString = "512115497.098811"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1186"
-            endingLineNumber = "1186"
+            startingLineNumber = "1199"
+            endingLineNumber = "1199"
             landmarkName = "device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_t *t3)"
             landmarkType = "9">
          </BreakpointContent>
@@ -2161,6 +2161,22 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1038"
             endingLineNumber = "1038"
+            landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t *t1, const vertex_t *t2, const vertex_t *t3, const point_t *p1, const point_t *p2, const point_t *p3)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../resources/code/tiny3D.h"
+            timestampString = "512115236.536857"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1100"
+            endingLineNumber = "1100"
             landmarkName = "device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t *t1, const vertex_t *t2, const vertex_t *t3, const point_t *p1, const point_t *p2, const point_t *p3)"
             landmarkType = "9">
          </BreakpointContent>
