@@ -1,8 +1,11 @@
 // this tiny game engine is rendered by CPU. I make it for learing the pipline and rasterization. This is the first step to realise my own game engine. so just do it!
+
 #ifndef tiny3D_h
 #define tiny3D_h
 
-#include "math.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <math.h>
 
 typedef unsigned int IUINT32;
 #define PI 3.141592653

@@ -7,13 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		164CA07C1E866B4F00064DE8 /* tr-and-d-issue-43.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 164CA07A1E866B4F00064DE8 /* tr-and-d-issue-43.mtl */; };
+		164CA07D1E866B4F00064DE8 /* tr-and-d-issue-43.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = 164CA07B1E866B4F00064DE8 /* tr-and-d-issue-43.obj */; };
+		164CA0811E86B4E600064DE8 /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 164CA0801E86B4E600064DE8 /* utils.c */; };
 		166002EA1E717F7F00252926 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 166002E91E717F7F00252926 /* libpng.a */; };
 		166002EC1E71837700252926 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 166002EB1E71837700252926 /* libSDL2.a */; };
 		166002EE1E7183F700252926 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 166002ED1E7183F700252926 /* utils.m */; };
 		166002F11E7186B800252926 /* mabu.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 166002E71E717EE800252926 /* mabu.png */; };
 		166002F51E72C78C00252926 /* dimian.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 166002F41E72C78C00252926 /* dimian.png */; };
 		79B508E11E6C018B001AF007 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 79B508DF1E6C018B001AF007 /* main.c */; };
-		79B508E21E6C018B001AF007 /* tiny3D.h in Sources */ = {isa = PBXBuildFile; fileRef = 79B508E01E6C018B001AF007 /* tiny3D.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,6 +25,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
+				164CA07C1E866B4F00064DE8 /* tr-and-d-issue-43.mtl in CopyFiles */,
+				164CA07D1E866B4F00064DE8 /* tr-and-d-issue-43.obj in CopyFiles */,
 				166002F51E72C78C00252926 /* dimian.png in CopyFiles */,
 				166002F11E7186B800252926 /* mabu.png in CopyFiles */,
 			);
@@ -31,8 +35,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		164CA0761E864A7700064DE8 /* tiny_obj_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tiny_obj_loader.h; path = ../../external/tinyobj/tiny_obj_loader.h; sourceTree = "<group>"; };
 		164CA0791E864C4900064DE8 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../../resources/code/utils.h; sourceTree = "<group>"; };
+		164CA07A1E866B4F00064DE8 /* tr-and-d-issue-43.mtl */ = {isa = PBXFileReference; lastKnownFileType = text; name = "tr-and-d-issue-43.mtl"; path = "../../resources/obj/tr-and-d-issue-43.mtl"; sourceTree = "<group>"; };
+		164CA07B1E866B4F00064DE8 /* tr-and-d-issue-43.obj */ = {isa = PBXFileReference; lastKnownFileType = text; name = "tr-and-d-issue-43.obj"; path = "../../resources/obj/tr-and-d-issue-43.obj"; sourceTree = "<group>"; };
+		164CA07E1E86705300064DE8 /* tinyobj_loader_c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tinyobj_loader_c.h; path = ../../external/tinyobj/tinyobj_loader_c.h; sourceTree = "<group>"; };
+		164CA0801E86B4E600064DE8 /* utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = utils.c; path = ../../resources/code/utils.c; sourceTree = "<group>"; };
 		165434D71D99591E00F3B0C6 /* tinyEngine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tinyEngine; sourceTree = BUILT_PRODUCTS_DIR; };
 		166002E71E717EE800252926 /* mabu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = mabu.png; path = ../../resources/image/mabu.png; sourceTree = "<group>"; };
 		166002E91E717F7F00252926 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = ../../external/libpng/prebuild/mac/libpng.a; sourceTree = "<group>"; };
@@ -59,13 +66,16 @@
 		165434CE1D99591E00F3B0C6 = {
 			isa = PBXGroup;
 			children = (
+				164CA07A1E866B4F00064DE8 /* tr-and-d-issue-43.mtl */,
+				164CA07B1E866B4F00064DE8 /* tr-and-d-issue-43.obj */,
 				166002F41E72C78C00252926 /* dimian.png */,
 				166002E71E717EE800252926 /* mabu.png */,
 				166002ED1E7183F700252926 /* utils.m */,
+				164CA0801E86B4E600064DE8 /* utils.c */,
 				164CA0791E864C4900064DE8 /* utils.h */,
 				79B508DF1E6C018B001AF007 /* main.c */,
 				79B508E01E6C018B001AF007 /* tiny3D.h */,
-				164CA0761E864A7700064DE8 /* tiny_obj_loader.h */,
+				164CA07E1E86705300064DE8 /* tinyobj_loader_c.h */,
 				165434D81D99591E00F3B0C6 /* Products */,
 				79B508E31E6C0D0B001AF007 /* Frameworks */,
 			);
@@ -144,9 +154,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				166002EE1E7183F700252926 /* utils.m in Sources */,
+				164CA0811E86B4E600064DE8 /* utils.c in Sources */,
 				79B508E11E6C018B001AF007 /* main.c in Sources */,
-				79B508E21E6C018B001AF007 /* tiny3D.h in Sources */,
+				166002EE1E7183F700252926 /* utils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,6 +254,7 @@
 					"$(inherited)",
 					../../external/sdl2/include,
 					../../external/libpng/include,
+					../../external/tinyobj/,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -266,6 +277,7 @@
 					"$(inherited)",
 					../../external/sdl2/include,
 					../../external/libpng/include,
+					../../external/tinyobj/,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

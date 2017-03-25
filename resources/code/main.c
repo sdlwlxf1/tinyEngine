@@ -2,11 +2,9 @@
 and may not be redistributed without written permission.*/
 
 //Using SDL, SDL_image, standard IO, math, and strings
-#include <stdbool.h>
-#include <stdio.h>
 #include "SDL.h"
 #include "utils.h"
-
+#include "tiny3D.h"
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 400;
@@ -133,8 +131,23 @@ vertex_t box_mesh[36] = {
     {{-0.5f,  0.5f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
 };
 
+void make_texture_by_png(texture_t *texture, const char *name, const char *type, bool mipmap) {
+    IUINT32 *data = NULL;
+    if(load_png_image("mabu", "png", &data, &texture->width, &texture->height) == 0) {
+        texture->datas = (IUINT32**)malloc(1 * sizeof(IUINT32*));
+        texture->datas[0] = data;
+        if(mipmap) {
+            texture->use_mipmap = true;
+            generate_mipmaps(texture, 1.01);
+        }
+        texture_count++;
+    } else {
+        printf("load image error, exit!");
+        exit(0);
+    }
+}
+
 void init_texture() {
-    
     // 自建棋盘纹理
     int width = 256, height = 256;
     texture_t *texture = &textures[0];
@@ -156,26 +169,8 @@ void init_texture() {
     texture_count++;
     
     // libpng读取外部纹理
-
-    texture = &textures[1];
-    if(load_png_image("mabu", "png", texture) == 0) {
-        texture->use_mipmap = true;
-        generate_mipmaps(texture, 1.01);
-        texture_count++;
-    } else {
-        printf("load image error, exit!");
-        exit(0);
-    }
-    
-    texture = &textures[2];
-    if(load_png_image("dimian", "png", texture) == 0) {
-        texture->use_mipmap = true;
-        generate_mipmaps(texture, 1.01);
-        texture_count++;
-    } else {
-        printf("load image error, exit!");
-        exit(0);
-    }
+    make_texture_by_png(&textures[1], "mabu", "png", true);
+    make_texture_by_png(&textures[2], "dimian", "png", true);
 }
 
 void free_texture() {
@@ -276,6 +271,10 @@ int main(int argc, char * argv[])
         int states[] = { RENDER_STATE_TEXTURE, RENDER_STATE_COLOR, RENDER_STATE_WIREFRAME };
         int indicator = 0;
         int kbhit = 0;
+        
+        float bmin[3];
+        float bmax[3];
+        //load_obj(bmin, bmax, "tr-and-d-issue-43", "obj");
         
         // 缓存
         IUINT32 framebuffer[REAL_HEIGHT][REAL_WIDTH];
