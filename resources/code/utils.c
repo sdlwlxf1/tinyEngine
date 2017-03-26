@@ -9,6 +9,8 @@
 #include "png.h"
 #include "tinyobj_loader_c.h"
 
+#include <math.h>
+
 #define FLT_MIN 1.175494351e-38F
 #define FLT_MAX 3.402823466e+38F
 #define O_RDONLY         00
@@ -48,133 +50,120 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
     tinyobj_material_t* materials = NULL;
     size_t num_materials;
     
-    const char* ext = strrchr(type, '.');
+    FILE * pFile;
+    long lSize;
+    size_t data_len;
+    char * buffer;
+    size_t result;
+    const char *path = getFilePath(name, type);
+    pFile = fopen(path, "r");
+    fseek(pFile, 0, SEEK_END);
+    lSize = ftell (pFile);
+    rewind (pFile);
     
-    if (strcmp(ext, ".gz") == 0) {
-        assert(0); /* todo */
-    } else {
-        //data = mmap_file(&data_len, filename);
-        FILE * pFile;
-        long lSize;
-        size_t data_len;
-        char * buffer;
-        size_t result;
-        char path[100];
-        pFile = fopen(getFilePath(name, type, path), "r");
-        fseek(pFile, 0, SEEK_END);
-        lSize = ftell (pFile);
-        rewind (pFile);
-        
-        // allocate memory to contain the whole file:
-        buffer = (char*) malloc (sizeof(char)*lSize);
-        if (buffer == NULL) {fputs ("Memory error",stderr); exit (2);}
-        
-        // copy the file into the buffer:
-        result = fread (buffer,1,lSize,pFile);
-        if (result != lSize) {fputs ("Reading error",stderr); exit (3);}
-        
-        
-        data_len = (size_t)lSize;
-        if (buffer == NULL) {
-            exit(-1);
-            /* return 0; */
-        }
-        printf("filesize: %d\n", (int)data_len);
-        
-        {
-            unsigned int flags = TINYOBJ_FLAG_TRIANGULATE;
-            int ret = tinyobj_parse_obj(&attrib, &shapes, &num_shapes, &materials,
-                                        &num_materials, buffer, data_len, flags);
-            if (ret != TINYOBJ_SUCCESS) {
-                return 0;
-            }
-            
-            printf("# of shapes    = %d\n", (int)num_shapes);
-            printf("# of materiasl = %d\n", (int)num_materials);
-            
-            /*
-             {
-             int i;
-             for (i = 0; i < num_shapes; i++) {
-             printf("shape[%d] name = %s\n", i, shapes[i].name);
-             }
-             }
-             */
+    // allocate memory to contain the whole file:
+    buffer = (char*) malloc (sizeof(char)*lSize);
+    if (buffer == NULL) {fputs ("Memory error",stderr); exit (2);}
+    
+    // copy the file into the buffer:
+    result = fread (buffer,1,lSize,pFile);
+    if (result != lSize) {fputs ("Reading error",stderr); exit (3);}
+    
+    
+    data_len = (size_t)lSize;
+    if (buffer == NULL) {
+        exit(-1);
+        /* return 0; */
+    }
+    printf("filesize: %d\n", (int)data_len);
+    
+    {
+        char prefix_path[1000];
+        strncpy(prefix_path, path, strrchr(path, '/')-path+1);
+        unsigned int flags = TINYOBJ_FLAG_TRIANGULATE;
+        int ret = tinyobj_parse_obj(&attrib, &shapes, &num_shapes, &materials,
+                                    &num_materials, buffer, data_len, flags, prefix_path);
+        if (ret != TINYOBJ_SUCCESS) {
+            return 0;
         }
         
-        bmin[0] = bmin[1] = bmin[2] = FLT_MAX;
-        bmax[0] = bmax[1] = bmax[2] = -FLT_MAX;
+        printf("# of shapes    = %d\n", (int)num_shapes);
+        printf("# of materiasl = %d\n", (int)num_materials);
         
-        {
-            //DrawObject o;
-            float* vb;
-            /* std::vector<float> vb; //  */
-            size_t face_offset = 0;
-            size_t i;
-            
-            /* Assume triangulated face. */
-            size_t num_triangles = attrib.num_face_num_verts;
-            size_t stride = 9; /* 9 = pos(3float), normal(3float), color(3float) */
-            
-            vb = (float*)malloc(sizeof(float) * stride * num_triangles * 3);
-            
-            for (i = 0; i < attrib.num_face_num_verts; i++) {
-                size_t f;
-                assert(attrib.face_num_verts[i] % 3 == 0); /* assume all triangle faces. */
-                for (f = 0; f < (size_t)attrib.face_num_verts[i] / 3; f++) {
-                    size_t k;
-                    float v[3][3];
-                    float n[3][3];
-                    float c[3];
-                    float len2;
+        /*
+         {
+         int i;
+         for (i = 0; i < num_shapes; i++) {
+         printf("shape[%d] name = %s\n", i, shapes[i].name);
+         }
+         }
+         */
+    }
+    
+    bmin[0] = bmin[1] = bmin[2] = FLT_MAX;
+    bmax[0] = bmax[1] = bmax[2] = -FLT_MAX;
+    
+    {
+        //DrawObject o;
+        //vertex_t *mesh;
+        float* vb;
+        /* std::vector<float> vb; //  */
+        size_t face_offset = 0;
+        size_t i;
+        
+        /* Assume triangulated face. */
+        size_t num_triangles = attrib.num_face_num_verts;
+        size_t stride = 9; /* 9 = pos(3float), normal(3float), color(3float) */
+        
+        vb = (float*)malloc(sizeof(float) * stride * num_triangles * 3);
+        
+        for (i = 0; i < attrib.num_face_num_verts; i++) {
+            size_t f;
+            assert(attrib.face_num_verts[i] % 3 == 0); /* assume all triangle faces. */
+            for (f = 0; f < (size_t)attrib.face_num_verts[i] / 3; f++) {
+                size_t k;
+                float v[3][3];
+                float n[3][3];
+                float c[3];
+                float len2;
+                
+                tinyobj_vertex_index_t idx0 = attrib.faces[face_offset + 3 * f + 0];
+                tinyobj_vertex_index_t idx1 = attrib.faces[face_offset + 3 * f + 1];
+                tinyobj_vertex_index_t idx2 = attrib.faces[face_offset + 3 * f + 2];
+                
+                for (k = 0; k < 3; k++) {
+                    int f0 = idx0.v_idx;
+                    int f1 = idx1.v_idx;
+                    int f2 = idx2.v_idx;
+                    assert(f0 >= 0);
+                    assert(f1 >= 0);
+                    assert(f2 >= 0);
                     
-                    tinyobj_vertex_index_t idx0 = attrib.faces[face_offset + 3 * f + 0];
-                    tinyobj_vertex_index_t idx1 = attrib.faces[face_offset + 3 * f + 1];
-                    tinyobj_vertex_index_t idx2 = attrib.faces[face_offset + 3 * f + 2];
-                    
-                    for (k = 0; k < 3; k++) {
-                        int f0 = idx0.v_idx;
-                        int f1 = idx1.v_idx;
-                        int f2 = idx2.v_idx;
-                        assert(f0 >= 0);
-                        assert(f1 >= 0);
-                        assert(f2 >= 0);
-                        
-                        v[0][k] = attrib.vertices[3 * (size_t)f0 + k];
-                        v[1][k] = attrib.vertices[3 * (size_t)f1 + k];
-                        v[2][k] = attrib.vertices[3 * (size_t)f2 + k];
-                        bmin[k] = (v[0][k] < bmin[k]) ? v[0][k] : bmin[k];
-                        bmin[k] = (v[1][k] < bmin[k]) ? v[1][k] : bmin[k];
-                        bmin[k] = (v[2][k] < bmin[k]) ? v[2][k] : bmin[k];
-                        bmax[k] = (v[0][k] > bmax[k]) ? v[0][k] : bmax[k];
-                        bmax[k] = (v[1][k] > bmax[k]) ? v[1][k] : bmax[k];
-                        bmax[k] = (v[2][k] > bmax[k]) ? v[2][k] : bmax[k];
-                    }
-                    
-                    if (attrib.num_normals > 0) {
-                        int f0 = idx0.vn_idx;
-                        int f1 = idx1.vn_idx;
-                        int f2 = idx2.vn_idx;
-                        if (f0 >= 0 && f1 >= 0 && f2 >= 0) {
-                            assert(f0 < (int)attrib.num_normals);
-                            assert(f1 < (int)attrib.num_normals);
-                            assert(f2 < (int)attrib.num_normals);
-                            for (k = 0; k < 3; k++) {
-                                n[0][k] = attrib.normals[3 * (size_t)f0 + k];
-                                n[1][k] = attrib.normals[3 * (size_t)f1 + k];
-                                n[2][k] = attrib.normals[3 * (size_t)f2 + k];
-                            }
-                        } else { /* normal index is not defined for this face */
-                            /* compute geometric normal */
-                            CalcNormal(n[0], v[0], v[1], v[2]);
-                            n[1][0] = n[0][0];
-                            n[1][1] = n[0][1];
-                            n[1][2] = n[0][2];
-                            n[2][0] = n[0][0];
-                            n[2][1] = n[0][1];
-                            n[2][2] = n[0][2];
+                    v[0][k] = attrib.vertices[3 * (size_t)f0 + k];
+                    v[1][k] = attrib.vertices[3 * (size_t)f1 + k];
+                    v[2][k] = attrib.vertices[3 * (size_t)f2 + k];
+                    bmin[k] = (v[0][k] < bmin[k]) ? v[0][k] : bmin[k];
+                    bmin[k] = (v[1][k] < bmin[k]) ? v[1][k] : bmin[k];
+                    bmin[k] = (v[2][k] < bmin[k]) ? v[2][k] : bmin[k];
+                    bmax[k] = (v[0][k] > bmax[k]) ? v[0][k] : bmax[k];
+                    bmax[k] = (v[1][k] > bmax[k]) ? v[1][k] : bmax[k];
+                    bmax[k] = (v[2][k] > bmax[k]) ? v[2][k] : bmax[k];
+                }
+                
+                if (attrib.num_normals > 0) {
+                    int f0 = idx0.vn_idx;
+                    int f1 = idx1.vn_idx;
+                    int f2 = idx2.vn_idx;
+                    if (f0 >= 0 && f1 >= 0 && f2 >= 0) {
+                        assert(f0 < (int)attrib.num_normals);
+                        assert(f1 < (int)attrib.num_normals);
+                        assert(f2 < (int)attrib.num_normals);
+                        for (k = 0; k < 3; k++) {
+                            n[0][k] = attrib.normals[3 * (size_t)f0 + k];
+                            n[1][k] = attrib.normals[3 * (size_t)f1 + k];
+                            n[2][k] = attrib.normals[3 * (size_t)f2 + k];
                         }
-                    } else {
+                    } else { /* normal index is not defined for this face */
                         /* compute geometric normal */
                         CalcNormal(n[0], v[0], v[1], v[2]);
                         n[1][0] = n[0][0];
@@ -184,64 +173,73 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
                         n[2][1] = n[0][1];
                         n[2][2] = n[0][2];
                     }
-                    
-                    for (k = 0; k < 3; k++) {
-                        vb[(3 * i + k) * stride + 0] = v[k][0];
-                        vb[(3 * i + k) * stride + 1] = v[k][1];
-                        vb[(3 * i + k) * stride + 2] = v[k][2];
-                        vb[(3 * i + k) * stride + 3] = n[k][0];
-                        vb[(3 * i + k) * stride + 4] = n[k][1];
-                        vb[(3 * i + k) * stride + 5] = n[k][2];
-                        
-                        /* Use normal as color. */
-                        c[0] = n[k][0];
-                        c[1] = n[k][1];
-                        c[2] = n[k][2];
-                        len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
-                        if (len2 > 0.0f) {
-                            float len = (float)sqrt((double)len2);
-                            
-                            c[0] /= len;
-                            c[1] /= len;
-                            c[2] /= len;
-                        }
-                        
-                        vb[(3 * i + k) * stride + 6] = (c[0] * 0.5f + 0.5f);
-                        vb[(3 * i + k) * stride + 7] = (c[1] * 0.5f + 0.5f);
-                        vb[(3 * i + k) * stride + 8] = (c[2] * 0.5f + 0.5f);
-                    }
+                } else {
+                    /* compute geometric normal */
+                    CalcNormal(n[0], v[0], v[1], v[2]);
+                    n[1][0] = n[0][0];
+                    n[1][1] = n[0][1];
+                    n[1][2] = n[0][2];
+                    n[2][0] = n[0][0];
+                    n[2][1] = n[0][1];
+                    n[2][2] = n[0][2];
                 }
-                face_offset += (size_t)attrib.face_num_verts[i];
+                
+                for (k = 0; k < 3; k++) {
+                    vb[(3 * i + k) * stride + 0] = v[k][0];
+                    vb[(3 * i + k) * stride + 1] = v[k][1];
+                    vb[(3 * i + k) * stride + 2] = v[k][2];
+                    vb[(3 * i + k) * stride + 3] = n[k][0];
+                    vb[(3 * i + k) * stride + 4] = n[k][1];
+                    vb[(3 * i + k) * stride + 5] = n[k][2];
+                    
+                    /* Use normal as color. */
+                    c[0] = n[k][0];
+                    c[1] = n[k][1];
+                    c[2] = n[k][2];
+                    len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
+                    if (len2 > 0.0f) {
+                        float len = (float)sqrt((double)len2);
+                        
+                        c[0] /= len;
+                        c[1] /= len;
+                        c[2] /= len;
+                    }
+                    
+                    vb[(3 * i + k) * stride + 6] = (c[0] * 0.5f + 0.5f);
+                    vb[(3 * i + k) * stride + 7] = (c[1] * 0.5f + 0.5f);
+                    vb[(3 * i + k) * stride + 8] = (c[2] * 0.5f + 0.5f);
+                }
             }
-            
-            //o.vb = 0;
-            //o.numTriangles = 0;
-            //        if (num_triangles > 0) {
-            //            glGenBuffers(1, &o.vb);
-            //            glBindBuffer(GL_ARRAY_BUFFER, o.vb);
-            //            glBufferData(GL_ARRAY_BUFFER, num_triangles * 3 * stride * sizeof(float),
-            //                         vb, GL_STATIC_DRAW);
-            //            o.numTriangles = (int)num_triangles;
-            //        }
-            
-            free(vb);
-            
-            //gDrawObject = o;
+            face_offset += (size_t)attrib.face_num_verts[i];
         }
         
-        printf("bmin = %f, %f, %f\n", (double)bmin[0], (double)bmin[1],
-               (double)bmin[2]);
-        printf("bmax = %f, %f, %f\n", (double)bmax[0], (double)bmax[1],
-               (double)bmax[2]);
+        //o.vb = 0;
+        //o.numTriangles = 0;
+        //        if (num_triangles > 0) {
+        //            glGenBuffers(1, &o.vb);
+        //            glBindBuffer(GL_ARRAY_BUFFER, o.vb);
+        //            glBufferData(GL_ARRAY_BUFFER, num_triangles * 3 * stride * sizeof(float),
+        //                         vb, GL_STATIC_DRAW);
+        //            o.numTriangles = (int)num_triangles;
+        //        }
         
-        tinyobj_attrib_free(&attrib);
-        tinyobj_shapes_free(shapes, num_shapes);
-        tinyobj_materials_free(materials, num_materials);
+        free(vb);
         
-        // terminate
-        fclose (pFile);
-        free (buffer);
+        //gDrawObject = o;
     }
+    
+    printf("bmin = %f, %f, %f\n", (double)bmin[0], (double)bmin[1],
+           (double)bmin[2]);
+    printf("bmax = %f, %f, %f\n", (double)bmax[0], (double)bmax[1],
+           (double)bmax[2]);
+    
+    tinyobj_attrib_free(&attrib);
+    tinyobj_shapes_free(shapes, num_shapes);
+    tinyobj_materials_free(materials, num_materials);
+    
+    // terminate
+    fclose (pFile);
+    free (buffer);
     return 0;
 }
 
@@ -256,7 +254,7 @@ int load_png_image( const char *name, const char *type, unsigned int **bits, uns
     int w, h, x, y, temp, color_type;
     
     char path[100];
-    fp = fopen( getFilePath(name, type, path), "rb" );
+    fp = fopen( getFilePath(name, type), "rb" );
     if( fp == NULL ) {
         return 1; /* 返回值 */
     }

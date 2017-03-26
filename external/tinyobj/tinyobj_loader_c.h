@@ -94,7 +94,7 @@ typedef struct {
 extern int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
                              size_t *num_shapes, tinyobj_material_t **materials,
                              size_t *num_materials, const char *buf, size_t len,
-                             unsigned int flags);
+                             unsigned int flags, const char *prefix_path);
 extern int tinyobj_parse_mtl_file(tinyobj_material_t **materials_out,
                                   size_t *num_materials_out,
                                   const char *filename);
@@ -947,7 +947,7 @@ static int is_line_ending(const char *p, size_t i, size_t end_i) {
 int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
                       size_t *num_shapes, tinyobj_material_t **materials_out,
                       size_t *num_materials_out, const char *buf, size_t len,
-                      unsigned int flags) {
+                      unsigned int flags, const char *prefix_path) {
   LineInfo *line_infos = NULL;
   Command *commands = NULL;
   size_t num_lines = 0;
@@ -1039,8 +1039,9 @@ int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
       commands[mtllib_line_index].mtllib_name_len > 0) {
     char *filename = my_strndup(commands[mtllib_line_index].mtllib_name,
                                 commands[mtllib_line_index].mtllib_name_len);
-
-    int ret = tinyobj_parse_mtl_file(&materials, &num_materials, filename);
+      char path[1000];
+      sprintf(path, "%s%s", prefix_path, filename);
+    int ret = tinyobj_parse_mtl_file(&materials, &num_materials, path);
 
     if (ret != TINYOBJ_SUCCESS) {
       /* warning. */

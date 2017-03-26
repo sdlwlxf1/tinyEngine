@@ -9,7 +9,9 @@
 #ifndef utils_h
 #define utils_h
 
-const char* getFilePath(const char* name, const char* type, char* path);
+#include "tiny3D.h"
+
+const char* getFilePath(const char* name, const char* type);
 
 int load_obj(float bmin[3], float bmax[3], const char* name, const char* type);
 

@@ -15,6 +15,7 @@
 		166002EE1E7183F700252926 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 166002ED1E7183F700252926 /* utils.m */; };
 		166002F11E7186B800252926 /* mabu.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 166002E71E717EE800252926 /* mabu.png */; };
 		166002F51E72C78C00252926 /* dimian.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 166002F41E72C78C00252926 /* dimian.png */; };
+		793737F61E87DAC000613E1F /* tiny3D.c in Sources */ = {isa = PBXBuildFile; fileRef = 793737F51E87DAC000613E1F /* tiny3D.c */; };
 		79B508E11E6C018B001AF007 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 79B508DF1E6C018B001AF007 /* main.c */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +47,7 @@
 		166002EB1E71837700252926 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../external/sdl2/prebuild/mac/libSDL2.a; sourceTree = "<group>"; };
 		166002ED1E7183F700252926 /* utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = utils.m; path = tinyEngine/utils.m; sourceTree = "<group>"; };
 		166002F41E72C78C00252926 /* dimian.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dimian.png; path = ../../resources/image/dimian.png; sourceTree = "<group>"; };
+		793737F51E87DAC000613E1F /* tiny3D.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tiny3D.c; path = ../../resources/code/tiny3D.c; sourceTree = "<group>"; };
 		79B508DF1E6C018B001AF007 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../../resources/code/main.c; sourceTree = "<group>"; };
 		79B508E01E6C018B001AF007 /* tiny3D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tiny3D.h; path = ../../resources/code/tiny3D.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -74,6 +76,7 @@
 				164CA0801E86B4E600064DE8 /* utils.c */,
 				164CA0791E864C4900064DE8 /* utils.h */,
 				79B508DF1E6C018B001AF007 /* main.c */,
+				793737F51E87DAC000613E1F /* tiny3D.c */,
 				79B508E01E6C018B001AF007 /* tiny3D.h */,
 				164CA07E1E86705300064DE8 /* tinyobj_loader_c.h */,
 				165434D81D99591E00F3B0C6 /* Products */,
@@ -154,6 +157,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				793737F61E87DAC000613E1F /* tiny3D.c in Sources */,
 				164CA0811E86B4E600064DE8 /* utils.c in Sources */,
 				79B508E11E6C018B001AF007 /* main.c in Sources */,
 				166002EE1E7183F700252926 /* utils.m in Sources */,

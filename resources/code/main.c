@@ -75,7 +75,6 @@ void sdl_close()
 	SDL_Quit();
 }
 
-
 vertex_t ground_mesh[6] = {
     // Positions                  // Texture Coords  //color           //rhw // Normals
     {{-0.5f,  0.0f, -0.5f, 1.0f}, {0.0f,  8.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}},
@@ -274,7 +273,7 @@ int main(int argc, char * argv[])
         
         float bmin[3];
         float bmax[3];
-        //load_obj(bmin, bmax, "tr-and-d-issue-43", "obj");
+        load_obj(bmin, bmax, "tr-and-d-issue-43", "obj");
         
         // 缓存
         IUINT32 framebuffer[REAL_HEIGHT][REAL_WIDTH];
