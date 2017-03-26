@@ -130,21 +130,7 @@ vertex_t box_mesh[36] = {
     {{-0.5f,  0.5f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
 };
 
-void make_texture_by_png(texture_t *texture, const char *name, const char *type, bool mipmap) {
-    IUINT32 *data = NULL;
-    if(load_png_image("mabu", "png", &data, &texture->width, &texture->height) == 0) {
-        texture->datas = (IUINT32**)malloc(1 * sizeof(IUINT32*));
-        texture->datas[0] = data;
-        if(mipmap) {
-            texture->use_mipmap = true;
-            generate_mipmaps(texture, 1.01);
-        }
-        texture_count++;
-    } else {
-        printf("load image error, exit!");
-        exit(0);
-    }
-}
+
 
 void init_texture() {
     // 自建棋盘纹理
@@ -168,8 +154,8 @@ void init_texture() {
     texture_count++;
     
     // libpng读取外部纹理
-    make_texture_by_png(&textures[1], "mabu", "png", true);
-    make_texture_by_png(&textures[2], "dimian", "png", true);
+    make_texture_by_png(&textures[1], "mabu", true);
+    make_texture_by_png(&textures[2], "dimian", true);
 }
 
 void free_texture() {
@@ -183,7 +169,7 @@ void free_texture() {
         texture->datas = NULL;
     }
 }
-
+void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool world);
 void draw_object(device_t *device, object_t *objects, int obj_cnt) {
     for(int i = 0; i < obj_cnt; i++)
     {
@@ -211,9 +197,7 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
 //            matrix_apply(&h3.pos, &h3.pos, &device->transform.world);
 //            device_draw_primitive(device, &p1, &p2, &p3, &h1, &h2, &h3);
             clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2], false);
-        }
-        
-        
+        }  
     }
 }
 /*
@@ -271,9 +255,11 @@ int main(int argc, char * argv[])
         int indicator = 0;
         int kbhit = 0;
         
-        float bmin[3];
-        float bmax[3];
-        load_obj(bmin, bmax, "tr-and-d-issue-43", "obj");
+        vertex_t *mesh;
+        int mesh_num;
+        material_t *tmaterials;
+        int tmaterials_num;
+        make_mesh_and_material_by_obj(&mesh, &mesh_num, &tmaterials, &tmaterials_num, "tr-and-d-issue-43");
         
         // 缓存
         IUINT32 framebuffer[REAL_HEIGHT][REAL_WIDTH];
@@ -386,11 +372,11 @@ int main(int argc, char * argv[])
         // box
         object_t *box = &objects[1];
         box->pos = (point_t){0, 0, 0, 1};
-        box->scale = (vector_t){1, 1, 1, 0};
+        box->scale = (vector_t){0.1, 0.1, 0.1, 0};
         box->axis = (vector_t){0, 5, 2, 1};
         box->theta = 0.0f;
-        box->mesh = box_mesh;
-        box->mesh_num = 36;
+        box->mesh = mesh;
+        box->mesh_num = mesh_num;
         box->material_id = 0;
         box->texture_id = 1;
         box->shadow = true;

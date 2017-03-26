@@ -9,6 +9,9 @@ typedef unsigned int IUINT32;
 #define PI 3.141592653
 #define angle_to_radian(X) ((X)/180*PI)
 #define radian_to_angle(X) ((X)/PI*180)
+#define CMID(x, min, max) (((x) < (min)) ? (min) : (((x) > (max)) ? (max) : (x)))
+#define interp(a, b, t) ((a) + ((b) - (a)) * (t))
+extern int logbase2ofx(int n);
 
 // modules:
 // 1. math library

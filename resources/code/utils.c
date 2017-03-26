@@ -43,11 +43,11 @@ void CalcNormal(float N[3], float v0[3], float v1[3], float v2[3]) {
     }
 }
 
-int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
+int make_mesh_and_material_by_obj(vertex_t **mesh, int *mesh_num, material_t **materials, int *materials_num, const char *name) {
     tinyobj_attrib_t attrib;
     tinyobj_shape_t* shapes = NULL;
     size_t num_shapes;
-    tinyobj_material_t* materials = NULL;
+    tinyobj_material_t* tmaterials = NULL;
     size_t num_materials;
     
     FILE * pFile;
@@ -55,7 +55,7 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
     size_t data_len;
     char * buffer;
     size_t result;
-    const char *path = getFilePath(name, type);
+    const char *path = getFilePath(name, "obj");
     pFile = fopen(path, "r");
     fseek(pFile, 0, SEEK_END);
     lSize = ftell (pFile);
@@ -81,7 +81,7 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
         char prefix_path[1000];
         strncpy(prefix_path, path, strrchr(path, '/')-path+1);
         unsigned int flags = TINYOBJ_FLAG_TRIANGULATE;
-        int ret = tinyobj_parse_obj(&attrib, &shapes, &num_shapes, &materials,
+        int ret = tinyobj_parse_obj(&attrib, &shapes, &num_shapes, &tmaterials,
                                     &num_materials, buffer, data_len, flags, prefix_path);
         if (ret != TINYOBJ_SUCCESS) {
             return 0;
@@ -89,33 +89,18 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
         
         printf("# of shapes    = %d\n", (int)num_shapes);
         printf("# of materiasl = %d\n", (int)num_materials);
-        
-        /*
-         {
-         int i;
-         for (i = 0; i < num_shapes; i++) {
-         printf("shape[%d] name = %s\n", i, shapes[i].name);
-         }
-         }
-         */
     }
     
-    bmin[0] = bmin[1] = bmin[2] = FLT_MAX;
-    bmax[0] = bmax[1] = bmax[2] = -FLT_MAX;
-    
     {
-        //DrawObject o;
-        //vertex_t *mesh;
-        float* vb;
-        /* std::vector<float> vb; //  */
+//        float* vb;
         size_t face_offset = 0;
         size_t i;
         
         /* Assume triangulated face. */
         size_t num_triangles = attrib.num_face_num_verts;
-        size_t stride = 9; /* 9 = pos(3float), normal(3float), color(3float) */
-        
-        vb = (float*)malloc(sizeof(float) * stride * num_triangles * 3);
+//        size_t stride = 9; /* 9 = pos(3float), normal(3float), color(3float) */
+        *mesh_num = num_triangles * 3;
+        *mesh = (vertex_t*)malloc(sizeof(vertex_t) * num_triangles * 3);
         
         for (i = 0; i < attrib.num_face_num_verts; i++) {
             size_t f;
@@ -125,6 +110,7 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
                 float v[3][3];
                 float n[3][3];
                 float c[3];
+                float t[3][2];
                 float len2;
                 
                 tinyobj_vertex_index_t idx0 = attrib.faces[face_offset + 3 * f + 0];
@@ -142,12 +128,6 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
                     v[0][k] = attrib.vertices[3 * (size_t)f0 + k];
                     v[1][k] = attrib.vertices[3 * (size_t)f1 + k];
                     v[2][k] = attrib.vertices[3 * (size_t)f2 + k];
-                    bmin[k] = (v[0][k] < bmin[k]) ? v[0][k] : bmin[k];
-                    bmin[k] = (v[1][k] < bmin[k]) ? v[1][k] : bmin[k];
-                    bmin[k] = (v[2][k] < bmin[k]) ? v[2][k] : bmin[k];
-                    bmax[k] = (v[0][k] > bmax[k]) ? v[0][k] : bmax[k];
-                    bmax[k] = (v[1][k] > bmax[k]) ? v[1][k] : bmax[k];
-                    bmax[k] = (v[2][k] > bmax[k]) ? v[2][k] : bmax[k];
                 }
                 
                 if (attrib.num_normals > 0) {
@@ -184,14 +164,27 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
                     n[2][2] = n[0][2];
                 }
                 
+                if (attrib.num_texcoords > 0) {
+                    int t0 = idx0.vt_idx;
+                    int t1 = idx1.vt_idx;
+                    int t2 = idx2.vt_idx;
+                    if (t0 >= 0 && t1 >= 0 && t2 >= 0) {
+                        assert(t0 < (int)attrib.num_texcoords);
+                        assert(t1 < (int)attrib.num_texcoords);
+                        assert(t2 < (int)attrib.num_texcoords);
+                        for (k = 0; k < 2; k++) {
+                            t[0][k] = attrib.texcoords[3 * (size_t)t0 + k];
+                            t[1][k] = attrib.texcoords[3 * (size_t)t1 + k];
+                            t[2][k] = attrib.texcoords[3 * (size_t)t2 + k];
+                        }
+                    } else {
+                    }
+                }
+                
                 for (k = 0; k < 3; k++) {
-                    vb[(3 * i + k) * stride + 0] = v[k][0];
-                    vb[(3 * i + k) * stride + 1] = v[k][1];
-                    vb[(3 * i + k) * stride + 2] = v[k][2];
-                    vb[(3 * i + k) * stride + 3] = n[k][0];
-                    vb[(3 * i + k) * stride + 4] = n[k][1];
-                    vb[(3 * i + k) * stride + 5] = n[k][2];
-                    
+                    (*mesh)[3 * i + k].pos = (vector_t){v[k][0], v[k][1], v[k][2], 1};
+                    (*mesh)[3 * i + k].normal = (vector_t){n[k][0], n[k][1], n[k][2], 0};
+                    (*mesh)[3 * i + k].tc = (texcoord_t){t[k][0], t[k][1]};
                     /* Use normal as color. */
                     c[0] = n[k][0];
                     c[1] = n[k][1];
@@ -204,10 +197,8 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
                         c[1] /= len;
                         c[2] /= len;
                     }
-                    
-                    vb[(3 * i + k) * stride + 6] = (c[0] * 0.5f + 0.5f);
-                    vb[(3 * i + k) * stride + 7] = (c[1] * 0.5f + 0.5f);
-                    vb[(3 * i + k) * stride + 8] = (c[2] * 0.5f + 0.5f);
+                    (*mesh)[3 * i + k].color = (color_t){(c[0] * 0.5f + 0.5f), (c[1] * 0.5f + 0.5f), (c[2] * 0.5f + 0.5f), 1.0f};
+                    (*mesh)[3 * i + k].rhw = 1.0f;
                 }
             }
             face_offset += (size_t)attrib.face_num_verts[i];
@@ -222,20 +213,11 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
         //                         vb, GL_STATIC_DRAW);
         //            o.numTriangles = (int)num_triangles;
         //        }
-        
-        free(vb);
-        
-        //gDrawObject = o;
     }
-    
-    printf("bmin = %f, %f, %f\n", (double)bmin[0], (double)bmin[1],
-           (double)bmin[2]);
-    printf("bmax = %f, %f, %f\n", (double)bmax[0], (double)bmax[1],
-           (double)bmax[2]);
     
     tinyobj_attrib_free(&attrib);
     tinyobj_shapes_free(shapes, num_shapes);
-    tinyobj_materials_free(materials, num_materials);
+    tinyobj_materials_free(tmaterials, num_materials);
     
     // terminate
     fclose (pFile);
@@ -243,8 +225,75 @@ int load_obj(float bmin[3], float bmax[3], const char* name, const char* type) {
     return 0;
 }
 
+int generate_mipmaps(texture_t *texture, float gamma) {
+    IUINT32 **mipmaps = NULL;
+    int num_mip_levels = logbase2ofx(texture->width) + 1;
+    texture->datas_len = num_mip_levels;
+    mipmaps = (IUINT32**)malloc(num_mip_levels * sizeof(IUINT32*));
+    mipmaps[0] = texture->datas[0];
+    int mip_width = texture->width;
+    int mip_height = texture->height;
+    for(int mip_level = 1; mip_level < num_mip_levels; mip_level++) {
+        mip_width = mip_width >> 1;
+        mip_height = mip_height >> 1;
+        mipmaps[mip_level] = (IUINT32*)malloc(mip_width * mip_height * sizeof(IUINT32));
+        IUINT32 *src_buffer = mipmaps[mip_level-1];
+        IUINT32 *dest_buffer = mipmaps[mip_level];
+        for(int x = 0; x < mip_width; x++)
+        {
+            for(int y = 0; y < mip_height; y++)
+            {
+                float r0, g0, b0, a0,
+                r1, g1, b1, a1,
+                r2, g2, b2, a2,
+                r3, g3, b3, a3;
+                int r_avg, g_avg, b_avg, a_avg;
+                
+                IUINT32 c = src_buffer[(x*2+0) + (y*2+0)*mip_width*2];
+                b0 = c & 0xff;
+                g0 = (c >> 8) & 0xff;
+                r0 = (c >> 16) & 0xff;
+                a0 = (c >> 24) & 0xff;
+                
+                c = src_buffer[(x*2+1) + (y*2+0)*mip_width*2];
+                b1 = c & 0xff;
+                g1 = (c >> 8) & 0xff;
+                r1 = (c >> 16) & 0xff;
+                a1 = (c >> 24) & 0xff;
+                
+                c = src_buffer[(x*2+0) + (y*2+1)*mip_width*2];
+                b2 = c & 0xff;
+                g2 = (c >> 8) & 0xff;
+                r2 = (c >> 16) & 0xff;
+                a2 = (c >> 24) & 0xff;
+                
+                c = src_buffer[(x*2+1) + (y*2+1)*mip_width*2];
+                b3 = c & 0xff;
+                g3 = (c >> 8) & 0xff;
+                r3 = (c >> 16) & 0xff;
+                a3 = (c >> 24) & 0xff;
+                
+                r_avg = (IUINT32)(0.5f + gamma*(r0+r1+r2+r3)/4);
+                g_avg = (IUINT32)(0.5f + gamma*(g0+g1+g2+g3)/4);
+                b_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
+                a_avg = (IUINT32)(0.5f + gamma*(b0+b1+b2+b3)/4);
+                
+                int R = CMID(r_avg, 0, 255);
+                int G = CMID(g_avg, 0, 255);
+                int B = CMID(b_avg, 0, 255);
+                int A = CMID(a_avg, 0, 255);
+                
+                dest_buffer[x+y*mip_width] = (A << 24) | (R << 16) | (G << 8) | B;
+            }
+        }
+    }
+    free(texture->datas);
+    texture->datas = mipmaps;
+    return num_mip_levels;
+}
+
 #define PNG_BYTES_TO_CHECK 4
-int load_png_image( const char *name, const char *type, unsigned int **bits, unsigned int *width, unsigned int *height)
+int load_png_image( const char *name, unsigned int **bits, unsigned int *width, unsigned int *height)
 {
     FILE *fp;
     png_structp png_ptr;
@@ -253,8 +302,7 @@ int load_png_image( const char *name, const char *type, unsigned int **bits, uns
     char buf[PNG_BYTES_TO_CHECK];
     int w, h, x, y, temp, color_type;
     
-    char path[100];
-    fp = fopen( getFilePath(name, type), "rb" );
+    fp = fopen(getFilePath(name, "png"), "rb");
     if( fp == NULL ) {
         return 1; /* 返回值 */
     }
@@ -334,3 +382,19 @@ int load_png_image( const char *name, const char *type, unsigned int **bits, uns
     
     return 0;
 }
+
+int make_texture_by_png(texture_t *texture, const char *name, bool mipmap) {
+    IUINT32 *data = NULL;
+    int res = load_png_image(name, &data, &texture->width, &texture->height);
+    if(res == 0) {
+        texture->datas = (IUINT32**)malloc(1 * sizeof(IUINT32*));
+        texture->datas[0] = data;
+        if(mipmap) {
+            texture->use_mipmap = true;
+            generate_mipmaps(texture, 1.01);
+        }
+        texture_count++;
+    }
+    return res;
+}
+
