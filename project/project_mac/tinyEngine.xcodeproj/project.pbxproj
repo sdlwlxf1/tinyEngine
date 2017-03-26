@@ -16,6 +16,9 @@
 		166002F11E7186B800252926 /* mabu.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 166002E71E717EE800252926 /* mabu.png */; };
 		166002F51E72C78C00252926 /* dimian.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 166002F41E72C78C00252926 /* dimian.png */; };
 		793737F61E87DAC000613E1F /* tiny3D.c in Sources */ = {isa = PBXBuildFile; fileRef = 793737F51E87DAC000613E1F /* tiny3D.c */; };
+		793737F91E881AAB00613E1F /* nanosuit.mtl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 793737F71E881AAB00613E1F /* nanosuit.mtl */; };
+		793737FA1E881AAB00613E1F /* nanosuit.obj in CopyFiles */ = {isa = PBXBuildFile; fileRef = 793737F81E881AAB00613E1F /* nanosuit.obj */; };
+		793737FC1E881DE000613E1F /* nanosuit.blend in CopyFiles */ = {isa = PBXBuildFile; fileRef = 793737FB1E881DE000613E1F /* nanosuit.blend */; };
 		79B508E11E6C018B001AF007 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 79B508DF1E6C018B001AF007 /* main.c */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +33,9 @@
 				164CA07D1E866B4F00064DE8 /* tr-and-d-issue-43.obj in CopyFiles */,
 				166002F51E72C78C00252926 /* dimian.png in CopyFiles */,
 				166002F11E7186B800252926 /* mabu.png in CopyFiles */,
+				793737F91E881AAB00613E1F /* nanosuit.mtl in CopyFiles */,
+				793737FA1E881AAB00613E1F /* nanosuit.obj in CopyFiles */,
+				793737FC1E881DE000613E1F /* nanosuit.blend in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -48,6 +54,9 @@
 		166002ED1E7183F700252926 /* utils_other.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = utils_other.m; path = tinyEngine/utils_other.m; sourceTree = "<group>"; };
 		166002F41E72C78C00252926 /* dimian.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dimian.png; path = ../../resources/image/dimian.png; sourceTree = "<group>"; };
 		793737F51E87DAC000613E1F /* tiny3D.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tiny3D.c; path = ../../resources/code/tiny3D.c; sourceTree = "<group>"; };
+		793737F71E881AAB00613E1F /* nanosuit.mtl */ = {isa = PBXFileReference; lastKnownFileType = text; name = nanosuit.mtl; path = ../../resources/obj/nanosuit.mtl; sourceTree = "<group>"; };
+		793737F81E881AAB00613E1F /* nanosuit.obj */ = {isa = PBXFileReference; lastKnownFileType = text; name = nanosuit.obj; path = ../../resources/obj/nanosuit.obj; sourceTree = "<group>"; };
+		793737FB1E881DE000613E1F /* nanosuit.blend */ = {isa = PBXFileReference; lastKnownFileType = file; name = nanosuit.blend; path = ../../resources/obj/nanosuit.blend; sourceTree = "<group>"; };
 		79B508DF1E6C018B001AF007 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../../resources/code/main.c; sourceTree = "<group>"; };
 		79B508E01E6C018B001AF007 /* tiny3D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tiny3D.h; path = ../../resources/code/tiny3D.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -68,6 +77,9 @@
 		165434CE1D99591E00F3B0C6 = {
 			isa = PBXGroup;
 			children = (
+				793737FB1E881DE000613E1F /* nanosuit.blend */,
+				793737F71E881AAB00613E1F /* nanosuit.mtl */,
+				793737F81E881AAB00613E1F /* nanosuit.obj */,
 				164CA07A1E866B4F00064DE8 /* tr-and-d-issue-43.mtl */,
 				164CA07B1E866B4F00064DE8 /* tr-and-d-issue-43.obj */,
 				166002F41E72C78C00252926 /* dimian.png */,

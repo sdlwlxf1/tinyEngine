@@ -169,7 +169,7 @@ void free_texture() {
         texture->datas = NULL;
     }
 }
-void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool world);
+
 void draw_object(device_t *device, object_t *objects, int obj_cnt) {
     for(int i = 0; i < obj_cnt; i++)
     {
@@ -178,10 +178,9 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
             matrix_set_rotate_translate_scale(&object->matrix, &object->axis, object->theta, &object->pos, &object->scale);
             object->dirty = false;
         }
-        // 切换纹理
-        texture_t *texture = &textures[object->texture_id];
-        device_set_texture(device, texture->datas, texture->width, texture->height, false);
-        device->material = materials[object->material_id];
+        
+        //texture_t *texture = &textures[object->texture_id];
+        //device_set_texture(device, texture->datas, texture->width, texture->height, false);
         device->transform.world = object->matrix;
         transform_update(&device->transform);
         vertex_t *mesh = object->mesh;
@@ -196,11 +195,13 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
 //            matrix_apply(&h2.pos, &h2.pos, &device->transform.world);
 //            matrix_apply(&h3.pos, &h3.pos, &device->transform.world);
 //            device_draw_primitive(device, &p1, &p2, &p3, &h1, &h2, &h3);
+            // 切换材质组
+            device->material = materials[objects->material_ids[i/3]];
             clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2], false);
         }  
     }
 }
-/*
+
 void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
     for(int i = 0; i < pointlight_cnt; i++) {
         vector_t pl = pointLights[i].pos;
@@ -229,8 +230,6 @@ void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
         }
     }
 }
-*/
-
 
 
 int screen_keys[512];	// 当前键盘按下状态
@@ -256,10 +255,10 @@ int main(int argc, char * argv[])
         int kbhit = 0;
         
         vertex_t *mesh;
-        int mesh_num;
-        material_t *tmaterials;
-        int tmaterials_num;
-        make_mesh_and_material_by_obj(&mesh, &mesh_num, &tmaterials, &tmaterials_num, "tr-and-d-issue-43");
+        unsigned long mesh_num;
+        int *material_ids;
+        unsigned long material_ids_num;
+        make_mesh_and_material_by_obj(&mesh, &mesh_num, materials, &material_cnt, &material_ids, &material_ids_num, "nanosuit");
         
         // 缓存
         IUINT32 framebuffer[REAL_HEIGHT][REAL_WIDTH];
@@ -278,14 +277,14 @@ int main(int argc, char * argv[])
         
         init_texture();
         
-        materials[0] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
-        material_cnt++;
-        materials[1] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.05f, 0.05f, 0.05f, 1.0f, 32.0f};
-        material_cnt++;
-        materials[2] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
-        material_cnt++;
-        materials[3] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
-        material_cnt++;
+//        materials[0] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
+//        material_cnt++;
+//        materials[1] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.05f, 0.05f, 0.05f, 1.0f, 32.0f};
+//        material_cnt++;
+//        materials[2] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
+//        material_cnt++;
+//        materials[3] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
+//        material_cnt++;
         
         dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, true};
         if(dirLight.shadow == true)
@@ -363,7 +362,7 @@ int main(int argc, char * argv[])
         ground->theta = 0.0f;
         ground->mesh = ground_mesh;
         ground->mesh_num = 6;
-        ground->material_id = 1;
+//        ground->material_id = 1;
         ground->texture_id = 1;
         ground->shadow = false;
         ground->dirty = true;
@@ -377,7 +376,7 @@ int main(int argc, char * argv[])
         box->theta = 0.0f;
         box->mesh = mesh;
         box->mesh_num = mesh_num;
-        box->material_id = 0;
+//        box->material_ids = 0;
         box->texture_id = 1;
         box->shadow = true;
         box->dirty = true;
@@ -391,7 +390,7 @@ int main(int argc, char * argv[])
         box1->theta = 0.0f;
         box1->mesh = box_mesh;
         box1->mesh_num = 36;
-        box1->material_id = 0;
+//        box1->material_id = 0;
         box1->texture_id = 0;
         box1->shadow = false;
         box1->dirty = true;
@@ -590,8 +589,8 @@ int main(int argc, char * argv[])
                 draw_object(&device, objects, object_count);
             }
  
-            // 渲染阴影
-            // draw_shadow(&device, objects, object_count);
+            // 渲染阴影 采用创建mesh方式，只能投影到平面上
+//             draw_shadow(&device, objects, object_count);
 
             
             for(int y = 0; y < SCREEN_HEIGHT; y++)

@@ -43,7 +43,7 @@ void CalcNormal(float N[3], float v0[3], float v1[3], float v2[3]) {
     }
 }
 
-int make_mesh_and_material_by_obj(vertex_t **mesh, int *mesh_num, material_t **materials, int *materials_num, const char *name) {
+int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, material_t *materials, int *materials_cnt, int **material_ids, unsigned long *material_ids_num, const char *name) {
     tinyobj_attrib_t attrib;
     tinyobj_shape_t* shapes = NULL;
     size_t num_shapes;
@@ -78,8 +78,12 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, int *mesh_num, material_t **m
     printf("filesize: %d\n", (int)data_len);
     
     {
+//        printf("path %s\n", path);
         char prefix_path[1000];
-        strncpy(prefix_path, path, strrchr(path, '/')-path+1);
+        long len = strrchr(path, '/')-path+1;
+        strncpy(prefix_path, path, len);
+        prefix_path[len] = '\0';
+//        printf("prefix_path : %s\n", prefix_path);
         unsigned int flags = TINYOBJ_FLAG_TRIANGULATE;
         int ret = tinyobj_parse_obj(&attrib, &shapes, &num_shapes, &tmaterials,
                                     &num_materials, buffer, data_len, flags, prefix_path);
@@ -89,6 +93,72 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, int *mesh_num, material_t **m
         
         printf("# of shapes    = %d\n", (int)num_shapes);
         printf("# of materiasl = %d\n", (int)num_materials);
+    }
+    
+    {
+        size_t i;
+        for (i = 0; i < num_materials; i++) {
+            material_t m;
+            tinyobj_material_t tm = tmaterials[i];
+            if(tm.name != NULL) {
+                m.name = (char*)malloc(sizeof(char) * strlen(tm.name));
+                strcpy(m.name, tm.name);
+            }
+            m.ambient[0] = tm.ambient[0];
+            m.ambient[1] = tm.ambient[1];
+            m.ambient[2] = tm.ambient[2];
+            
+            m.diffuse[0] = tm.diffuse[0];
+            m.diffuse[1] = tm.diffuse[1];
+            m.diffuse[2] = tm.diffuse[2];
+            
+            m.specular[0] = tm.specular[0];
+            m.specular[1] = tm.specular[1];
+            m.specular[2] = tm.specular[2];
+            
+            m.transmittance[0] = tm.transmittance[0];
+            m.transmittance[1] = tm.transmittance[1];
+            m.transmittance[2] = tm.transmittance[2];
+            
+            m.emission[0] = tm.emission[0];
+            m.emission[1] = tm.emission[1];
+            m.emission[2] = tm.emission[2];
+            
+            m.shininess = tm.shininess;
+            m.ior = tm.ior;
+            m.dissolve = tm.dissolve;
+            m.illum = tm.illum;
+            m.pad0 = tm.pad0;
+            if(tm.ambient_texname != NULL) {
+                m.ambient_texname = (char*)malloc(sizeof(char) * strlen(tm.ambient_texname));
+                strcpy(m.ambient_texname, tm.ambient_texname);
+            }
+            if(tm.diffuse_texname != NULL) {
+                m.diffuse_texname = (char*)malloc(sizeof(char) * strlen(tm.diffuse_texname));
+                strcpy(m.diffuse_texname, tm.diffuse_texname);
+            }
+            if(tm.specular_texname != NULL) {
+                m.specular_texname = (char*)malloc(sizeof(char) * strlen(tm.specular_texname));
+                strcpy(m.specular_texname, tm.specular_texname);
+            }
+            if(tm.specular_highlight_texname != NULL) {
+                m.specular_highlight_texname = (char*)malloc(sizeof(char) * strlen(tm.specular_highlight_texname));
+                strcpy(m.specular_highlight_texname, tm.specular_highlight_texname);
+            }
+            if(tm.bump_texname != NULL) {
+                m.bump_texname = (char*)malloc(sizeof(char) * strlen(tm.bump_texname));
+                strcpy(m.bump_texname, tm.bump_texname);
+            }
+            if(tm.displacement_texname != NULL) {
+                m.displacement_texname = (char*)malloc(sizeof(char) * strlen(tm.displacement_texname));
+                strcpy(m.displacement_texname, tm.displacement_texname);
+            }
+            if(tm.alpha_texname != NULL) {
+                m.alpha_texname = (char*)malloc(sizeof(char) * strlen(tm.alpha_texname));
+                strcpy(m.alpha_texname, tm.alpha_texname);
+            }
+            materials[(*materials_cnt)++] = m;
+        }
     }
     
     {
@@ -203,16 +273,6 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, int *mesh_num, material_t **m
             }
             face_offset += (size_t)attrib.face_num_verts[i];
         }
-        
-        //o.vb = 0;
-        //o.numTriangles = 0;
-        //        if (num_triangles > 0) {
-        //            glGenBuffers(1, &o.vb);
-        //            glBindBuffer(GL_ARRAY_BUFFER, o.vb);
-        //            glBufferData(GL_ARRAY_BUFFER, num_triangles * 3 * stride * sizeof(float),
-        //                         vb, GL_STATIC_DRAW);
-        //            o.numTriangles = (int)num_triangles;
-        //        }
     }
     
     tinyobj_attrib_free(&attrib);

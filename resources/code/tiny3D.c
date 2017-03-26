@@ -394,6 +394,12 @@ void color_product(color_t *c, const color_t *a, const color_t *b) {
     c->b = a->b * b->b;
     c->a = a->a * b->a;
 }
+//      5)). product
+void color_product_array(color_t *c, const color_t *a, const float *b) {
+    c->r = a->r * b[0];
+    c->g = a->g * b[1];
+    c->b = a->b * b[2];
+}
 void color_scale(color_t *c, float k) {
     c->r *= k;
     c->g *= k;
@@ -438,13 +444,13 @@ void calc_pointlight(color_t *color, const material_t *material, const pointligh
         attenuation = 1.0f / temp;
     
     color_t c;
-    color_product(&c, &light->ambi, &material->ambi);
+    color_product_array(&c, &light->ambi, material->ambient);
     color_scale(&c, attenuation);
     color_add(color, color, &c);
-    color_product(&c, &light->diff, &material->diff);
+    color_product_array(&c, &light->diff, material->diffuse);
     color_scale(&c, diff * attenuation);
     color_add(color, color, &c);
-    color_product(&c, &light->spec, &material->spec);
+    color_product_array(&c, &light->spec, material->specular);
     color_scale(&c, spec * attenuation);
     color_add(color, color, &c);
 }
@@ -463,12 +469,12 @@ void calc_dirlight(color_t *color, const material_t *material, const dirlight_t 
     float spec = powf(fmaxf(vector_dotproduct(viewdir, &vec), 0.0f), material->shininess);
     
     color_t temp;
-    color_product(&temp, &light->ambi, &material->ambi);
+    color_product_array(&temp, &light->ambi, material->ambient);
     color_add(color, color, &temp);
-    color_product(&temp, &light->diff, &material->diff);
+    color_product_array(&temp, &light->diff, material->diffuse);
     color_scale(&temp, diff);
     color_add(color, color, &temp);
-    color_product(&temp, &light->spec, &material->spec);
+    color_product_array(&temp, &light->spec, material->specular);
     color_scale(&temp, spec);
     color_add(color, color, &temp);
 }
@@ -682,12 +688,12 @@ void device_set_camera(device_t *device, camera_t *camera)
     //transform_update(&device->transform);
 }
 
-void device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool use_mipmap) {
-    device->texture = texture;
-	device->tex_width = w;
-	device->tex_height = h;
-    device->use_mipmap = use_mipmap;
-}
+//void device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool use_mipmap) {
+//    device->texture = texture;
+//	device->tex_width = w;
+//	device->tex_height = h;
+//    device->use_mipmap = use_mipmap;
+//}
 
 void device_pixel(device_t *device, int x, int y, IUINT32 color) {
     if (x >= 0 && x < device->camera->width && y >= 0 && y < device->camera->height) {

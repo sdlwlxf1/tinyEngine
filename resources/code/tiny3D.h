@@ -133,14 +133,33 @@ void color_sub(color_t *c, const color_t *a, const color_t *b);
 
 
 typedef struct {
-    color_t ambi;
-    color_t diff;
-    color_t spec;
+    char *name;
+    
+    float ambient[3];
+    float diffuse[3];
+    float specular[3];
+    float transmittance[3];
+    float emission[3];
     float shininess;
+    float ior;      /* index of refraction */
+    float dissolve;
+    int illum;
+    
+    int pad0;
+    
+    char *ambient_texname;            /* map_Ka */
+    char *diffuse_texname;            /* map_Kd */
+    char *specular_texname;           /* map_Ks */
+    char *specular_highlight_texname; /* map_Ns */
+    char *bump_texname;               /* map_bump, bump */
+    char *displacement_texname;       /* disp */
+    char *alpha_texname;              /* map_d */
 } material_t;
-#define NUM_MATERIAL 4
+#define NUM_MATERIAL 100
 extern material_t materials[NUM_MATERIAL];
 extern int material_cnt;
+
+
 
 typedef struct {
     point_t pos;
@@ -236,7 +255,7 @@ typedef struct {
 	IUINT32 *framebuffer;       // 像素缓存
 	float *zbuffer;             // 深度缓存
     float *shadowbuffer;        // 阴影缓存
-	IUINT32 **texture;          // 纹理
+	IUINT32 **texture;          // 当前纹理
     bool use_mipmap;            // 是否开启mipmap
 	int tex_width;              // 纹理宽度
 	int tex_height;             // 纹理高度
@@ -266,7 +285,7 @@ void device_set_shadowbuffer(device_t *device, float *shadowbuffer);
 
 void device_set_camera(device_t *device, camera_t *camera);
 
-void device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool use_mipmap);
+//void device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool use_mipmap);
 
 void device_pixel(device_t *device, int x, int y, IUINT32 color);
 
@@ -275,8 +294,8 @@ void device_clear(device_t *device);
 // entity object
 typedef struct {
     vertex_t *mesh;
-    int mesh_num;
-    int material_id;
+    unsigned long mesh_num;
+    int* material_ids;
     int texture_id;
     bool shadow;
     
@@ -293,6 +312,8 @@ typedef struct {
 extern object_t objects[MAX_NUM_OBJECT];
 extern int object_count;
 
+//extern int material_ids_ids[MAX_NUM_OBJECT];
+//extern int material_ids_cnt;
 
 // texture
 typedef struct {
@@ -305,5 +326,7 @@ typedef struct {
 #define MAX_NUM_TEXTURE 100
 extern texture_t textures[MAX_NUM_TEXTURE];
 extern int texture_count;
+
+void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool world);
 
 #endif /* tiny3D_h */
