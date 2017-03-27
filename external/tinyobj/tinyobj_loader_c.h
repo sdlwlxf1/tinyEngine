@@ -1059,6 +1059,7 @@ int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
     size_t n_count = 0;
     size_t t_count = 0;
     size_t f_count = 0;
+    size_t m_count = 0;
     size_t face_count = 0;
     int material_id = -1; /* -1 = default unknown material. */
     size_t i = 0;
@@ -1080,20 +1081,17 @@ int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
       if (commands[i].type == COMMAND_EMPTY) {
         continue;
       } else if (commands[i].type == COMMAND_USEMTL) {
-        /* @todo
-        if (commands[t][i].material_name &&
-            commands[t][i].material_name_len > 0) {
-          std::string material_name(commands[t][i].material_name,
-                                    commands[t][i].material_name_len);
-
-          if (material_map.find(material_name) != material_map.end()) {
-            material_id = material_map[material_name];
-          } else {
-            // Assign invalid material ID
+        if (commands[i].material_name && commands[i].material_name_len > 0) {
             material_id = -1;
-          }
+            char name[100];
+            strncpy(name, commands[i].material_name, commands[i].material_name_len);
+            for(m_count = 0; m_count < num_materials; m_count++) {
+                if(strcmp(name, materials[m_count].name) == 0) {
+                    material_id = (int)m_count;
+                    break;
+                }
+            }
         }
-        */
       } else if (commands[i].type == COMMAND_V) {
         attrib->vertices[3 * v_count + 0] = commands[i].vx;
         attrib->vertices[3 * v_count + 1] = commands[i].vy;

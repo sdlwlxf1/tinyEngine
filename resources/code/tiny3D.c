@@ -433,54 +433,13 @@ pointlight_t pointLights[NR_POINT_LIGHTS];
 int pointlight_cnt;
 
 void calc_pointlight(color_t *color, const material_t *material, const pointlight_t *light, const vector_t *normal, const vector_t *fpos, const vector_t *viewdir, const vector_t *fragPos, float z) {
-    vector_t lightDir = {0.0f, 0.0f, 0.0f, 0.0f};
-    vector_sub(&lightDir, &light->pos, fpos);
-    float distance = vector_length(&lightDir);
-    vector_normalize(&lightDir);
-    float diff = fmaxf(vector_dotproduct(normal, &lightDir), 0.0f);
-    vector_t vec;
-    vector_inverse(&lightDir);
-    vector_reflect(&vec, &lightDir, normal);
-    float spec = powf(fmaxf(vector_dotproduct(viewdir, &vec), 0.0f), material->shininess);
-    float temp = light->constant + light->linear * distance + light->quadratic * (distance * distance);
-    float attenuation = 0;
-    if(temp != 0)
-        attenuation = 1.0f / temp;
     
-    color_t c;
-    color_product_array(&c, &light->ambi, material->ambient);
-    color_scale(&c, attenuation);
-    color_add(color, color, &c);
-    color_product_array(&c, &light->diff, material->diffuse);
-    color_scale(&c, diff * attenuation);
-    color_add(color, color, &c);
-    color_product_array(&c, &light->spec, material->specular);
-    color_scale(&c, spec * attenuation);
-    color_add(color, color, &c);
 }
 
 dirlight_t dirLight;
 
 void calc_dirlight(color_t *color, const material_t *material, const dirlight_t *light, const vector_t *normal, const vector_t *viewdir, const vector_t *fragPos, float z) {
-    vector_t lightDir = light->dir;
-    vector_inverse(&lightDir);
-    vector_normalize(&lightDir);
-    float diff = fmaxf(vector_dotproduct(normal, &lightDir), 0.0f);
-    lightDir = light->dir;
-    vector_normalize(&lightDir);
-    vector_t vec;
-    vector_reflect(&vec, &lightDir, normal);
-    float spec = powf(fmaxf(vector_dotproduct(viewdir, &vec), 0.0f), material->shininess);
     
-    color_t temp;
-    color_product_array(&temp, &light->ambi, material->ambient);
-    color_add(color, color, &temp);
-    color_product_array(&temp, &light->diff, material->diffuse);
-    color_scale(&temp, diff);
-    color_add(color, color, &temp);
-    color_product_array(&temp, &light->spec, material->specular);
-    color_scale(&temp, spec);
-    color_add(color, color, &temp);
 }
 
 camera_t cameras[MAX_NUM_CAMERA];
@@ -839,6 +798,7 @@ color_t texture_read(const texture_t *texture, float u, float v, float z, float 
         dtu_x_one_minus_dtv * textel01_b +
         dtu_x_dtv * textel11_b + 
         one_minus_dtu_x_dtv * textel10_b;
+    color_scale(&color, 1.0f/255);
     return color;
 }
 
@@ -891,7 +851,6 @@ bool computeBarycentricCoords3d(point_t *res, const point_t *p0, const point_t *
 
 // now is the core realize for rendering, so just do it.
 void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t *t1, const vertex_t *t2, const vertex_t *t3, const point_t *p1, const point_t *p2, const point_t *p3) {
-    
     int y = scanline->y;
     int x = scanline->x;
     int width = device->camera->width;
@@ -913,7 +872,10 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                 
                 if(device->framebuffer != NULL) {
                     color_t color = {0.0f, 0.0f, 0.0f, 1.0f};
+                    material_t *material = &device->material;
                     float w = 1.0f / rhw;
+                    float u = scanline->v.tc.u * w;
+                    float v = scanline->v.tc.v * w;
                     
                     point_t barycenter = {0.0f, 0.0f, 0.0f, 1.0f};
                     point_t interpos = scanline->v.pos;
@@ -942,10 +904,34 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                     vector_scale(&ptemp, barycenter.z);
                     vector_add(&normal, &normal, &ptemp);
                     vector_normalize(&normal);
+                    
+                    
                     vector_t viewdir, viewPos = device->camera->pos;
                     vector_sub(&viewdir, &viewPos, &fragPos);
                     vector_normalize(&viewdir);
-                    calc_dirlight(&color, &device->material, &dirLight, &normal, &viewdir, &fragPos, w);
+                    
+                    vector_t lightDir = dirLight.dir;
+                    vector_inverse(&lightDir);
+                    vector_normalize(&lightDir);
+                    float diff = fmaxf(vector_dotproduct(&normal, &lightDir), 0.0f);
+                    lightDir = dirLight.dir;
+                    vector_normalize(&lightDir);
+                    vector_t vec;
+                    vector_reflect(&vec, &lightDir, &normal);
+                    float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), material->shininess);
+                    
+                    color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
+                    color_t temp2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], u, v, w, 20);
+                    color_product(&temp, &dirLight.ambi, &temp2);
+                    color_add(&color, &color, &temp);
+                    temp2 = material->diffuse_tex_id == -1 ? material->diffuse : texture_read(&textures[material->diffuse_tex_id], u, v, w, 20);
+                    color_product(&temp, &dirLight.diff, &temp2);
+                    color_scale(&temp, diff);
+                    color_add(&color, &color, &temp);
+                    temp2 = material->specular_tex_id == -1 ? material->specular : texture_read(&textures[material->specular_tex_id], u, v, w, 20);
+                    color_product(&temp, &dirLight.spec, &temp2);
+                    color_scale(&temp, spec);
+                    color_add(&color, &color, &temp);
                     
                     // 计算阴影
                     if(dirLight.shadow)
@@ -987,11 +973,41 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                         }
                     }
                     
-                    color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
+                    
                     int i = 0;
                     for(i = 0; i < pointlight_cnt; i++)
                     {
-                        calc_pointlight(&temp, &device->material, &pointLights[i], &normal, &fragPos, &viewdir, &fragPos, w);
+                        temp = (color_t){0.0f, 0.0f ,0.0f, 1.0f};
+                        pointlight_t *pointlight = &pointLights[i];
+
+                        vector_t lightDir = {0.0f, 0.0f, 0.0f, 0.0f};
+                        vector_sub(&lightDir, &pointlight->pos, &fragPos);
+                        float distance = vector_length(&lightDir);
+                        vector_normalize(&lightDir);
+                        float diff = fmaxf(vector_dotproduct(&normal, &lightDir), 0.0f);
+                        vector_t vec;
+                        vector_inverse(&lightDir);
+                        vector_reflect(&vec, &lightDir, &normal);
+                        float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), material->shininess);
+                        float num = pointlight->constant + pointlight->linear * distance + pointlight->quadratic * (distance * distance);
+                        float attenuation = 0;
+                        if(num != 0)
+                            attenuation = 1.0f / num;
+                        
+                        color_t c = (color_t){0.0f, 0.0f ,0.0f, 1.0f};
+                        color_t c2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], u, v, w, 20);
+                        color_product(&c, &pointlight->ambi, &c2);
+                        color_scale(&c, attenuation);
+                        color_add(&temp, &temp, &c);
+                        c2 = material->diffuse_tex_id == -1 ? material->diffuse : texture_read(&textures[material->diffuse_tex_id], u, v, w, 20);
+                        color_product(&c, &pointlight->diff, &c2);
+                        color_scale(&c, diff * attenuation);
+                        color_add(&temp, &temp, &c);
+                        c2 = material->specular_tex_id == -1 ? material->specular : texture_read(&textures[material->specular_tex_id], u, v, w, 20);
+                        color_product(&c, &pointlight->spec, &c2);
+                        color_scale(&c, spec * attenuation);
+                        color_add(&temp, &temp, &c);
+                        
                         color_add(&color, &color, &temp);
                     }
                     
@@ -1000,30 +1016,23 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                     float g = 0.0f;
                     float b = 0.0f;
                     
-                    
                     if(render_state & RENDER_STATE_COLOR) {
-                        a = scanline->v.color.a * w * 255.0f;
-                        r = scanline->v.color.r * w * 255.0f;
-                        g = scanline->v.color.g * w * 255.0f;
-                        b = scanline->v.color.b * w * 255.0f;
+                        a = scanline->v.color.a * w;
+                        r = scanline->v.color.r * w;
+                        g = scanline->v.color.g * w;
+                        b = scanline->v.color.b * w;
                     }
                     if(render_state & RENDER_STATE_TEXTURE) {
-                        float u = scanline->v.tc.u * w;
-                        float v = scanline->v.tc.v * w;
-                        color_t cc = texture_read(&textures[device->material.ambient_tex_id], u, v, w, 15);
-                        a = cc.a;
-                        r = cc.r;
-                        g = cc.g;
-                        b = cc.b;
+                        a = color.a;
+                        r = color.r;
+                        g = color.g;
+                        b = color.b;
                     }
-                    a *= color.a;
-                    r *= color.r;
-                    g *= color.g;
-                    b *= color.b;
-                    int A = CMID((int)a, 0, 255);
-                    int R = CMID((int)r, 0, 255);
-                    int G = CMID((int)g, 0, 255);
-                    int B = CMID((int)b, 0, 255);
+                    
+                    int A = CMID((int)(a * 255.0f), 0, 255);
+                    int R = CMID((int)(r * 255.0f), 0, 255);
+                    int G = CMID((int)(g * 255.0f), 0, 255);
+                    int B = CMID((int)(b * 255.0f), 0, 255);
                     
                     device->framebuffer[y*width+x] = (R << 16) | (G << 8) | B;
                 }

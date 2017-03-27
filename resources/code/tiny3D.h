@@ -136,11 +136,11 @@ void color_sub(color_t *c, const color_t *a, const color_t *b);
 typedef struct {
     char *name;
     
-    float ambient[3];
-    float diffuse[3];
-    float specular[3];
-    float transmittance[3];
-    float emission[3];
+    color_t ambient;
+    color_t diffuse;
+    color_t specular;
+    color_t transmittance;
+    color_t emission;
     float shininess;
     float ior;      /* index of refraction */
     float dissolve;

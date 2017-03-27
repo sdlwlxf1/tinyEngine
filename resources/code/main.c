@@ -184,10 +184,10 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
         
         for(int i = 0; i < object->mesh_num; i+=3) {
             // 切换材质组
-            if(objects->material_ids == NULL)
+            if(object->material_ids == NULL)
                 device->material = materials[0];
             else
-                device->material = materials[objects->material_ids[i/3]];
+                device->material = materials[object->material_ids[i/3]];
             clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2], false);
         }  
     }
@@ -246,6 +246,7 @@ int main(int argc, char * argv[])
         int kbhit = 0;
         
         init_texture();
+        materials[material_cnt++] = (material_t){"default", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, -1, "", 0, NULL, -1, NULL, -1, NULL, -1, NULL, -1, NULL, -1};
         
         vertex_t *mesh_nan;
         unsigned long mesh_num_nan;
@@ -267,12 +268,8 @@ int main(int argc, char * argv[])
         bool firstMouse = true;
         
         memset(screen_keys, 0, sizeof(int) * 512);
-        
-        
-        
-        materials[0] = (material_t){"default", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0};
-        material_cnt++;
-        
+  
+//        dirLight = (dirlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
         dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, true};
         if(dirLight.shadow == true)
         {
@@ -299,13 +296,10 @@ int main(int argc, char * argv[])
             
             camera_count++;
         }
-//        dirLight = (dirlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+
         
         for(int i = 0; i < 4; i++)
-        {
-            pointLights[i] = (pointlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
-            pointlight_cnt++;
-        }
+            pointLights[pointlight_cnt++] = (pointlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
         
         pointLights[0] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}, false};
 //        pointLights[1] = (pointlight_t){-1.0f, 6.0f, -1.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f};

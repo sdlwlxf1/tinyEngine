@@ -49,6 +49,7 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
     size_t num_shapes;
     tinyobj_material_t* tmaterials = NULL;
     size_t num_materials;
+    int start_material_cnt = material_cnt;
     
     FILE * pFile;
     long lSize;
@@ -104,25 +105,25 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
                 m.name = (char*)malloc(sizeof(char) * strlen(tm.name));
                 strcpy(m.name, tm.name);
             }
-            m.ambient[0] = tm.ambient[0];
-            m.ambient[1] = tm.ambient[1];
-            m.ambient[2] = tm.ambient[2];
+            m.ambient.r = tm.ambient[0];
+            m.ambient.g = tm.ambient[1];
+            m.ambient.b = tm.ambient[2];
             
-            m.diffuse[0] = tm.diffuse[0];
-            m.diffuse[1] = tm.diffuse[1];
-            m.diffuse[2] = tm.diffuse[2];
+            m.diffuse.r = tm.diffuse[0];
+            m.diffuse.g = tm.diffuse[1];
+            m.diffuse.b = tm.diffuse[2];
             
-            m.specular[0] = tm.specular[0];
-            m.specular[1] = tm.specular[1];
-            m.specular[2] = tm.specular[2];
+            m.specular.r = tm.specular[0];
+            m.specular.g = tm.specular[1];
+            m.specular.b = tm.specular[2];
             
-            m.transmittance[0] = tm.transmittance[0];
-            m.transmittance[1] = tm.transmittance[1];
-            m.transmittance[2] = tm.transmittance[2];
+            m.transmittance.r = tm.transmittance[0];
+            m.transmittance.g = tm.transmittance[1];
+            m.transmittance.b = tm.transmittance[2];
             
-            m.emission[0] = tm.emission[0];
-            m.emission[1] = tm.emission[1];
-            m.emission[2] = tm.emission[2];
+            m.emission.r = tm.emission[0];
+            m.emission.g = tm.emission[1];
+            m.emission.b = tm.emission[2];
             
             m.shininess = tm.shininess;
             m.ior = tm.ior;
@@ -179,9 +180,15 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
         *mesh_num = num_triangles * 3;
         *mesh = (vertex_t*)malloc(sizeof(vertex_t) * num_triangles * 3);
         
+        *material_ids_num = num_triangles;
+        *material_ids = (int*)malloc(sizeof(int) * (*material_ids_num));
         for (i = 0; i < attrib.num_face_num_verts; i++) {
             size_t f;
             assert(attrib.face_num_verts[i] % 3 == 0); /* assume all triangle faces. */
+            (*material_ids)[i] = attrib.material_ids[i];
+            if((*material_ids)[i] > 0)
+                (*material_ids)[i] += start_material_cnt;
+            
             for (f = 0; f < (size_t)attrib.face_num_verts[i] / 3; f++) {
                 size_t k;
                 float v[3][3];
