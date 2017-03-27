@@ -132,72 +132,37 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
             if(tm.ambient_texname != NULL) {
                 m.ambient_texname = (char*)malloc(sizeof(char) * strlen(tm.ambient_texname));
                 strcpy(m.ambient_texname, tm.ambient_texname);
-                char name[100];
-                long len = strrchr(m.ambient_texname, '.')-m.ambient_texname;
-                strncpy(name, m.ambient_texname, len);
-                name[len] = '\0';
-                make_texture_by_png(&textures[texture_count], name, true);
-                m.ambient_tex_id = texture_count-1;
+                m.ambient_tex_id = make_texture_by_png(m.ambient_texname, true);
             }
             if(tm.diffuse_texname != NULL) {
                 m.diffuse_texname = (char*)malloc(sizeof(char) * strlen(tm.diffuse_texname));
                 strcpy(m.diffuse_texname, tm.diffuse_texname);
-                char name[100];
-                long len = strrchr(m.diffuse_texname, '.')-m.diffuse_texname;
-                strncpy(name, m.diffuse_texname, len);
-                name[len] = '\0';
-                make_texture_by_png(&textures[texture_count], name, true);
-                m.diffuse_tex_id = texture_count-1;
+                m.diffuse_tex_id = make_texture_by_png(m.diffuse_texname, true);
             }
             if(tm.specular_texname != NULL) {
                 m.specular_texname = (char*)malloc(sizeof(char) * strlen(tm.specular_texname));
                 strcpy(m.specular_texname, tm.specular_texname);
-                char name[100];
-                long len = strrchr(m.specular_texname, '.')-m.specular_texname;
-                strncpy(name, m.specular_texname, len);
-                name[len] = '\0';
-                make_texture_by_png(&textures[texture_count], name, true);
-                m.specular_tex_id = texture_count-1;
+                m.specular_tex_id = make_texture_by_png(m.specular_texname, true);
             }
             if(tm.specular_highlight_texname != NULL) {
                 m.specular_highlight_texname = (char*)malloc(sizeof(char) * strlen(tm.specular_highlight_texname));
                 strcpy(m.specular_highlight_texname, tm.specular_highlight_texname);
-                char name[100];
-                long len = strrchr(m.specular_highlight_texname, '.')-m.specular_highlight_texname;
-                strncpy(name, m.specular_highlight_texname, len);
-                name[len] = '\0';
-                make_texture_by_png(&textures[texture_count], name, true);
-                m.specular_highlight_tex_id = texture_count-1;
+                m.specular_highlight_tex_id = make_texture_by_png(m.specular_highlight_texname, true);
             }
             if(tm.bump_texname != NULL) {
                 m.bump_texname = (char*)malloc(sizeof(char) * strlen(tm.bump_texname));
                 strcpy(m.bump_texname, tm.bump_texname);
-                char name[100];
-                long len = strrchr(m.bump_texname, '.')-m.bump_texname;
-                strncpy(name, m.bump_texname, len);
-                name[len] = '\0';
-                make_texture_by_png(&textures[texture_count], name, true);
-                m.bump_tex_id = texture_count-1;
+                m.bump_tex_id = make_texture_by_png(m.bump_texname, true);
             }
             if(tm.displacement_texname != NULL) {
                 m.displacement_texname = (char*)malloc(sizeof(char) * strlen(tm.displacement_texname));
                 strcpy(m.displacement_texname, tm.displacement_texname);
-                char name[100];
-                long len = strrchr(m.displacement_texname, '.')-m.displacement_texname;
-                strncpy(name, m.displacement_texname, len);
-                name[len] = '\0';
-                make_texture_by_png(&textures[texture_count], name, true);
-                m.displacement_tex_id = texture_count-1;
+                m.displacement_tex_id = make_texture_by_png(m.displacement_texname, true);
             }
             if(tm.alpha_texname != NULL) {
                 m.alpha_texname = (char*)malloc(sizeof(char) * strlen(tm.alpha_texname));
                 strcpy(m.alpha_texname, tm.alpha_texname);
-                char name[100];
-                long len = strrchr(m.alpha_texname, '.')-m.alpha_texname;
-                strncpy(name, m.alpha_texname, len);
-                name[len] = '\0';
-                make_texture_by_png(&textures[texture_count], name, true);
-                m.alpha_tex_id = texture_count-1;
+                m.alpha_tex_id = make_texture_by_png(m.alpha_texname, true);
             }
             materials[material_cnt++] = m;
         }
@@ -485,9 +450,18 @@ int load_png_image( const char *name, unsigned int **bits, unsigned int *width, 
     return 0;
 }
 
-int make_texture_by_png(texture_t *texture, const char *name, bool mipmap) {
+// 返回-1读取失败，返回id号对应texture编号
+int make_texture_by_png(const char *name, bool mipmap) {
     IUINT32 *data = NULL;
-    int res = load_png_image(name, &data, &texture->width, &texture->height);
+    texture_t *texture = &textures[texture_count];
+    char trueName[100];
+    char *findPos = NULL;
+    if((findPos = strrchr(name, '.')) != NULL) {
+        long len = findPos-name;
+        strncpy(trueName, name, len);
+        trueName[len] = '\0';
+    }
+    int res = load_png_image(findPos == NULL ? name : trueName, &data, &texture->width, &texture->height);
     if(res == 0) {
         texture->datas = (IUINT32**)malloc(1 * sizeof(IUINT32*));
         texture->datas[0] = data;
@@ -496,7 +470,8 @@ int make_texture_by_png(texture_t *texture, const char *name, bool mipmap) {
             generate_mipmaps(texture, 1.01);
         }
         texture_count++;
+        return texture_count-1;
     }
-    return res;
+    return -1;
 }
 

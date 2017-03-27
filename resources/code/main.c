@@ -135,7 +135,7 @@ vertex_t box_mesh[36] = {
 void init_texture() {
     // 自建棋盘纹理
     int width = 256, height = 256;
-    texture_t *texture = &textures[0];
+    texture_t *texture = &textures[texture_count++];
     IUINT32 *bits = (IUINT32*)malloc(sizeof(IUINT32) * width * height);
     int i, j;
     for (j = 0; j < height; j++) {
@@ -151,11 +151,10 @@ void init_texture() {
     texture->height = height;
     texture->use_mipmap = true;
     generate_mipmaps(texture, 1.01);
-    texture_count++;
     
     // libpng读取外部纹理
-    make_texture_by_png(&textures[1], "mabu", true);
-    make_texture_by_png(&textures[2], "dimian", true);
+    make_texture_by_png("mabu", true);
+    make_texture_by_png("dimian", true);
 }
 
 void free_texture() {
@@ -179,22 +178,11 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
             object->dirty = false;
         }
         
-        //texture_t *texture = &textures[object->texture_id];
-        //device_set_texture(device, texture->datas, texture->width, texture->height, false);
-        device->transform.world = object->matrix;
+        device->transform.model = object->matrix;
         transform_update(&device->transform);
         vertex_t *mesh = object->mesh;
         
         for(int i = 0; i < object->mesh_num; i+=3) {
-//            vertex_t p1 = mesh[i], p2 = mesh[i+1], p3 = mesh[i+2];
-//            matrix_apply(&p1.pos, &p1.pos, &device->transform.transform_wv);
-//            matrix_apply(&p2.pos, &p2.pos, &device->transform.transform_wv);
-//            matrix_apply(&p3.pos, &p3.pos, &device->transform.transform_wv);
-//            vertex_t h1 = mesh[i], h2 = mesh[i+1], h3 = mesh[i+2];
-//            matrix_apply(&h1.pos, &h1.pos, &device->transform.world);
-//            matrix_apply(&h2.pos, &h2.pos, &device->transform.world);
-//            matrix_apply(&h3.pos, &h3.pos, &device->transform.world);
-//            device_draw_primitive(device, &p1, &p2, &p3, &h1, &h2, &h3);
             // 切换材质组
             if(objects->material_ids == NULL)
                 device->material = materials[0];
@@ -257,6 +245,8 @@ int main(int argc, char * argv[])
         int indicator = 0;
         int kbhit = 0;
         
+        init_texture();
+        
         vertex_t *mesh_nan;
         unsigned long mesh_num_nan;
         int *material_ids_nan;
@@ -278,12 +268,12 @@ int main(int argc, char * argv[])
         
         memset(screen_keys, 0, sizeof(int) * 512);
         
-        init_texture();
+        
         
         materials[0] = (material_t){"default", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0};
         material_cnt++;
         
-        dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, true};
+        dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, true};
         if(dirLight.shadow == true)
         {
             // 影子摄像机
@@ -313,14 +303,14 @@ int main(int argc, char * argv[])
         
         for(int i = 0; i < 4; i++)
         {
-            pointLights[i] = (pointlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
+            pointLights[i] = (pointlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
             pointlight_cnt++;
         }
         
-        pointLights[0] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}, false};
-//        pointLights[1] = (pointlight_t){-1.0f, 6.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f};
-//        pointLights[2] = (pointlight_t){7.0f, -1.0f, -6.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
-//        pointLights[3] = (pointlight_t){0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
+        pointLights[0] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.05f, 0.05f, 0.05f, 1.0f}, {0.4f, 0.4f, 0.4f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}, false};
+//        pointLights[1] = (pointlight_t){-1.0f, 6.0f, -1.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f};
+//        pointLights[2] = (pointlight_t){7.0f, -1.0f, -6.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
+//        pointLights[3] = (pointlight_t){0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
         
         // 主摄像机
         camera_t *camera = &cameras[camera_count];
@@ -352,7 +342,7 @@ int main(int argc, char * argv[])
 
         // init object
         // ground
-        object_t *ground = &objects[0];
+        object_t *ground = &objects[object_count];
         ground->pos = (point_t){0, 0, 0, 1};
         ground->scale = (vector_t){20, 1, 20, 0};
         ground->axis = (vector_t){0, 0, 0, 1};
@@ -366,10 +356,10 @@ int main(int argc, char * argv[])
         object_count++;
         
         // box
-        object_t *box = &objects[1];
+        object_t *box = &objects[object_count];
         box->pos = (point_t){0, 0, 0, 1};
         box->scale = (vector_t){0.1, 0.1, 0.1, 0};
-        box->axis = (vector_t){0, 5, 2, 1};
+        box->axis = (vector_t){0, 1, 0, 1};
         box->theta = 0.0f;
         box->mesh = mesh_nan;
         box->mesh_num = mesh_num_nan;
@@ -380,7 +370,7 @@ int main(int argc, char * argv[])
         object_count++;
         
         // box
-        object_t *box1 = &objects[2];
+        object_t *box1 = &objects[object_count];
         box1->pos = (point_t){0, 2, -1, 1};
         box1->scale = (vector_t){0.5, 0.5, 0.5, 0};
         box1->axis = (vector_t){1, 0, 1, 1};
@@ -392,6 +382,8 @@ int main(int argc, char * argv[])
         box1->shadow = false;
         box1->dirty = true;
         object_count++;
+        
+        object_t *controlObj = box1;
 
         //Event handler
         SDL_Event e;
@@ -483,40 +475,40 @@ int main(int argc, char * argv[])
                 camera->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_Q]) {
-                box->theta -= 0.04f;
-                box->dirty = true;
+                controlObj->theta -= 0.04f;
+                controlObj->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_E]) {
-                box->theta += 0.04f;
-                box->dirty = true;
+                controlObj->theta += 0.04f;
+                controlObj->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_UP]) {
                 float velocity = c_movementspeed * deltaTime;
                 vector_t temp = {0.0f, 1.0f, 0.0f, 0.0f};
                 vector_scale(&temp, velocity);
-                vector_add(&box->pos, &box->pos, &temp);
-                box->dirty = true;
+                vector_add(&controlObj->pos, &controlObj->pos, &temp);
+                controlObj->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_LEFT]) {
                 float velocity = c_movementspeed * deltaTime;
                 vector_t temp = {-1.0f, 0.0f, 0.0f, 0.0f};
                 vector_scale(&temp, velocity);
-                vector_add(&box->pos, &box->pos, &temp);
-                box->dirty = true;
+                vector_add(&controlObj->pos, &controlObj->pos, &temp);
+                controlObj->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_DOWN]) {
                 float velocity = c_movementspeed * deltaTime;
                 vector_t temp = {0.0f, -1.0f, 0.0f, 0.0f};
                 vector_scale(&temp, velocity);
-                vector_add(&box->pos, &box->pos, &temp);
-                box->dirty = true;
+                vector_add(&controlObj->pos, &controlObj->pos, &temp);
+                controlObj->dirty = true;
             }
             if (screen_keys[SDL_SCANCODE_RIGHT]) {
                 float velocity = c_movementspeed * deltaTime;
                 vector_t temp = {1.0f, 0.0f, 0.0f, 0.0f};
                 vector_scale(&temp, velocity);
-                vector_add(&box->pos, &box->pos, &temp);
-                box->dirty = true;
+                vector_add(&controlObj->pos, &controlObj->pos, &temp);
+                controlObj->dirty = true;
             }
             
             if (screen_keys[SDL_SCANCODE_SPACE]) {
@@ -563,26 +555,13 @@ int main(int argc, char * argv[])
                     device_set_zbuffer(&device, NULL);
                     device_set_shadowbuffer(&device, (float*)shadowbuffer);
                 }
-                device_set_camera(&device, camera);
+                
                 if(camera->dirty == true) {
                     camera_update(camera);
-                    device.transform.view = camera->view_matrix;
-                    transform_update(&device.transform);
-                    
-                    if(camera->main == true) {
-                        matrix_apply(&dirLight.vdir, &dirLight.dir, &device.transform.view);
-                        vector_normalize(&dirLight.vdir);
-                        for(int j = 0; j < pointlight_cnt; j++)
-                        {
-                            matrix_apply(&pointLights[i].vpos, &pointLights[i].pos, &device.transform.view);
-                            vector_normalize(&pointLights[i].vpos);
-                        }
-                    }
-    
                     camera->dirty = false;
-                } else {
-                    transform_update(&device.transform);
                 }
+                device_set_camera(&device, camera);
+                transform_update(&device.transform);
                 draw_object(&device, objects, object_count);
             }
  
@@ -594,10 +573,13 @@ int main(int argc, char * argv[])
             {
                 for(int x = 0; x < SCREEN_WIDTH; x++)
                 {
-                    IUINT32 color = framebuffer[y][x];// * 255
+                    IUINT32 color = framebuffer[y][x];
                     SDL_SetRenderDrawColor(gRenderer, (0xff<<16&color)>>16, (0xff<<8&color)>>8, 0xff&color, (0xff<<24&color)>>24);
                     SDL_RenderDrawPoint(gRenderer, x, y);
-                    //shadowbuffer[y][x] = 1.0f;
+                    
+//                    float depth = shadowbuffer[y][x];
+//                    SDL_SetRenderDrawColor(gRenderer, depth*255, depth*255, depth*255, 255);
+//                    SDL_RenderDrawPoint(gRenderer, x, y);
                 }
             }
 

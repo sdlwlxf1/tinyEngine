@@ -346,12 +346,13 @@ void matrix_set_ortho(matrix_t *m, float l, float r, float b, float t, float zn,
 
 //  1). transform_update (world * view * projection
 void transform_update(transform_t *ts) {
-    matrix_mul(&ts->transform_wv, &ts->world, &ts->view);
-    matrix_mul(&ts->transform, &ts->transform_wv, &ts->projection);
+    matrix_mul(&ts->mv, &ts->model, &ts->view);
+    matrix_mul(&ts->vp, &ts->view, &ts->projection);
+    matrix_mul(&ts->mvp, &ts->mv, &ts->projection);
 }
 //  3). transform_apply
 void transform_apply(const transform_t *ts, vector_t *y, const vector_t *x) {
-    matrix_apply(y, x, &ts->transform);
+    matrix_apply(y, x, &ts->mvp);
 }
 //  4). transform_check_cvv(v)
 int transform_check_cvv(const vector_t *v) {
@@ -419,18 +420,21 @@ void color_sub(color_t *c, const color_t *a, const color_t *b) {
     c->a = a->a - b->a;
 }
 
+object_t objects[MAX_NUM_OBJECT];
+int object_count = 0;
+
+texture_t textures[MAX_NUM_TEXTURE];
+int texture_count = 0;
 
 material_t materials[NUM_MATERIAL];
 int material_cnt;
 
-
-#define NR_POINT_LIGHTS 100
 pointlight_t pointLights[NR_POINT_LIGHTS];
 int pointlight_cnt;
 
-void calc_pointlight(color_t *color, const material_t *material, const pointlight_t *light, const vector_t *normal, const vector_t *fpos, const vector_t *viewdir, const vector_t *fragPos) {
-    vector_t lightDir;
-    vector_sub(&lightDir, &light->vpos, fpos);
+void calc_pointlight(color_t *color, const material_t *material, const pointlight_t *light, const vector_t *normal, const vector_t *fpos, const vector_t *viewdir, const vector_t *fragPos, float z) {
+    vector_t lightDir = {0.0f, 0.0f, 0.0f, 0.0f};
+    vector_sub(&lightDir, &light->pos, fpos);
     float distance = vector_length(&lightDir);
     vector_normalize(&lightDir);
     float diff = fmaxf(vector_dotproduct(normal, &lightDir), 0.0f);
@@ -457,12 +461,12 @@ void calc_pointlight(color_t *color, const material_t *material, const pointligh
 
 dirlight_t dirLight;
 
-void calc_dirlight(color_t *color, const material_t *material, const dirlight_t *light, const vector_t *normal, const vector_t *viewdir, const vector_t *fragPos) {
-    vector_t lightDir = light->vdir;
+void calc_dirlight(color_t *color, const material_t *material, const dirlight_t *light, const vector_t *normal, const vector_t *viewdir, const vector_t *fragPos, float z) {
+    vector_t lightDir = light->dir;
     vector_inverse(&lightDir);
     vector_normalize(&lightDir);
     float diff = fmaxf(vector_dotproduct(normal, &lightDir), 0.0f);
-    lightDir = light->vdir;
+    lightDir = light->dir;
     vector_normalize(&lightDir);
     vector_t vec;
     vector_reflect(&vec, &lightDir, normal);
@@ -479,8 +483,6 @@ void calc_dirlight(color_t *color, const material_t *material, const dirlight_t 
     color_add(color, color, &temp);
 }
 
-
-#define MAX_NUM_CAMERA 10
 camera_t cameras[MAX_NUM_CAMERA];
 int camera_count = 0;
 
@@ -510,7 +512,7 @@ void camera_update(camera_t *camera) {
     
     matrix_set_lookat(&camera->view_matrix, &camera->pos,  &at,  &up);
     vector_normalize(&front);
-    matrix_set_axis(&camera->view_matrix_t, &right, &up, &front, &camera->pos);
+    matrix_set_axis(&camera->view_matrix_r, &right, &up, &front, &camera->pos);
 }
 
 
@@ -655,7 +657,7 @@ void device_init(device_t *device)
     device->background = 0xFFFFFF;
     device->foreground = 0;
     device->render_state = RENDER_STATE_TEXTURE;
-    matrix_set_identity(&device->transform.world);
+    matrix_set_identity(&device->transform.model);
     matrix_set_identity(&device->transform.view);
 }
 
@@ -683,16 +685,9 @@ void device_set_camera(device_t *device, camera_t *camera)
 {
     device->camera = camera;
     device->transform.view = camera->view_matrix;
+    device->transform.view_r = camera->view_matrix_r;
     device->transform.projection = camera->projection_matrix;
-    //transform_update(&device->transform);
 }
-
-//void device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool use_mipmap) {
-//    device->texture = texture;
-//	device->tex_width = w;
-//	device->tex_height = h;
-//    device->use_mipmap = use_mipmap;
-//}
 
 void device_pixel(device_t *device, int x, int y, IUINT32 color) {
     if (x >= 0 && x < device->camera->width && y >= 0 && y < device->camera->height) {
@@ -947,18 +942,16 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                     vector_scale(&ptemp, barycenter.z);
                     vector_add(&normal, &normal, &ptemp);
                     vector_normalize(&normal);
-                    vector_t viewdir, viewPos = {0.0f, 0.0f ,0.0f};
+                    vector_t viewdir, viewPos = device->camera->pos;
                     vector_sub(&viewdir, &viewPos, &fragPos);
                     vector_normalize(&viewdir);
-                    calc_dirlight(&color, &device->material, &dirLight, &normal, &viewdir, &fragPos);
+                    calc_dirlight(&color, &device->material, &dirLight, &normal, &viewdir, &fragPos, w);
                     
                     // 计算阴影
                     if(dirLight.shadow)
                     {
-                        // fragPos -> 世界坐标系 -> 灯的坐标系 -> 灯的透视矩阵 -> 求得z坐标比较
+                        // fragPos -> 灯的坐标系 -> 灯的透视矩阵 -> 求得z坐标比较
                         point_t tempPos = fragPos;
-                        matrix_apply(&tempPos, &tempPos, &device->camera->view_matrix_t);
-
                         camera_t *camera = &cameras[0];
                         matrix_apply(&tempPos, &tempPos, &camera->view_matrix);
                         matrix_apply(&tempPos, &tempPos, &camera->projection_matrix);
@@ -967,7 +960,6 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                         int x = (int)(tempPos.x+0.5);
                         
                         vector_t tempNormal = normal;
-                        matrix_apply(&tempNormal, &tempNormal, &device->camera->view_matrix_t);
                         matrix_apply(&tempNormal, &tempNormal, &camera->view_matrix);
                         vector_inverse(&tempNormal);
                         float dot = vector_dotproduct(&tempNormal, &camera->front);
@@ -993,14 +985,13 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                                 color_sub(&color, &color, &temp);
                             }
                         }
-                        
                     }
                     
                     color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
                     int i = 0;
                     for(i = 0; i < pointlight_cnt; i++)
                     {
-                        calc_pointlight(&temp, &device->material, &pointLights[i], &normal, &fragPos, &viewdir, &fragPos);
+                        calc_pointlight(&temp, &device->material, &pointLights[i], &normal, &fragPos, &viewdir, &fragPos, w);
                         color_add(&color, &color, &temp);
                     }
                     
@@ -1061,10 +1052,8 @@ void device_render_trap(device_t *device, trapezoid_t *trap, const vertex_t *t1,
 
 void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_t *t3) {
     point_t p1, p2, p3;
-    int render_state = device->render_state;
-    
     point_t z1, z2, z3;
-    
+
     p1 = t1->pos;
     p2 = t2->pos;
     p3 = t3->pos;
@@ -1087,13 +1076,13 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     //    if(vector_dotproduct(&normal, &p2) >= 0)
     //        return;
     
-    matrix_apply(&t1->pos, &t1->pos, &device->transform.projection);
-    matrix_apply(&t2->pos, &t2->pos, &device->transform.projection);
-    matrix_apply(&t3->pos, &t3->pos, &device->transform.projection);
+    matrix_apply(&t1->pos, &t1->pos, &device->transform.vp);
+    matrix_apply(&t2->pos, &t2->pos, &device->transform.vp);
+    matrix_apply(&t3->pos, &t3->pos, &device->transform.vp);
     
     // 法向量乘正规矩阵
     matrix_t nm;
-    matrix_clone(&nm, &device->transform.transform_wv);
+    matrix_clone(&nm, &device->transform.model);
     matrix_inverse(&nm);
     matrix_transpose(&nm);
     matrix_apply(&t1->normal, &t1->normal, &nm);
@@ -1136,7 +1125,7 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
         }
     }
     
-    if (render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
+    if (device->render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
         trapezoid_t traps[2];
         int n = trapezoid_init_triangle(traps, t1, t2, t3);
         // 这里赋值是为了计算重心坐标
@@ -1147,7 +1136,7 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
         if(n >= 2) device_render_trap(device, &traps[1], t1, t2, t3, &p1, &p2, &p3);
     }
     
-    if((render_state & RENDER_STATE_WIREFRAME) && device->framebuffer != NULL) {
+    if((device->render_state & RENDER_STATE_WIREFRAME) && device->framebuffer != NULL) {
         device_draw_line(device, (int)t1->pos.x, (int)t1->pos.y, (int)t2->pos.x, (int)t2->pos.y, device->foreground);
         device_draw_line(device, (int)t1->pos.x, (int)t1->pos.y, (int)t3->pos.x, (int)t3->pos.y, device->foreground);
         device_draw_line(device, (int)t3->pos.x, (int)t3->pos.y, (int)t2->pos.x, (int)t2->pos.y, device->foreground);
@@ -1183,9 +1172,9 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
     vertex_t p1 = *v1, p2 = *v2, p3 = *v3;
     
     if(world == false) {
-        matrix_apply(&p1.pos, &p1.pos, &device->transform.transform_wv);
-        matrix_apply(&p2.pos, &p2.pos, &device->transform.transform_wv);
-        matrix_apply(&p3.pos, &p3.pos, &device->transform.transform_wv);
+        matrix_apply(&p1.pos, &p1.pos, &device->transform.mv);
+        matrix_apply(&p2.pos, &p2.pos, &device->transform.mv);
+        matrix_apply(&p3.pos, &p3.pos, &device->transform.mv);
     } else {
         matrix_apply(&p1.pos, &p1.pos, &device->transform.view);
         matrix_apply(&p2.pos, &p2.pos, &device->transform.view);
@@ -1414,20 +1403,21 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
             np1.tc.v = v02i;
             np2.tc.u = u01i;
             np2.tc.v = v01i;
-
+            
+            matrix_apply(&np1.pos, &np1.pos, &device->transform.view_r);
+            matrix_apply(&np2.pos, &np2.pos, &device->transform.view_r);
+            matrix_apply(&np3.pos, &np3.pos, &device->transform.view_r);
             device_draw_primitive(device, &np1, &np2, &np3);
             
             cliped = true;
         }
     }
-
+    matrix_apply(&p1.pos, &p1.pos, &device->transform.view_r);
+    matrix_apply(&p2.pos, &p2.pos, &device->transform.view_r);
+    matrix_apply(&p3.pos, &p3.pos, &device->transform.view_r);
     device_draw_primitive(device, &p1, &p2, &p3);
 }
 
-object_t objects[MAX_NUM_OBJECT];
-int object_count = 0;
 
-texture_t textures[MAX_NUM_TEXTURE];
-int texture_count = 0;
 
 

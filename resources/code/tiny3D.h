@@ -57,7 +57,6 @@ void matrix_mul(matrix_t *c, const matrix_t *a, const matrix_t *b);
 void matrix_scale(matrix_t *m, float k);
 //      5)). inverse
 void matrix_inverse(matrix_t *m);
-
 //      6)). transpose
 void matrix_transpose(matrix_t *m);
 //      5)). apply v = v * m
@@ -104,11 +103,13 @@ void matrix_set_ortho(matrix_t *m, float l, float r, float b, float t, float zn,
 // I have realized the math library. Then I should realize the core data structure of computer graphics.
 // 2. transform_t
 typedef struct {
-    matrix_t world;
+    matrix_t model;
     matrix_t view;
+    matrix_t view_r;       // view reverse
     matrix_t projection;
-    matrix_t transform_wv;
-    matrix_t transform;
+    matrix_t vp;           // view * projection
+    matrix_t mv;           // model * view
+    matrix_t mvp;          // model * view * projection
 } transform_t;
 
 //  1). transform_update (world * view * projection
@@ -170,7 +171,6 @@ extern int material_cnt;
 
 typedef struct {
     point_t pos;
-    point_t vpos;
     float constant;
     float linear;
     float quadratic;
@@ -183,19 +183,14 @@ typedef struct {
 extern pointlight_t pointLights[NR_POINT_LIGHTS];
 extern int pointlight_cnt;
 
-void calc_pointlight(color_t *color, const material_t *material, const pointlight_t *light, const vector_t *normal, const vector_t *fpos, const vector_t *viewdir, const vector_t *fragPos);
-
 typedef struct {
     vector_t dir;
-    vector_t vdir;
     color_t ambi;
     color_t diff;
     color_t spec;
     bool shadow;
 } dirlight_t;
 extern dirlight_t dirLight;
-
-void calc_dirlight(color_t *color, const material_t *material, const dirlight_t *light, const vector_t *normal, const vector_t *viewdir, const vector_t *fragPos);
 
 typedef enum {
     perspective,
@@ -208,7 +203,7 @@ typedef struct {
     vector_t worldup;
     matrix_t view_matrix;
     matrix_t projection_matrix;
-    matrix_t view_matrix_t;
+    matrix_t view_matrix_r;
     int width;
     int height;
     float fovy;
@@ -257,16 +252,12 @@ void vertex_add(vertex_t *y, const vertex_t *x);
 extern float *pshadowbuffer;
 
 typedef struct {
+    int render_state;           // 渲染状态
 	transform_t transform;      // 坐标变换器
     material_t material;        // 当前材质
 	IUINT32 *framebuffer;       // 像素缓存
 	float *zbuffer;             // 深度缓存
     float *shadowbuffer;        // 阴影缓存
-//	IUINT32 **texture;          // 当前纹理
-//    bool use_mipmap;            // 是否开启mipmap
-//	int tex_width;              // 纹理宽度
-//	int tex_height;             // 纹理高度
-	int render_state;           // 渲染状态
 	IUINT32 background;         // 背景颜色
 	IUINT32 foreground;         // 线框颜色
     camera_t *camera;           // 摄像机
@@ -291,8 +282,6 @@ void device_set_zbuffer(device_t *device, float *zbuffer);
 void device_set_shadowbuffer(device_t *device, float *shadowbuffer);
 
 void device_set_camera(device_t *device, camera_t *camera);
-
-//void device_set_texture(device_t *device, IUINT32 **texture, int w, int h, bool use_mipmap);
 
 void device_pixel(device_t *device, int x, int y, IUINT32 color);
 
