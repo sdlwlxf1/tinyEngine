@@ -196,7 +196,10 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
 //            matrix_apply(&h3.pos, &h3.pos, &device->transform.world);
 //            device_draw_primitive(device, &p1, &p2, &p3, &h1, &h2, &h3);
             // 切换材质组
-            device->material = materials[objects->material_ids[i/3]];
+            if(objects->material_ids == NULL)
+                device->material = materials[0];
+            else
+                device->material = materials[objects->material_ids[i/3]];
             clip_polys(device, &mesh[i], &mesh[i+1], &mesh[i+2], false);
         }  
     }
@@ -254,11 +257,11 @@ int main(int argc, char * argv[])
         int indicator = 0;
         int kbhit = 0;
         
-        vertex_t *mesh;
-        unsigned long mesh_num;
-        int *material_ids;
-        unsigned long material_ids_num;
-        make_mesh_and_material_by_obj(&mesh, &mesh_num, materials, &material_cnt, &material_ids, &material_ids_num, "nanosuit");
+        vertex_t *mesh_nan;
+        unsigned long mesh_num_nan;
+        int *material_ids_nan;
+        unsigned long material_ids_num_nan;
+        make_mesh_and_material_by_obj(&mesh_nan, &mesh_num_nan, &material_ids_nan, &material_ids_num_nan, "nanosuit");
         
         // 缓存
         IUINT32 framebuffer[REAL_HEIGHT][REAL_WIDTH];
@@ -277,14 +280,8 @@ int main(int argc, char * argv[])
         
         init_texture();
         
-//        materials[0] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
-//        material_cnt++;
-//        materials[1] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.05f, 0.05f, 0.05f, 1.0f, 32.0f};
-//        material_cnt++;
-//        materials[2] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
-//        material_cnt++;
-//        materials[3] = (material_t){0.2f, 0.2f, 0.2f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f, 32.0f};
-//        material_cnt++;
+        materials[0] = (material_t){"default", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0};
+        material_cnt++;
         
         dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, true};
         if(dirLight.shadow == true)
@@ -362,7 +359,7 @@ int main(int argc, char * argv[])
         ground->theta = 0.0f;
         ground->mesh = ground_mesh;
         ground->mesh_num = 6;
-//        ground->material_id = 1;
+        ground->material_ids = NULL;
         ground->texture_id = 1;
         ground->shadow = false;
         ground->dirty = true;
@@ -374,9 +371,9 @@ int main(int argc, char * argv[])
         box->scale = (vector_t){0.1, 0.1, 0.1, 0};
         box->axis = (vector_t){0, 5, 2, 1};
         box->theta = 0.0f;
-        box->mesh = mesh;
-        box->mesh_num = mesh_num;
-//        box->material_ids = 0;
+        box->mesh = mesh_nan;
+        box->mesh_num = mesh_num_nan;
+        box->material_ids = material_ids_nan;
         box->texture_id = 1;
         box->shadow = true;
         box->dirty = true;
@@ -390,7 +387,7 @@ int main(int argc, char * argv[])
         box1->theta = 0.0f;
         box1->mesh = box_mesh;
         box1->mesh_num = 36;
-//        box1->material_id = 0;
+        box1->material_ids = NULL;
         box1->texture_id = 0;
         box1->shadow = false;
         box1->dirty = true;

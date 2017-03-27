@@ -652,7 +652,6 @@ float *pshadowbuffer = NULL;
 
 void device_init(device_t *device)
 {
-    device->use_mipmap = false;
     device->background = 0xFFFFFF;
     device->foreground = 0;
     device->render_state = RENDER_STATE_TEXTURE;
@@ -763,17 +762,17 @@ void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 
 }
 
 // 双线性插值和mipmap
-color_t device_texture_read(const device_t *device, float u, float v, float z, float maxz) {
+color_t texture_read(const texture_t *texture, float u, float v, float z, float maxz) {
     color_t color;
-    IUINT32* texture = device->texture[0];
+    IUINT32* data = texture->datas[0];
     int width, height;
-    width = device->tex_width;
-    height = device->tex_height;
-    if(device->use_mipmap) {
-        int tmiplevels = logbase2ofx(device->tex_width);
+    width = texture->width;
+    height = texture->height;
+    if(texture->use_mipmap) {
+        int tmiplevels = logbase2ofx(width);
         int miplevel = tmiplevels * (z / maxz);
         if(miplevel > tmiplevels) miplevel = tmiplevels;
-        texture = (IUINT32*)device->texture[miplevel];
+        data = (IUINT32*)texture->datas[miplevel];
         for(int ts = 0; ts < miplevel; ts++) {
             width = width >> 1;
             height = height >> 1;
@@ -790,10 +789,10 @@ color_t device_texture_read(const device_t *device, float u, float v, float z, f
     
     int textel00, textel10, textel01, textel11;
 
-    textel00 = texture[(vint+0)*width + (uint+0)];
-    textel10 = texture[(vint_pls_1)*width + (uint+0)];
-    textel01 = texture[(vint+0)*width + (uint_pls_1)];
-    textel11 = texture[(vint_pls_1)*width + (uint_pls_1)];
+    textel00 = data[(vint+0)*width + (uint+0)];
+    textel10 = data[(vint_pls_1)*width + (uint+0)];
+    textel01 = data[(vint+0)*width + (uint_pls_1)];
+    textel11 = data[(vint_pls_1)*width + (uint_pls_1)];
 
     int textel00_a = (textel00 >> 24) & 0xff;
     int textel00_r = (textel00 >> 16) & 0xff;
@@ -1020,7 +1019,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                     if(render_state & RENDER_STATE_TEXTURE) {
                         float u = scanline->v.tc.u * w;
                         float v = scanline->v.tc.v * w;
-                        color_t cc = device_texture_read(device, u, v, w, 15);
+                        color_t cc = texture_read(&textures[device->material.ambient_tex_id], u, v, w, 15);
                         a = cc.a;
                         r = cc.r;
                         g = cc.g;

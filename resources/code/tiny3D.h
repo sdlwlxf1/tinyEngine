@@ -148,12 +148,19 @@ typedef struct {
     int pad0;
     
     char *ambient_texname;            /* map_Ka */
+    int ambient_tex_id;
     char *diffuse_texname;            /* map_Kd */
+    int diffuse_tex_id;
     char *specular_texname;           /* map_Ks */
+    int specular_tex_id;
     char *specular_highlight_texname; /* map_Ns */
+    int specular_highlight_tex_id;
     char *bump_texname;               /* map_bump, bump */
+    int bump_tex_id;
     char *displacement_texname;       /* disp */
+    int displacement_tex_id;
     char *alpha_texname;              /* map_d */
+    int alpha_tex_id;
 } material_t;
 #define NUM_MATERIAL 100
 extern material_t materials[NUM_MATERIAL];
@@ -255,10 +262,10 @@ typedef struct {
 	IUINT32 *framebuffer;       // 像素缓存
 	float *zbuffer;             // 深度缓存
     float *shadowbuffer;        // 阴影缓存
-	IUINT32 **texture;          // 当前纹理
-    bool use_mipmap;            // 是否开启mipmap
-	int tex_width;              // 纹理宽度
-	int tex_height;             // 纹理高度
+//	IUINT32 **texture;          // 当前纹理
+//    bool use_mipmap;            // 是否开启mipmap
+//	int tex_width;              // 纹理宽度
+//	int tex_height;             // 纹理高度
 	int render_state;           // 渲染状态
 	IUINT32 background;         // 背景颜色
 	IUINT32 foreground;         // 线框颜色
