@@ -876,7 +876,7 @@ static int parseLine(Command *command, const char *p, size_t p_len,
     skip_space(&token);
     command->material_name = p + (token - linebuf);
     command->material_name_len = (unsigned int)length_until_newline(
-        token, (p_len - (size_t)(token - linebuf)) + 1);
+        command->material_name, (p_len - (size_t)(token - linebuf)) + 1);
     command->type = COMMAND_USEMTL;
 
     return 1;
@@ -890,7 +890,7 @@ static int parseLine(Command *command, const char *p, size_t p_len,
     skip_space(&token);
     command->mtllib_name = p + (token - linebuf);
     command->mtllib_name_len = (unsigned int)length_until_newline(
-                                   token, p_len - (size_t)(token - linebuf)) +
+                                   command->mtllib_name, p_len - (size_t)(token - linebuf)) +
                                1;
     command->type = COMMAND_MTLLIB;
 
@@ -904,7 +904,7 @@ static int parseLine(Command *command, const char *p, size_t p_len,
 
     command->group_name = p + (token - linebuf);
     command->group_name_len = (unsigned int)length_until_newline(
-                                  token, p_len - (size_t)(token - linebuf)) +
+                                  command->group_name, p_len - (size_t)(token - linebuf)) +
                               1;
     command->type = COMMAND_G;
 
@@ -918,7 +918,7 @@ static int parseLine(Command *command, const char *p, size_t p_len,
 
     command->object_name = p + (token - linebuf);
     command->object_name_len = (unsigned int)length_until_newline(
-                                   token, p_len - (size_t)(token - linebuf)) +
+                                   command->object_name, p_len - (size_t)(token - linebuf)) +
                                1;
     command->type = COMMAND_O;
 
@@ -1085,6 +1085,7 @@ int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
             material_id = -1;
             char name[100];
             strncpy(name, commands[i].material_name, commands[i].material_name_len);
+            name[commands[i].material_name_len] = '\0';
             for(m_count = 0; m_count < num_materials; m_count++) {
                 if(strcmp(name, materials[m_count].name) == 0) {
                     material_id = (int)m_count;

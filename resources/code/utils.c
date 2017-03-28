@@ -76,7 +76,7 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
         exit(-1);
         /* return 0; */
     }
-    printf("filesize: %d\n", (int)data_len);
+    //printf("filesize: %d\n", (int)data_len);
     
     {
 //        printf("path %s\n", path);
@@ -92,8 +92,8 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
             return 0;
         }
         
-        printf("# of shapes    = %d\n", (int)num_shapes);
-        printf("# of materiasl = %d\n", (int)num_materials);
+        //printf("# of shapes    = %d\n", (int)num_shapes);
+        //printf("# of materiasl = %d\n", (int)num_materials);
     }
     
     {
@@ -130,40 +130,49 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
             m.dissolve = tm.dissolve;
             m.illum = tm.illum;
             m.pad0 = tm.pad0;
+            
+            m.ambient_tex_id = -1;
+            m.diffuse_tex_id = -1;
+            m.specular_tex_id = -1;
+            m.specular_highlight_tex_id = -1;
+            m.bump_tex_id = -1;
+            m.displacement_tex_id = -1;
+            m.alpha_tex_id = -1;
+            
             if(tm.ambient_texname != NULL) {
                 m.ambient_texname = (char*)malloc(sizeof(char) * strlen(tm.ambient_texname));
                 strcpy(m.ambient_texname, tm.ambient_texname);
-                m.ambient_tex_id = make_texture_by_png(m.ambient_texname, true);
+                m.ambient_tex_id = make_texture_by_png(m.ambient_texname, false);
             }
             if(tm.diffuse_texname != NULL) {
                 m.diffuse_texname = (char*)malloc(sizeof(char) * strlen(tm.diffuse_texname));
                 strcpy(m.diffuse_texname, tm.diffuse_texname);
-                m.diffuse_tex_id = make_texture_by_png(m.diffuse_texname, true);
+                m.diffuse_tex_id = make_texture_by_png(m.diffuse_texname, false);
             }
             if(tm.specular_texname != NULL) {
                 m.specular_texname = (char*)malloc(sizeof(char) * strlen(tm.specular_texname));
                 strcpy(m.specular_texname, tm.specular_texname);
-                m.specular_tex_id = make_texture_by_png(m.specular_texname, true);
+                m.specular_tex_id = make_texture_by_png(m.specular_texname, false);
             }
             if(tm.specular_highlight_texname != NULL) {
                 m.specular_highlight_texname = (char*)malloc(sizeof(char) * strlen(tm.specular_highlight_texname));
                 strcpy(m.specular_highlight_texname, tm.specular_highlight_texname);
-                m.specular_highlight_tex_id = make_texture_by_png(m.specular_highlight_texname, true);
+                m.specular_highlight_tex_id = make_texture_by_png(m.specular_highlight_texname, false);
             }
             if(tm.bump_texname != NULL) {
                 m.bump_texname = (char*)malloc(sizeof(char) * strlen(tm.bump_texname));
                 strcpy(m.bump_texname, tm.bump_texname);
-                m.bump_tex_id = make_texture_by_png(m.bump_texname, true);
+                m.bump_tex_id = make_texture_by_png(m.bump_texname, false);
             }
             if(tm.displacement_texname != NULL) {
                 m.displacement_texname = (char*)malloc(sizeof(char) * strlen(tm.displacement_texname));
                 strcpy(m.displacement_texname, tm.displacement_texname);
-                m.displacement_tex_id = make_texture_by_png(m.displacement_texname, true);
+                m.displacement_tex_id = make_texture_by_png(m.displacement_texname, false);
             }
             if(tm.alpha_texname != NULL) {
                 m.alpha_texname = (char*)malloc(sizeof(char) * strlen(tm.alpha_texname));
                 strcpy(m.alpha_texname, tm.alpha_texname);
-                m.alpha_tex_id = make_texture_by_png(m.alpha_texname, true);
+                m.alpha_tex_id = make_texture_by_png(m.alpha_texname, false);
             }
             materials[material_cnt++] = m;
         }
@@ -186,7 +195,7 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
             size_t f;
             assert(attrib.face_num_verts[i] % 3 == 0); /* assume all triangle faces. */
             (*material_ids)[i] = attrib.material_ids[i];
-            if((*material_ids)[i] > 0)
+            if((*material_ids)[i] >= 0)
                 (*material_ids)[i] += start_material_cnt;
             
             for (f = 0; f < (size_t)attrib.face_num_verts[i] / 3; f++) {

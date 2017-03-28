@@ -921,14 +921,14 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                     float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), material->shininess);
                     
                     color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
-                    color_t temp2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], u, v, w, 20);
+                    color_t temp2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], u, v, w, 15);
                     color_product(&temp, &dirLight.ambi, &temp2);
                     color_add(&color, &color, &temp);
-                    temp2 = material->diffuse_tex_id == -1 ? material->diffuse : texture_read(&textures[material->diffuse_tex_id], u, v, w, 20);
+                    temp2 = material->diffuse_tex_id == -1 ? material->diffuse : texture_read(&textures[material->diffuse_tex_id], u, v, w, 15);
                     color_product(&temp, &dirLight.diff, &temp2);
                     color_scale(&temp, diff);
                     color_add(&color, &color, &temp);
-                    temp2 = material->specular_tex_id == -1 ? material->specular : texture_read(&textures[material->specular_tex_id], u, v, w, 20);
+                    temp2 = material->specular_tex_id == -1 ? material->specular : texture_read(&textures[material->specular_tex_id], u, v, w, 15);
                     color_product(&temp, &dirLight.spec, &temp2);
                     color_scale(&temp, spec);
                     color_add(&color, &color, &temp);
@@ -995,15 +995,15 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                             attenuation = 1.0f / num;
                         
                         color_t c = (color_t){0.0f, 0.0f ,0.0f, 1.0f};
-                        color_t c2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], u, v, w, 20);
+                        color_t c2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], u, v, w, 15);
                         color_product(&c, &pointlight->ambi, &c2);
                         color_scale(&c, attenuation);
                         color_add(&temp, &temp, &c);
-                        c2 = material->diffuse_tex_id == -1 ? material->diffuse : texture_read(&textures[material->diffuse_tex_id], u, v, w, 20);
+                        c2 = material->diffuse_tex_id == -1 ? material->diffuse : texture_read(&textures[material->diffuse_tex_id], u, v, w, 15);
                         color_product(&c, &pointlight->diff, &c2);
                         color_scale(&c, diff * attenuation);
                         color_add(&temp, &temp, &c);
-                        c2 = material->specular_tex_id == -1 ? material->specular : texture_read(&textures[material->specular_tex_id], u, v, w, 20);
+                        c2 = material->specular_tex_id == -1 ? material->specular : texture_read(&textures[material->specular_tex_id], u, v, w, 15);
                         color_product(&c, &pointlight->spec, &c2);
                         color_scale(&c, spec * attenuation);
                         color_add(&temp, &temp, &c);
