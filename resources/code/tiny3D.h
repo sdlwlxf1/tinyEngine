@@ -308,9 +308,6 @@ typedef struct {
 extern object_t objects[MAX_NUM_OBJECT];
 extern int object_count;
 
-//extern int material_ids_ids[MAX_NUM_OBJECT];
-//extern int material_ids_cnt;
-
 // texture
 typedef struct {
     IUINT32 **datas;            // data

@@ -7,11 +7,11 @@ and may not be redistributed without written permission.*/
 #include "tiny3D.h"
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 400;
-const int SCREEN_HEIGHT = 400;
+const int SCREEN_WIDTH = 600;
+const int SCREEN_HEIGHT = 600;
 
-const int REAL_WIDTH = 400;
-const int REAL_HEIGHT = 400;
+const int REAL_WIDTH = 600;
+const int REAL_HEIGHT = 600;
 
 
 //The window we'll be rendering to
@@ -129,8 +129,6 @@ vertex_t box_mesh[36] = {
     {{0.5f,  0.5f, -0.5f, 1.0f},  {1.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 ,  { 0.0f,1.0f,  0.0f,0.0f}},
     {{-0.5f,  0.5f, -0.5f, 1.0f},  {0.0f,  1.0f},{ 0.2f, 1.0f, 1.0f, 1.0f }, 1 , { 0.0f, 1.0f,  0.0f,0.0f}}
 };
-
-
 
 void init_texture() {
     // 自建棋盘纹理
@@ -271,39 +269,38 @@ int main(int argc, char * argv[])
         memset(screen_keys, 0, sizeof(int) * 512);
   
         dirLight = (dirlight_t){{0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, false};
-        dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, true};
+        dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, true};
         if(dirLight.shadow == true)
         {
             // 影子摄像机
             camera_t *camera = &cameras[camera_count];
-            camera->pos = (vector_t){0.0f, 5.0f, -5.0f, 1.0f};
+            camera->pos = (vector_t){0.0f, 3.0f, -3.0f, 1.0f};
             camera->front = dirLight.dir;
             camera->worldup = (vector_t){0.0f, 1.0f, 0.0f, 0.0f};
             camera->fovy = 3.1415926 * 0.5f;
             camera->zn = 0.1f;
-            camera->zf = 20.0f;
+            camera->zf = 15.0f;
             camera->width = REAL_WIDTH;
             camera->height = REAL_HEIGHT;
             camera->aspect = (float)REAL_WIDTH / (float)REAL_HEIGHT;
             camera->projection = orthographic;
             
-            camera->left = -5.0f;
-            camera->right = 5.0f;
-            camera->bottom = -5.0f;
-            camera->top = 5.0f;
+            camera->left = -3.0f;
+            camera->right = 3.0f;
+            camera->bottom = -3.0f;
+            camera->top = 3.0f;
             camera->dirty = true;
             camera_init_projection(camera);
             camera_count++;
         }
 
+//        for(int i = 0; i < 4; i++)
+//            pointLights[pointlight_cnt++] = (pointlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
         
-        for(int i = 0; i < 4; i++)
-            pointLights[pointlight_cnt++] = (pointlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
-        
-        pointLights[0] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.6f, 0.6f, 0.6f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, false};
-//        pointLights[1] = (pointlight_t){-1.0f, 6.0f, -1.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.2f, 0.2f, 0.2f, 1.0f};
-//        pointLights[2] = (pointlight_t){7.0f, -1.0f, -6.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
-//        pointLights[3] = (pointlight_t){0.0f, 0.0f, -1.0f, 1.0f, 1.0f, 0.09f, 0.032f, 0.05f, 0.05f, 0.05f, 1.0f, 0.4f, 0.4f, 0.4f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
+        pointLights[pointlight_cnt++] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.6f, 0.6f, 0.6f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, false};
+        pointLights[pointlight_cnt++] = (pointlight_t){{0.0f, 6.0f, 2.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.6f, 0.6f, 0.6f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, false};
+//        pointLights[pointlight_cnt++] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.6f, 0.6f, 0.6f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, false};
+//        pointLights[pointlight_cnt++] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.6f, 0.6f, 0.6f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, false};
         
         // 主摄像机
         camera_t *camera = &cameras[camera_count];
@@ -330,26 +327,27 @@ int main(int argc, char * argv[])
         device_set_zbuffer(&device, (float*)zbuffer);
         device_set_shadowbuffer(&device, (float*)shadowbuffer);
         
+        device_set_background(&device, 0x00000000);
+        
         device_set_camera(&device, camera);
         transform_update(&device.transform);
 
         // init object
         // ground
-        object_t *ground = &objects[object_count];
-        ground->pos = (point_t){0, 0, 0, 1};
-        ground->scale = (vector_t){20, 1, 20, 0};
-        ground->axis = (vector_t){0, 0, 0, 1};
-        ground->theta = 0.0f;
-        ground->mesh = ground_mesh;
-        ground->mesh_num = 6;
-        ground->material_ids = NULL;
-        ground->texture_id = 1;
-        ground->shadow = false;
-        ground->dirty = true;
-        object_count++;
+//        object_t *ground = &objects[object_count++];
+//        ground->pos = (point_t){0, 0, 0, 1};
+//        ground->scale = (vector_t){20, 1, 20, 0};
+//        ground->axis = (vector_t){0, 0, 0, 1};
+//        ground->theta = 0.0f;
+//        ground->mesh = ground_mesh;
+//        ground->mesh_num = 6;
+//        ground->material_ids = NULL;
+//        ground->texture_id = 1;
+//        ground->shadow = false;
+//        ground->dirty = true;
         
         // box
-        object_t *box = &objects[object_count];
+        object_t *box = &objects[object_count++];
         box->pos = (point_t){0, 0, 0, 1};
         box->scale = (vector_t){0.1, 0.1, 0.1, 0};
         box->axis = (vector_t){0, 1, 0, 1};
@@ -360,10 +358,9 @@ int main(int argc, char * argv[])
         box->texture_id = 1;
         box->shadow = true;
         box->dirty = true;
-        object_count++;
         
         // box
-        object_t *box1 = &objects[object_count];
+        object_t *box1 = &objects[object_count++];
         box1->pos = (point_t){0, 2, -1, 1};
         box1->scale = (vector_t){0.5, 0.5, 0.5, 0};
         box1->axis = (vector_t){1, 0, 1, 1};
@@ -374,7 +371,6 @@ int main(int argc, char * argv[])
         box1->texture_id = 0;
         box1->shadow = false;
         box1->dirty = true;
-        object_count++;
         
         object_t *controlObj = box1;
 

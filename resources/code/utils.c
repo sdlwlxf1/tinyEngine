@@ -142,37 +142,37 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
             if(tm.ambient_texname != NULL) {
                 m.ambient_texname = (char*)malloc(sizeof(char) * strlen(tm.ambient_texname));
                 strcpy(m.ambient_texname, tm.ambient_texname);
-                m.ambient_tex_id = make_texture_by_png(m.ambient_texname, false);
+                m.ambient_tex_id = make_texture_by_png(m.ambient_texname, true);
             }
             if(tm.diffuse_texname != NULL) {
                 m.diffuse_texname = (char*)malloc(sizeof(char) * strlen(tm.diffuse_texname));
                 strcpy(m.diffuse_texname, tm.diffuse_texname);
-                m.diffuse_tex_id = make_texture_by_png(m.diffuse_texname, false);
+                m.diffuse_tex_id = make_texture_by_png(m.diffuse_texname, true);
             }
             if(tm.specular_texname != NULL) {
                 m.specular_texname = (char*)malloc(sizeof(char) * strlen(tm.specular_texname));
                 strcpy(m.specular_texname, tm.specular_texname);
-                m.specular_tex_id = make_texture_by_png(m.specular_texname, false);
+                m.specular_tex_id = make_texture_by_png(m.specular_texname, true);
             }
             if(tm.specular_highlight_texname != NULL) {
                 m.specular_highlight_texname = (char*)malloc(sizeof(char) * strlen(tm.specular_highlight_texname));
                 strcpy(m.specular_highlight_texname, tm.specular_highlight_texname);
-                m.specular_highlight_tex_id = make_texture_by_png(m.specular_highlight_texname, false);
+                m.specular_highlight_tex_id = make_texture_by_png(m.specular_highlight_texname, true);
             }
             if(tm.bump_texname != NULL) {
                 m.bump_texname = (char*)malloc(sizeof(char) * strlen(tm.bump_texname));
                 strcpy(m.bump_texname, tm.bump_texname);
-                m.bump_tex_id = make_texture_by_png(m.bump_texname, false);
+                m.bump_tex_id = make_texture_by_png(m.bump_texname, true);
             }
             if(tm.displacement_texname != NULL) {
                 m.displacement_texname = (char*)malloc(sizeof(char) * strlen(tm.displacement_texname));
                 strcpy(m.displacement_texname, tm.displacement_texname);
-                m.displacement_tex_id = make_texture_by_png(m.displacement_texname, false);
+                m.displacement_tex_id = make_texture_by_png(m.displacement_texname, true);
             }
             if(tm.alpha_texname != NULL) {
                 m.alpha_texname = (char*)malloc(sizeof(char) * strlen(tm.alpha_texname));
                 strcpy(m.alpha_texname, tm.alpha_texname);
-                m.alpha_tex_id = make_texture_by_png(m.alpha_texname, false);
+                m.alpha_tex_id = make_texture_by_png(m.alpha_texname, true);
             }
             materials[material_cnt++] = m;
         }
