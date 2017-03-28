@@ -292,7 +292,6 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
                         c[2] /= len;
                     }
                     (*mesh)[3 * i + k].color = (color_t){(c[0] * 0.5f + 0.5f), (c[1] * 0.5f + 0.5f), (c[2] * 0.5f + 0.5f), 1.0f};
-                    (*mesh)[3 * i + k].rhw = 1.0f;
                 }
             }
             face_offset += (size_t)attrib.face_num_verts[i];

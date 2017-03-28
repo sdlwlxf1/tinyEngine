@@ -7,27 +7,76 @@
 #include <math.h>
 #include <string.h>
 
-typedef struct {
-    vector_t pos;
-    vector_t normal;
-    vector_t tangent;
-    texcoord_t texcoord;
-} a2v;
-
-typedef struct {
-    vector_t pos;
-    texcoord_t texcoord;
-    storage_t storage0;
-    storage_t storage1;
-    storage_t storage2;
-} v2f;
-
-v2f vert_shader(a2v v) {
-    
+void vector_interpolating(vector_t *dest, const vector_t *src1, const vector_t *src2, const vector_t *src3, float a, float b, float c) {
+    dest->x = dest->y = dest->z = dest->w = 0.0f;
+    vector_t each = *src1;
+    vector_scale(&each, a);
+    vector_add(dest, dest, &each);
+    each = *src2;
+    vector_scale(&each, b);
+    vector_add(dest, dest, &each);
+    each = *src3;
+    vector_scale(&each, c);
+    vector_add(dest, dest, &each);
 }
 
-color_t frag_shader(v2f i) {
-    
+void texcoord_add(texcoord_t *c, texcoord_t *a, const texcoord_t *b) {
+    c->u = a->u + b->u;
+    c->v = a->v + b->v;
+}
+void texcoord_scale(texcoord_t *t, float k) {
+    t->u *= k;
+    t->v *= k;
+}
+
+void texcoord_interpolating(texcoord_t *dest, const texcoord_t *src1, const texcoord_t *src2, const texcoord_t *src3, float a, float b, float c) {
+    dest->u = dest->v = 0.0f;
+    texcoord_t each = *src1;
+    texcoord_scale(&each, a);
+    texcoord_add(dest, dest, &each);
+    each = *src2;
+    texcoord_scale(&each, b);
+    texcoord_add(dest, dest, &each);
+    each = *src3;
+    texcoord_scale(&each, c);
+    texcoord_add(dest, dest, &each);
+}
+
+void storage_add(storage_t *c, storage_t *a, const storage_t *b) {
+    c->a = a->a + b->a;
+    c->b = a->b + b->b;
+    c->c = a->c + b->c;
+    c->d = a->d + b->d;
+}
+
+void storage_scale(storage_t *t, float k) {
+    t->a *= k;
+    t->b *= k;
+    t->c *= k;
+    t->d *= k;
+}
+
+void storage_interpolating(storage_t *dest, const storage_t *src1, const storage_t *src2, const storage_t *src3, float a, float b, float c) {
+    dest->a = dest->b = dest->c = dest->d = 0.0f;
+    storage_t each = *src1;
+    storage_scale(&each, a);
+    storage_add(dest, dest, &each);
+    each = *src2;
+    storage_scale(&each, b);
+    storage_add(dest, dest, &each);
+    each = *src3;
+    storage_scale(&each, c);
+    storage_add(dest, dest, &each);
+}
+
+void v2f_interpolating(v2f *dest, const v2f *src1, const v2f *src2, const v2f *src3, float a, float b, float c) {
+    vector_interpolating(&dest->pos, &src1->pos, &src2->pos, &src3->pos, a, b, c);
+    color_interpolating(&dest->color, &src1->color, &src2->color, &src3->color, a, b, c);
+    texcoord_interpolating(&dest->texcoord, &src1->texcoord, &src2->texcoord, &src3->texcoord, a, b, c);
+    vector_interpolating(&dest->normal, &src1->normal, &src2->normal, &src3->normal, a, b, c);
+    storage_interpolating(&dest->storage0, &src1->storage0, &src2->storage0, &src3->storage0, a, b, c);
+    storage_interpolating(&dest->storage1, &src1->storage1, &src2->storage1, &src3->storage1, a, b, c);
+    storage_interpolating(&dest->storage2, &src1->storage2, &src2->storage2, &src3->storage2, a, b, c);
 }
 
 int logbase2ofx(int n) {
@@ -85,6 +134,7 @@ void vector_interp(vector_t *c, const vector_t *a, const vector_t *b, float t) {
     c->x = interp(a->x, b->x, t);
     c->y = interp(a->y, b->y, t);
     c->z = interp(a->z, b->z, t);
+    c->w = interp(a->w, b->w, t);
 }
 void vector_clone(vector_t *dest, const vector_t *src) {
     dest->x = src->x;
@@ -395,7 +445,7 @@ void transform_homogenize(vector_t *y, const vector_t *x, float width, float hei
     y->x = (x->x * rhw + 1.0f) * width * 0.5f;
     y->y = (1.0f - x->y * rhw) * height * 0.5f;
     y->z = x->z * rhw;
-    y->w = 1.0f;
+    y->w = rhw;
 }
 //  6). transform_homogenize(ts, y, x)
 void transform_homogenize_reverse(vector_t *y, const vector_t *x, float w, float width, float height) {
@@ -441,6 +491,19 @@ void color_sub(color_t *c, const color_t *a, const color_t *b) {
     c->g = a->g - b->g;
     c->b = a->b - b->b;
     c->a = a->a - b->a;
+}
+
+void color_interpolating(color_t *dest, const color_t *src1, const color_t *src2, const color_t *src3, float a, float b, float c) {
+    dest->r = dest->g = dest->b = dest->a = 0.0f;
+    color_t each = *src1;
+    color_scale(&each, a);
+    color_add(dest, dest, &each);
+    each = *src2;
+    color_scale(&each, b);
+    color_add(dest, dest, &each);
+    each = *src3;
+    color_scale(&each, c);
+    color_add(dest, dest, &each);
 }
 
 object_t objects[MAX_NUM_OBJECT];
@@ -493,19 +556,11 @@ void camera_update(camera_t *camera) {
 // 注意是除坐标意外颜色和纹理索引除以w
 void vertex_rhw_init(vertex_t *v) {
     float rhw = 1.0f / v->pos.w;
-    v->rhw = rhw;
     v->tc.u *= rhw;
     v->tc.v *= rhw;
     v->color.r *= rhw;
     v->color.g *= rhw;
     v->color.b *= rhw;
-    for(int i = 0; i < 4; i++)
-    {
-        v->storages[i].a *= rhw;
-        v->storages[i].b *= rhw;
-        v->storages[i].c *= rhw;
-        v->storages[i].d *= rhw;
-    }
 }
 
 void vertex_interp(vertex_t *y, const vertex_t *x1, const vertex_t *x2, float k) {
@@ -515,14 +570,6 @@ void vertex_interp(vertex_t *y, const vertex_t *x1, const vertex_t *x2, float k)
     y->color.r = interp(x1->color.r, x2->color.r, k);
     y->color.g = interp(x1->color.g, x2->color.g, k);
     y->color.b = interp(x1->color.b, x2->color.b, k);
-    y->rhw = interp(x1->rhw, x2->rhw, k);
-    for(int i = 0; i < 4; i++)
-    {
-        y->storages[i].a = interp(x2->storages[i].a , x1->storages[i].a, k);
-        y->storages[i].b = interp(x2->storages[i].b , x1->storages[i].b, k);
-        y->storages[i].c = interp(x2->storages[i].c , x1->storages[i].c, k);
-        y->storages[i].d = interp(x2->storages[i].d , x1->storages[i].d, k);
-    }
 }
 
 void vertex_division(vertex_t *y, const vertex_t *x1, const vertex_t *x2, float w) {
@@ -536,14 +583,6 @@ void vertex_division(vertex_t *y, const vertex_t *x1, const vertex_t *x2, float 
     y->color.r = (x2->color.r - x1->color.r) * inv;
     y->color.g = (x2->color.g - x1->color.g) * inv;
     y->color.b = (x2->color.b - x1->color.b) * inv;
-    y->rhw = (x2->rhw - x1->rhw) * inv;
-    for(int i = 0; i < 4; i++)
-    {
-        y->storages[i].a = (x2->storages[i].a - x1->storages[i].a) * inv;
-        y->storages[i].b = (x2->storages[i].b - x1->storages[i].b) * inv;
-        y->storages[i].c = (x2->storages[i].c - x1->storages[i].c) * inv;
-        y->storages[i].d = (x2->storages[i].d - x1->storages[i].d) * inv;
-    }
 }
 
 void vertex_add(vertex_t *y, const vertex_t *x) {
@@ -556,14 +595,6 @@ void vertex_add(vertex_t *y, const vertex_t *x) {
     y->color.r += x->color.r;
     y->color.g += x->color.g;
     y->color.b += x->color.b;
-    y->rhw += x->rhw;
-    for(int i = 0; i < 4; i++)
-    {
-        y->storages[i].a += x->storages[i].a;
-        y->storages[i].b += x->storages[i].b;
-        y->storages[i].c += x->storages[i].c;
-        y->storages[i].d += x->storages[i].d;
-    }
 }
 
 // 根据三角形生成 0-2 个梯形，并且返回合法梯形的数量
@@ -909,7 +940,7 @@ bool computeBarycentricCoords3d(point_t *res, const point_t *p0, const point_t *
 }
 
 // now is the core realize for rendering, so just do it.
-void device_draw_scanline(device_t *device, scanline_t *scanline, point_t *points, v2f *v2fs) {
+void device_draw_scanline(device_t *device, scanline_t *scanline, point_t *points, v2f *vfs) {
     int y = scanline->y;
     int x = scanline->x;
     int width = device->camera->width;
@@ -924,164 +955,37 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, point_t *point
                 }
             }
             
-            float rhw = scanline->v.rhw;
+            float rhw = scanline->v.pos.w;
             if(device->zbuffer == NULL || rhw >= device->zbuffer[y*width+x]) {
                 if(device->zbuffer != NULL)
                     device->zbuffer[y*width+x] = rhw;
                 
                 if(device->framebuffer != NULL) {
                     color_t color = {0.0f, 0.0f, 0.0f, 1.0f};
-                    material_t *material = &device->material;
-                    float w = 1.0f / rhw;
-                    float u = scanline->v.tc.u * w;
-                    float v = scanline->v.tc.v * w;
-                    
+                    v2f vf;
+                    float w = 1.0f / scanline->v.pos.w;
                     point_t barycenter = {0.0f, 0.0f, 0.0f, 1.0f};
                     point_t interpos = scanline->v.pos;
                     transform_homogenize_reverse(&interpos, &interpos, w, device->camera->width, device->camera->height);
                     computeBarycentricCoords3d(&barycenter, &points[0], &points[1], &points[2], &interpos);
                     
-                    point_t fragPos = {0.0f, 0.0f, 0.0f, 1.0f};
-                    point_t ptemp = *p1;
-                    vector_scale(&ptemp, barycenter.x);
-                    vector_add(&fragPos, &fragPos, &ptemp);
-                    ptemp = *p2;
-                    vector_scale(&ptemp, barycenter.y);
-                    vector_add(&fragPos, &fragPos, &ptemp);
-                    ptemp = *p3;
-                    vector_scale(&ptemp, barycenter.z);
-                    vector_add(&fragPos, &fragPos, &ptemp);
                     
-                    vector_t normal = {0.0f, 0.0f, 0.0f, 0.0f};
-                    ptemp = t1->normal;
-                    vector_scale(&ptemp, barycenter.x);
-                    vector_add(&normal, &normal, &ptemp);
-                    ptemp = t2->normal;
-                    vector_scale(&ptemp, barycenter.y);
-                    vector_add(&normal, &normal, &ptemp);
-                    ptemp = t3->normal;
-                    vector_scale(&ptemp, barycenter.z);
-                    vector_add(&normal, &normal, &ptemp);
-                    vector_normalize(&normal);
+                    v2f_interpolating(&vf, &vfs[0], &vfs[1], &vfs[2], barycenter.x, barycenter.y, barycenter.z);
+                    vf.pos.w = w;
+                    vector_normalize(&vf.normal);
                     
-                    
-                    vector_t viewdir, viewPos = device->camera->pos;
-                    vector_sub(&viewdir, &viewPos, &fragPos);
-                    vector_normalize(&viewdir);
-                    
-                    vector_t lightDir = dirLight.dir;
-                    vector_inverse(&lightDir);
-                    vector_normalize(&lightDir);
-                    float diff = fmaxf(vector_dotproduct(&normal, &lightDir), 0.0f);
-                    lightDir = dirLight.dir;
-                    vector_normalize(&lightDir);
-                    vector_t vec;
-                    vector_reflect(&vec, &lightDir, &normal);
-                    float shininess = material->shininess * (material->specular_highlight_tex_id == -1 ? 1 : texture_value_read(&textures[material->specular_highlight_tex_id], u, v));
-                    float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), shininess);
-                    
-                    color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
-                    color_t temp2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], u, v, w, 15);
-                    color_product(&temp, &dirLight.ambi, &temp2);
-                    color_add(&color, &color, &temp);
-                    temp2 = material->diffuse_tex_id == -1 ? material->diffuse : texture_read(&textures[material->diffuse_tex_id], u, v, w, 15);
-                    color_product(&temp, &dirLight.diff, &temp2);
-                    color_scale(&temp, diff);
-                    color_add(&color, &color, &temp);
-                    temp2 = material->specular_tex_id == -1 ? material->specular : texture_read(&textures[material->specular_tex_id], u, v, w, 15);
-                    color_product(&temp, &dirLight.spec, &temp2);
-                    color_scale(&temp, spec);
-                    color_add(&color, &color, &temp);
-                    
-                    // 计算阴影
-                    if(dirLight.shadow)
-                    {
-                        // fragPos -> 灯的坐标系 -> 灯的透视矩阵 -> 求得z坐标比较
-                        point_t tempPos = fragPos;
-                        camera_t *camera = &cameras[0];
-                        matrix_apply(&tempPos, &tempPos, &camera->view_matrix);
-                        matrix_apply(&tempPos, &tempPos, &camera->projection_matrix);
-                        transform_homogenize(&tempPos, &tempPos, camera->width, camera->height);
-                        int y = (int)(tempPos.y+0.5);
-                        int x = (int)(tempPos.x+0.5);
-                        
-                        vector_t tempNormal = normal;
-                        matrix_apply(&tempNormal, &tempNormal, &camera->view_matrix);
-                        vector_inverse(&tempNormal);
-                        float dot = vector_dotproduct(&tempNormal, &camera->front);
-                        if(dot > 0) {
-                            float bias = 0.015 * (1.0 - dot);
-                            if(bias < 0.002f) bias = 0.001;
-                            if(y >= 0 && x >= 0 && y < camera->height && x < camera->width) {
-                                float shadow = 0.0;
-                                for(int i = -1; i <= 1; ++i)
-                                {
-                                    for(int j = -1; j <= 1; ++j)
-                                    {
-                                        if(y+j < 0 || y+j >= camera->height || x+i < 0 || x+i >= camera->width)
-                                            continue;
-                                        float pcfDepth = pshadowbuffer[(y+j)*camera->width+(x+i)];
-                                        shadow +=  tempPos.z - bias > pcfDepth ? 1.0 : 0.0;
-                                    }    
-                                }
-                                shadow /= 9.0;
-                                
-                                color_t temp = {0.3f,0.3f,0.3f,0.3f};
-                                color_scale(&temp, shadow);
-                                color_sub(&color, &color, &temp);
-                            }
-                        }
-                    }
-                    
-                    
-                    int i = 0;
-                    for(i = 0; i < pointlight_cnt; i++)
-                    {
-                        temp = (color_t){0.0f, 0.0f ,0.0f, 1.0f};
-                        pointlight_t *pointlight = &pointLights[i];
+                    frag_shader(device, &vf, &color);
 
-                        vector_t lightDir = {0.0f, 0.0f, 0.0f, 0.0f};
-                        vector_sub(&lightDir, &pointlight->pos, &fragPos);
-                        float distance = vector_length(&lightDir);
-                        vector_normalize(&lightDir);
-                        float diff = fmaxf(vector_dotproduct(&normal, &lightDir), 0.0f);
-                        vector_t vec;
-                        vector_inverse(&lightDir);
-                        vector_reflect(&vec, &lightDir, &normal);
-                        float shininess = material->shininess * (material->specular_highlight_tex_id == -1 ? 1 : texture_value_read(&textures[material->specular_highlight_tex_id], u, v));
-                        float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), shininess);
-                        float num = pointlight->constant + pointlight->linear * distance + pointlight->quadratic * (distance * distance);
-                        float attenuation = 0;
-                        if(num != 0)
-                            attenuation = 1.0f / num;
-                        
-                        color_t c = (color_t){0.0f, 0.0f ,0.0f, 1.0f};
-                        color_t c2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], u, v, w, 15);
-                        color_product(&c, &pointlight->ambi, &c2);
-                        color_scale(&c, attenuation);
-                        color_add(&temp, &temp, &c);
-                        c2 = material->diffuse_tex_id == -1 ? material->diffuse : texture_read(&textures[material->diffuse_tex_id], u, v, w, 15);
-                        color_product(&c, &pointlight->diff, &c2);
-                        color_scale(&c, diff * attenuation);
-                        color_add(&temp, &temp, &c);
-                        c2 = material->specular_tex_id == -1 ? material->specular : texture_read(&textures[material->specular_tex_id], u, v, w, 15);
-                        color_product(&c, &pointlight->spec, &c2);
-                        color_scale(&c, spec * attenuation);
-                        color_add(&temp, &temp, &c);
-                        
-                        color_add(&color, &color, &temp);
-                    }
-                    
                     float a = 1.0f;
                     float r = 0.0f;
                     float g = 0.0f;
                     float b = 0.0f;
                     
                     if(render_state & RENDER_STATE_COLOR) {
-                        a = scanline->v.color.a * w;
-                        r = scanline->v.color.r * w;
-                        g = scanline->v.color.g * w;
-                        b = scanline->v.color.b * w;
+                        a = vf.color.a;
+                        r = vf.color.r;
+                        g = vf.color.g;
+                        b = vf.color.b;
                     }
                     if(render_state & RENDER_STATE_TEXTURE) {
                         a = color.a;
@@ -1128,7 +1032,6 @@ void computeTangentMatrix(device_t *device, vertex_t *vertex, vector_t *worldPos
 
                                      
 void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_t *t3) {
-    
     vertex_t *vertice[3] = {t1, t2, t3};
     point_t points[3];
     
@@ -1165,20 +1068,22 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     v2f v2fs[3];
     for(int i = 0; i < 3; i++) {
         vertex_t *vertex = vertice[i];
-        matrix_apply(&vertex->pos, &vertex->pos, &device->transform.vp);
+        a2v *av = &a2vs[i];
         
-        // 法向量乘正规矩阵
-        matrix_apply(&vertex->normal, &vertex->normal, &nm);
+        av->pos = vertex->pos; // 世界空间的pos
+        matrix_apply(&vertex->pos, &vertex->pos, &device->transform.vp);
+        points[i] = vertex->pos; // 透视空间的pos
+        
+        matrix_apply(&vertex->normal, &vertex->normal, &nm); // 法向量乘正规矩阵
         vector_normalize(&vertex->normal);
-        a2v *v = &a2vs[i];
-        v->normal;
-        v->pos;
-        v->tangent;
-        v->texcoord;
-        // 顶点着色器
-        v2fs[i] = vert_shader(v);
+        av->normal = vertex->normal; // 世界空间的normal
+        av->color = vertex->color;
+        av->texcoord = vertex->tc;
+        // v->tangent;
+        
+        vert_shader(device, av, &v2fs[i]); // 顶点着色器
 //        vertex_rhw_init(vertex);
-        points[i] = vertex->pos;
+        
         transform_homogenize(&vertex->pos, &vertex->pos, device->camera->width, device->camera->height);
     }
     
@@ -1486,6 +1391,123 @@ void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool
     device_draw_primitive(device, &p1, &p2, &p3);
 }
 
+void vert_shader(device_t *device, a2v *av, v2f *vf) {
+    vf->pos = av->pos;
+    vf->normal = av->normal;
+    vf->color = av->color;
+    vf->texcoord = av->texcoord;
+}
 
+void frag_shader(device_t *device, v2f *vf, color_t *color) {
+    material_t *material = &device->material;
+    vector_t viewdir, viewPos = device->camera->pos;
+    vector_sub(&viewdir, &viewPos, &vf->pos);
+    vector_normalize(&viewdir);
+    texcoord_t *tex = &vf->texcoord;
+    vector_t normal = vf->normal;
+    
+    vector_t lightDir = dirLight.dir;
+    vector_inverse(&lightDir);
+    vector_normalize(&lightDir);
+    float diff = fmaxf(vector_dotproduct(&normal, &lightDir), 0.0f);
+    lightDir = dirLight.dir;
+    vector_normalize(&lightDir);
+    vector_t vec;
+    vector_reflect(&vec, &lightDir, &normal);
+    float shininess = material->shininess * (material->specular_highlight_tex_id == -1 ? 1 : texture_value_read(&textures[material->specular_highlight_tex_id], tex->u, tex->v));
+    float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), shininess);
+    
+    color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
+    color_t temp2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], tex->u, tex->v, vf->pos.w, 15);
+    color_product(&temp, &dirLight.ambi, &temp2);
+    color_add(color, color, &temp);
+    temp2 = material->diffuse_tex_id == -1 ? material->diffuse : texture_read(&textures[material->diffuse_tex_id], tex->u, tex->v, vf->pos.w, 15);
+    color_product(&temp, &dirLight.diff, &temp2);
+    color_scale(&temp, diff);
+    color_add(color, color, &temp);
+    temp2 = material->specular_tex_id == -1 ? material->specular : texture_read(&textures[material->specular_tex_id], tex->u, tex->v, vf->pos.w, 15);
+    color_product(&temp, &dirLight.spec, &temp2);
+    color_scale(&temp, spec);
+    color_add(color, color, &temp);
+    
+    // 计算阴影
+    if(dirLight.shadow)
+    {
+        // fragPos -> 灯的坐标系 -> 灯的透视矩阵 -> 求得z坐标比较
+        point_t tempPos = vf->pos;
+        camera_t *camera = &cameras[0];
+        matrix_apply(&tempPos, &tempPos, &camera->view_matrix);
+        matrix_apply(&tempPos, &tempPos, &camera->projection_matrix);
+        transform_homogenize(&tempPos, &tempPos, camera->width, camera->height);
+        int y = (int)(tempPos.y+0.5);
+        int x = (int)(tempPos.x+0.5);
+        
+        vector_t tempNormal = vf->pos;
+        matrix_apply(&tempNormal, &tempNormal, &camera->view_matrix);
+        vector_inverse(&tempNormal);
+        float dot = vector_dotproduct(&tempNormal, &camera->front);
+        if(dot > 0) {
+            float bias = 0.015 * (1.0 - dot);
+            if(bias < 0.002f) bias = 0.001;
+            if(y >= 0 && x >= 0 && y < camera->height && x < camera->width) {
+                float shadow = 0.0;
+                for(int i = -1; i <= 1; ++i)
+                {
+                    for(int j = -1; j <= 1; ++j)
+                    {
+                        if(y+j < 0 || y+j >= camera->height || x+i < 0 || x+i >= camera->width)
+                            continue;
+                        float pcfDepth = pshadowbuffer[(y+j)*camera->width+(x+i)];
+                        shadow +=  tempPos.z - bias > pcfDepth ? 1.0 : 0.0;
+                    }
+                }
+                shadow /= 9.0;
+                
+                color_t temp = {0.3f,0.3f,0.3f,0.3f};
+                color_scale(&temp, shadow);
+                color_sub(color, color, &temp);
+            }
+        }
+    }
+    
+    
+    int i = 0;
+    for(i = 0; i < pointlight_cnt; i++)
+    {
+        temp = (color_t){0.0f, 0.0f ,0.0f, 1.0f};
+        pointlight_t *pointlight = &pointLights[i];
+        
+        vector_t lightDir = {0.0f, 0.0f, 0.0f, 0.0f};
+        vector_sub(&lightDir, &pointlight->pos, &vf->pos);
+        float distance = vector_length(&lightDir);
+        vector_normalize(&lightDir);
+        float diff = fmaxf(vector_dotproduct(&normal, &lightDir), 0.0f);
+        vector_t vec;
+        vector_inverse(&lightDir);
+        vector_reflect(&vec, &lightDir, &normal);
+        float shininess = material->shininess * (material->specular_highlight_tex_id == -1 ? 1 : texture_value_read(&textures[material->specular_highlight_tex_id], tex->u, tex->v));
+        float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), shininess);
+        float num = pointlight->constant + pointlight->linear * distance + pointlight->quadratic * (distance * distance);
+        float attenuation = 0;
+        if(num != 0)
+            attenuation = 1.0f / num;
+        
+        color_t c = (color_t){0.0f, 0.0f ,0.0f, 1.0f};
+        color_t c2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], tex->u, tex->v, vf->pos.w, 15);
+        color_product(&c, &pointlight->ambi, &c2);
+        color_scale(&c, attenuation);
+        color_add(&temp, &temp, &c);
+        c2 = material->diffuse_tex_id == -1 ? material->diffuse : texture_read(&textures[material->diffuse_tex_id], tex->u, tex->v, vf->pos.w, 15);
+        color_product(&c, &pointlight->diff, &c2);
+        color_scale(&c, diff * attenuation);
+        color_add(&temp, &temp, &c);
+        c2 = material->specular_tex_id == -1 ? material->specular : texture_read(&textures[material->specular_tex_id], tex->u, tex->v, vf->pos.w, 15);
+        color_product(&c, &pointlight->spec, &c2);
+        color_scale(&c, spec * attenuation);
+        color_add(&temp, &temp, &c);
+        
+        color_add(color, color, &temp);
+    }
+}
 
 

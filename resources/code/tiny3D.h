@@ -42,6 +42,8 @@ void vector_clone(vector_t *dest, const vector_t *src);
 void vector_reflect(vector_t *r, const vector_t *v, const vector_t *n);
 //      7)). normalize
 void vector_normalize(vector_t *v);
+//      8)). interpolating
+void vector_interpolating(vector_t *dest, const vector_t *src1, const vector_t *src2, const vector_t *src3, float a, float b, float c);
 
 typedef struct {
     float m[4][4];
@@ -131,6 +133,7 @@ void color_product(color_t *c, const color_t *a, const color_t *b);
 void color_scale(color_t *c, float k);
 void color_add(color_t *c, const color_t *a, const color_t *b);
 void color_sub(color_t *c, const color_t *a, const color_t *b);
+void color_interpolating(color_t *dest, const color_t *src1, const color_t *src2, const color_t *src3, float a, float b, float c);
 
 
 typedef struct {
@@ -234,8 +237,16 @@ void camera_init_projection(camera_t *camera);
 void camera_update(camera_t *camera);
 
 typedef struct { float u, v; } texcoord_t;
+void texcoord_add(texcoord_t *c, texcoord_t *a, const texcoord_t *b);
+void texcoord_scale(texcoord_t *t, float k);
+void texcoord_interpolating(texcoord_t *dest, const texcoord_t *src1, const texcoord_t *src2, const texcoord_t *src3, float a, float b, float c);
+
 typedef struct { float a, b, c, d; } storage_t; // 插值寄存器
-typedef struct { point_t pos; texcoord_t tc; color_t color; float rhw; vector_t normal; storage_t storages[4]; } vertex_t; // 提供4个额外的插值寄存器
+void storage_add(storage_t *c, storage_t *a, const storage_t *b);
+void storage_scale(storage_t *t, float k);
+void storage_interpolating(storage_t *dest, const storage_t *src1, const storage_t *src2, const storage_t *src3, float a, float b, float c);
+
+typedef struct { point_t pos; texcoord_t tc; color_t color; vector_t normal;} vertex_t; // 提供4个额外的插值寄存器
 
 typedef struct { vertex_t v, v1, v2; } edge_t;
 typedef struct { float top, bottom; edge_t left, right; } trapezoid_t;
@@ -322,6 +333,28 @@ extern texture_t textures[MAX_NUM_TEXTURE];
 extern int texture_count;
 
 void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool world);
+
+typedef struct {
+    vector_t pos;
+    color_t color;
+    vector_t normal;
+    vector_t tangent;
+    texcoord_t texcoord;
+} a2v;
+
+typedef struct {
+    vector_t pos;
+    texcoord_t texcoord;
+    color_t color;
+    vector_t normal;
+    storage_t storage0;
+    storage_t storage1;
+    storage_t storage2;
+} v2f;
+
+void vert_shader(device_t *device, a2v *av, v2f *vf);
+
+void frag_shader(device_t *device, v2f *vf, color_t *color);
 
 
 #endif /* tiny3D_h */
