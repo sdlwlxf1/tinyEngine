@@ -266,9 +266,9 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
                         assert(t1 < (int)attrib.num_texcoords);
                         assert(t2 < (int)attrib.num_texcoords);
                         for (k = 0; k < 2; k++) {
-                            t[0][k] = attrib.texcoords[3 * (size_t)t0 + k];
-                            t[1][k] = attrib.texcoords[3 * (size_t)t1 + k];
-                            t[2][k] = attrib.texcoords[3 * (size_t)t2 + k];
+                            t[0][k] = attrib.texcoords[2 * (size_t)t0 + k];
+                            t[1][k] = attrib.texcoords[2 * (size_t)t1 + k];
+                            t[2][k] = attrib.texcoords[2 * (size_t)t2 + k];
                         }
                     } else {
                     }
@@ -277,6 +277,7 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
                 for (k = 0; k < 3; k++) {
                     (*mesh)[3 * i + k].pos = (vector_t){v[k][0], v[k][1], v[k][2], 1};
                     (*mesh)[3 * i + k].normal = (vector_t){n[k][0], n[k][1], n[k][2], 0};
+                    
                     (*mesh)[3 * i + k].tc = (texcoord_t){t[k][0], t[k][1]};
                     /* Use normal as color. */
                     c[0] = n[k][0];

@@ -2168,11 +2168,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/utils.c"
-            timestampString = "512369221.429344"
+            timestampString = "512379226.789903"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "357"
-            endingLineNumber = "357"
+            startingLineNumber = "358"
+            endingLineNumber = "358"
             landmarkName = "generate_mipmaps()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2200,11 +2200,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306846.393708"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "909"
-            endingLineNumber = "909"
+            startingLineNumber = "911"
+            endingLineNumber = "911"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2216,11 +2216,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306846.393708"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1093"
-            endingLineNumber = "1093"
+            startingLineNumber = "1095"
+            endingLineNumber = "1095"
             landmarkName = "device_draw_primitive()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2264,11 +2264,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306846.393708"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "940"
-            endingLineNumber = "940"
+            startingLineNumber = "942"
+            endingLineNumber = "942"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2280,11 +2280,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306846.393708"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "881"
-            endingLineNumber = "881"
+            startingLineNumber = "883"
+            endingLineNumber = "883"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2312,11 +2312,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306846.393708"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "864"
-            endingLineNumber = "864"
+            startingLineNumber = "866"
+            endingLineNumber = "866"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2328,7 +2328,23 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306846.393708"
+            timestampString = "512379672.75653"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "865"
+            endingLineNumber = "865"
+            landmarkName = "device_draw_scanline()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../resources/code/tiny3D.c"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "863"
@@ -2344,27 +2360,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306846.393708"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "861"
-            endingLineNumber = "861"
-            landmarkName = "device_draw_scanline()"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306846.393708"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "862"
-            endingLineNumber = "862"
+            startingLineNumber = "864"
+            endingLineNumber = "864"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2456,11 +2456,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/utils.c"
-            timestampString = "512369221.429344"
+            timestampString = "512379226.789903"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "475"
-            endingLineNumber = "475"
+            startingLineNumber = "476"
+            endingLineNumber = "476"
             landmarkName = "make_texture_by_png()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2472,11 +2472,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306846.393708"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "913"
-            endingLineNumber = "913"
+            startingLineNumber = "915"
+            endingLineNumber = "915"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2488,11 +2488,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306846.393708"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "928"
-            endingLineNumber = "928"
+            startingLineNumber = "930"
+            endingLineNumber = "930"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2504,11 +2504,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306614.944243"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "723"
-            endingLineNumber = "723"
+            startingLineNumber = "725"
+            endingLineNumber = "725"
             landmarkName = "texture_read()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2520,11 +2520,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306862.383811"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1033"
-            endingLineNumber = "1033"
+            startingLineNumber = "1035"
+            endingLineNumber = "1035"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2536,11 +2536,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306863.263937"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1032"
-            endingLineNumber = "1032"
+            startingLineNumber = "1034"
+            endingLineNumber = "1034"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2552,11 +2552,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306920.785667"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "997"
-            endingLineNumber = "997"
+            startingLineNumber = "999"
+            endingLineNumber = "999"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2568,11 +2568,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306961.410819"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "800"
-            endingLineNumber = "800"
+            startingLineNumber = "802"
+            endingLineNumber = "802"
             landmarkName = "texture_read()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2584,11 +2584,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512306962.058835"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "801"
-            endingLineNumber = "801"
+            startingLineNumber = "803"
+            endingLineNumber = "803"
             landmarkName = "texture_read()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2600,11 +2600,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512307085.926397"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "981"
-            endingLineNumber = "981"
+            startingLineNumber = "983"
+            endingLineNumber = "983"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2616,11 +2616,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512307135.320167"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1019"
-            endingLineNumber = "1019"
+            startingLineNumber = "1021"
+            endingLineNumber = "1021"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2776,11 +2776,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/utils.c"
-            timestampString = "512369221.429344"
+            timestampString = "512379226.789903"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "301"
-            endingLineNumber = "301"
+            startingLineNumber = "302"
+            endingLineNumber = "302"
             landmarkName = "make_mesh_and_material_by_obj()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2904,11 +2904,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512367576.619881"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1011"
-            endingLineNumber = "1011"
+            startingLineNumber = "1013"
+            endingLineNumber = "1013"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2920,11 +2920,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512367624.973001"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1014"
-            endingLineNumber = "1014"
+            startingLineNumber = "1016"
+            endingLineNumber = "1016"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2936,11 +2936,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512367651.285905"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "978"
-            endingLineNumber = "978"
+            startingLineNumber = "980"
+            endingLineNumber = "980"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2952,11 +2952,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512368090.985065"
+            timestampString = "512379672.75653"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "998"
-            endingLineNumber = "998"
+            startingLineNumber = "1000"
+            endingLineNumber = "1000"
             landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2968,11 +2968,43 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/utils.c"
-            timestampString = "512369541.582391"
+            timestampString = "512379226.789903"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "280"
-            endingLineNumber = "280"
+            startingLineNumber = "281"
+            endingLineNumber = "281"
+            landmarkName = "make_mesh_and_material_by_obj()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../resources/code/tiny3D.c"
+            timestampString = "512379672.75653"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "737"
+            endingLineNumber = "737"
+            landmarkName = "texture_read()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../resources/code/utils.c"
+            timestampString = "512379224.707598"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "261"
+            endingLineNumber = "261"
             landmarkName = "make_mesh_and_material_by_obj()"
             landmarkType = "9">
          </BreakpointContent>

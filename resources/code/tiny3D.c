@@ -604,9 +604,11 @@ void trapezoid_init_scan_line(const trapezoid_t *trap, scanline_t *scanline, int
 	scanline->w = (int)(trap->right.v.pos.x + 0.5f) - scanline->x;
     if (trap->left.v.pos.x >= trap->right.v.pos.x)
         scanline->w = 0;
-	scanline->y = y;
-	scanline->v = trap->left.v;
-	vertex_division(&scanline->step, &trap->left.v, &trap->right.v, width);
+    
+    scanline->y = y;
+    scanline->v = trap->left.v;
+
+    vertex_division(&scanline->step, &trap->left.v, &trap->right.v, width);
 }
 
 float *pshadowbuffer = NULL;
