@@ -2221,7 +2221,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1111"
             endingLineNumber = "1111"
-            landmarkName = "computeTangentMatrix()"
+            landmarkName = "device_draw_primitive()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
