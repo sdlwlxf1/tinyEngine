@@ -7,6 +7,29 @@
 #include <math.h>
 #include <string.h>
 
+typedef struct {
+    vector_t pos;
+    vector_t normal;
+    vector_t tangent;
+    texcoord_t texcoord;
+} a2v;
+
+typedef struct {
+    vector_t pos;
+    texcoord_t texcoord;
+    storage_t storage0;
+    storage_t storage1;
+    storage_t storage2;
+} v2f;
+
+v2f vert_shader(a2v v) {
+    
+}
+
+color_t frag_shader(v2f i) {
+    
+}
+
 int logbase2ofx(int n) {
     if(n <= 0) return 0;
     int r = 0;
@@ -432,15 +455,7 @@ int material_cnt;
 pointlight_t pointLights[NR_POINT_LIGHTS];
 int pointlight_cnt;
 
-void calc_pointlight(color_t *color, const material_t *material, const pointlight_t *light, const vector_t *normal, const vector_t *fpos, const vector_t *viewdir, const vector_t *fragPos, float z) {
-    
-}
-
 dirlight_t dirLight;
-
-void calc_dirlight(color_t *color, const material_t *material, const dirlight_t *light, const vector_t *normal, const vector_t *viewdir, const vector_t *fragPos, float z) {
-    
-}
 
 camera_t cameras[MAX_NUM_CAMERA];
 int camera_count = 0;
@@ -484,6 +499,13 @@ void vertex_rhw_init(vertex_t *v) {
     v->color.r *= rhw;
     v->color.g *= rhw;
     v->color.b *= rhw;
+    for(int i = 0; i < 4; i++)
+    {
+        v->storages[i].a *= rhw;
+        v->storages[i].b *= rhw;
+        v->storages[i].c *= rhw;
+        v->storages[i].d *= rhw;
+    }
 }
 
 void vertex_interp(vertex_t *y, const vertex_t *x1, const vertex_t *x2, float k) {
@@ -494,6 +516,13 @@ void vertex_interp(vertex_t *y, const vertex_t *x1, const vertex_t *x2, float k)
     y->color.g = interp(x1->color.g, x2->color.g, k);
     y->color.b = interp(x1->color.b, x2->color.b, k);
     y->rhw = interp(x1->rhw, x2->rhw, k);
+    for(int i = 0; i < 4; i++)
+    {
+        y->storages[i].a = interp(x2->storages[i].a , x1->storages[i].a, k);
+        y->storages[i].b = interp(x2->storages[i].b , x1->storages[i].b, k);
+        y->storages[i].c = interp(x2->storages[i].c , x1->storages[i].c, k);
+        y->storages[i].d = interp(x2->storages[i].d , x1->storages[i].d, k);
+    }
 }
 
 void vertex_division(vertex_t *y, const vertex_t *x1, const vertex_t *x2, float w) {
@@ -508,6 +537,13 @@ void vertex_division(vertex_t *y, const vertex_t *x1, const vertex_t *x2, float 
     y->color.g = (x2->color.g - x1->color.g) * inv;
     y->color.b = (x2->color.b - x1->color.b) * inv;
     y->rhw = (x2->rhw - x1->rhw) * inv;
+    for(int i = 0; i < 4; i++)
+    {
+        y->storages[i].a = (x2->storages[i].a - x1->storages[i].a) * inv;
+        y->storages[i].b = (x2->storages[i].b - x1->storages[i].b) * inv;
+        y->storages[i].c = (x2->storages[i].c - x1->storages[i].c) * inv;
+        y->storages[i].d = (x2->storages[i].d - x1->storages[i].d) * inv;
+    }
 }
 
 void vertex_add(vertex_t *y, const vertex_t *x) {
@@ -521,6 +557,13 @@ void vertex_add(vertex_t *y, const vertex_t *x) {
     y->color.g += x->color.g;
     y->color.b += x->color.b;
     y->rhw += x->rhw;
+    for(int i = 0; i < 4; i++)
+    {
+        y->storages[i].a += x->storages[i].a;
+        y->storages[i].b += x->storages[i].b;
+        y->storages[i].c += x->storages[i].c;
+        y->storages[i].d += x->storages[i].d;
+    }
 }
 
 // 根据三角形生成 0-2 个梯形，并且返回合法梯形的数量
@@ -717,6 +760,19 @@ void device_draw_line(device_t *device, int x1, int y1, int x2, int y2, IUINT32 
     }
 }
 
+IUINT32 texture_value_read(const texture_t *texture, float u, float v) {
+    IUINT32* data = texture->datas[0];
+    int width, height;
+    width = texture->width;
+    height = texture->height;
+    u = (u-(int)u) * (width-1);
+    v = (v-(int)v) * (height-1);
+    int uint = (int)u;
+    int vint = (int)v;
+    IUINT32 res = data[vint*width+uint];
+    return res;
+}
+
 // 双线性插值和mipmap
 color_t texture_read(const texture_t *texture, float u, float v, float z, float maxz) {
     color_t color;
@@ -734,6 +790,7 @@ color_t texture_read(const texture_t *texture, float u, float v, float z, float 
             height = height >> 1;
         }
     }
+    // wrap 方式
     u = (u-(int)u) * (width-1);
     v = (v-(int)v) * (height-1);
     int uint = (int)u;
@@ -852,7 +909,7 @@ bool computeBarycentricCoords3d(point_t *res, const point_t *p0, const point_t *
 }
 
 // now is the core realize for rendering, so just do it.
-void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t *t1, const vertex_t *t2, const vertex_t *t3, const point_t *p1, const point_t *p2, const point_t *p3) {
+void device_draw_scanline(device_t *device, scanline_t *scanline, point_t *points, v2f *v2fs) {
     int y = scanline->y;
     int x = scanline->x;
     int width = device->camera->width;
@@ -882,7 +939,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                     point_t barycenter = {0.0f, 0.0f, 0.0f, 1.0f};
                     point_t interpos = scanline->v.pos;
                     transform_homogenize_reverse(&interpos, &interpos, w, device->camera->width, device->camera->height);
-                    computeBarycentricCoords3d(&barycenter, &t1->pos, &t2->pos, &t3->pos, &interpos);
+                    computeBarycentricCoords3d(&barycenter, &points[0], &points[1], &points[2], &interpos);
                     
                     point_t fragPos = {0.0f, 0.0f, 0.0f, 1.0f};
                     point_t ptemp = *p1;
@@ -920,7 +977,8 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                     vector_normalize(&lightDir);
                     vector_t vec;
                     vector_reflect(&vec, &lightDir, &normal);
-                    float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), material->shininess);
+                    float shininess = material->shininess * (material->specular_highlight_tex_id == -1 ? 1 : texture_value_read(&textures[material->specular_highlight_tex_id], u, v));
+                    float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), shininess);
                     
                     color_t temp = {0.0f, 0.0f ,0.0f, 1.0f};
                     color_t temp2 = material->ambient_tex_id == -1 ? material->ambient : texture_read(&textures[material->ambient_tex_id], u, v, w, 15);
@@ -990,7 +1048,8 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
                         vector_t vec;
                         vector_inverse(&lightDir);
                         vector_reflect(&vec, &lightDir, &normal);
-                        float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), material->shininess);
+                        float shininess = material->shininess * (material->specular_highlight_tex_id == -1 ? 1 : texture_value_read(&textures[material->specular_highlight_tex_id], u, v));
+                        float spec = powf(fmaxf(vector_dotproduct(&viewdir, &vec), 0.0f), shininess);
                         float num = pointlight->constant + pointlight->linear * distance + pointlight->quadratic * (distance * distance);
                         float attenuation = 0;
                         if(num != 0)
@@ -1045,7 +1104,7 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, const vertex_t
 }
 
 // core render function
-void device_render_trap(device_t *device, trapezoid_t *trap, const vertex_t *t1, const vertex_t *t2, const vertex_t *t3, const point_t *p1, const point_t *p2, const point_t *p3) {
+void device_render_trap(device_t *device, trapezoid_t *trap, point_t *points, v2f *v2fs) {
     scanline_t scanline;
     int j, top, bottom;
     top = (int)(trap->top + 0.5f);
@@ -1054,20 +1113,24 @@ void device_render_trap(device_t *device, trapezoid_t *trap, const vertex_t *t1,
         if(j >= 0 && j < device->camera->height) {
             trapezoid_edge_interp(trap, (float)j + 0.5f);
             trapezoid_init_scan_line(trap, &scanline, j);
-            device_draw_scanline(device, &scanline, t1, t2, t3, p1, p2, p3);
+            device_draw_scanline(device, &scanline, points, v2fs);
         }
         if(j >= device->camera->height)
             break;
     }
 }
 
-void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_t *t3) {
-    point_t p1, p2, p3;
-    point_t z1, z2, z3;
+void computeTangentMatrix(device_t *device, vertex_t *vertex, vector_t *worldPos) {
+    vector_t *worldNormal = &vertex->normal;
+//    vector_t *tangent = texture_read(&textures[device->material.bump_tex_id], vertex->tc
+}
 
-    p1 = t1->pos;
-    p2 = t2->pos;
-    p3 = t3->pos;
+
+                                     
+void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_t *t3) {
+    
+    vertex_t *vertice[3] = {t1, t2, t3};
+    point_t points[3];
     
     // 使用法向量背面剔除
     //    matrix_apply(&c1, &t1->pos, &device->transform.world);
@@ -1087,39 +1150,37 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     //    if(vector_dotproduct(&normal, &p2) >= 0)
     //        return;
     
-    matrix_apply(&t1->pos, &t1->pos, &device->transform.vp);
-    matrix_apply(&t2->pos, &t2->pos, &device->transform.vp);
-    matrix_apply(&t3->pos, &t3->pos, &device->transform.vp);
-    
-    // 法向量乘正规矩阵
+    // 正规矩阵
     matrix_t nm;
     matrix_clone(&nm, &device->transform.model);
     matrix_inverse(&nm);
     matrix_transpose(&nm);
-    matrix_apply(&t1->normal, &t1->normal, &nm);
-    matrix_apply(&t2->normal, &t2->normal, &nm);
-    matrix_apply(&t3->normal, &t3->normal, &nm);
-    vector_normalize(&t1->normal);
-    vector_normalize(&t2->normal);
-    vector_normalize(&t3->normal);
     
 //    简单的cvv裁剪，整个三角形裁减掉
 //    if (transform_check_cvv(&c1) != 0) return;
 //    if (transform_check_cvv(&c2) != 0) return;
 //    if (transform_check_cvv(&c3) != 0) return;
     
-    vertex_rhw_init(t1);
-    vertex_rhw_init(t2);
-    vertex_rhw_init(t3);
-    
-    // 这里赋值是为了计算重心坐标
-    z1 = t1->pos;
-    z2 = t2->pos;
-    z3 = t3->pos;
-    
-    transform_homogenize(&t1->pos, &t1->pos, device->camera->width, device->camera->height);
-    transform_homogenize(&t2->pos, &t2->pos, device->camera->width, device->camera->height);
-    transform_homogenize(&t3->pos, &t3->pos, device->camera->width, device->camera->height);
+    a2v a2vs[3];
+    v2f v2fs[3];
+    for(int i = 0; i < 3; i++) {
+        vertex_t *vertex = vertice[i];
+        matrix_apply(&vertex->pos, &vertex->pos, &device->transform.vp);
+        
+        // 法向量乘正规矩阵
+        matrix_apply(&vertex->normal, &vertex->normal, &nm);
+        vector_normalize(&vertex->normal);
+        a2v *v = &a2vs[i];
+        v->normal;
+        v->pos;
+        v->tangent;
+        v->texcoord;
+        // 顶点着色器
+        v2fs[i] = vert_shader(v);
+//        vertex_rhw_init(vertex);
+        points[i] = vertex->pos;
+        transform_homogenize(&vertex->pos, &vertex->pos, device->camera->width, device->camera->height);
+    }
     
     // 背面剔除
     if(device->cull > 0) {
@@ -1139,12 +1200,8 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
     if (device->render_state & (RENDER_STATE_TEXTURE | RENDER_STATE_COLOR)) {
         trapezoid_t traps[2];
         int n = trapezoid_init_triangle(traps, t1, t2, t3);
-        // 这里赋值是为了计算重心坐标
-        t1->pos = z1;
-        t2->pos = z2;
-        t3->pos = z3;
-        if(n >= 1) device_render_trap(device, &traps[0], t1, t2, t3, &p1, &p2, &p3);
-        if(n >= 2) device_render_trap(device, &traps[1], t1, t2, t3, &p1, &p2, &p3);
+        if(n >= 1) device_render_trap(device, &traps[0], points, v2fs);
+        if(n >= 2) device_render_trap(device, &traps[1], points, v2fs);
     }
     
     if((device->render_state & RENDER_STATE_WIREFRAME) && device->framebuffer != NULL) {

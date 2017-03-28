@@ -269,7 +269,7 @@ int main(int argc, char * argv[])
         memset(screen_keys, 0, sizeof(int) * 512);
   
         dirLight = (dirlight_t){{0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, false};
-        dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}, true};
+        dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, false};
         if(dirLight.shadow == true)
         {
             // 影子摄像机
@@ -297,7 +297,7 @@ int main(int argc, char * argv[])
 //        for(int i = 0; i < 4; i++)
 //            pointLights[pointlight_cnt++] = (pointlight_t){0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
         
-        pointLights[pointlight_cnt++] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.6f, 0.6f, 0.6f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, false};
+        pointLights[pointlight_cnt++] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.6f, 0.6f, 0.6f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.7f, 0.7f, 0.7f, 1.0f}, false};
         pointLights[pointlight_cnt++] = (pointlight_t){{0.0f, 6.0f, 2.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.6f, 0.6f, 0.6f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.6f, 0.6f, 0.6f, 1.0f}, false};
 //        pointLights[pointlight_cnt++] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.6f, 0.6f, 0.6f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, false};
 //        pointLights[pointlight_cnt++] = (pointlight_t){{0.0f, 6.0f, -1.0f, 1.0f}, 1.0f, 0.09f, 0.032f, {0.6f, 0.6f, 0.6f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, false};

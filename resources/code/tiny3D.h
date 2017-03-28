@@ -234,7 +234,8 @@ void camera_init_projection(camera_t *camera);
 void camera_update(camera_t *camera);
 
 typedef struct { float u, v; } texcoord_t;
-typedef struct { point_t pos; texcoord_t tc; color_t color; float rhw; vector_t normal; } vertex_t;
+typedef struct { float a, b, c, d; } storage_t; // 插值寄存器
+typedef struct { point_t pos; texcoord_t tc; color_t color; float rhw; vector_t normal; storage_t storages[4]; } vertex_t; // 提供4个额外的插值寄存器
 
 typedef struct { vertex_t v, v1, v2; } edge_t;
 typedef struct { float top, bottom; edge_t left, right; } trapezoid_t;
@@ -321,5 +322,6 @@ extern texture_t textures[MAX_NUM_TEXTURE];
 extern int texture_count;
 
 void clip_polys(device_t *device, vertex_t *v1, vertex_t *v2, vertex_t *v3, bool world);
+
 
 #endif /* tiny3D_h */
