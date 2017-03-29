@@ -2205,7 +2205,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "925"
             endingLineNumber = "925"
-            landmarkName = "device_draw_scanline()"
+            landmarkName = "computeBarycentricCoords3d()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2216,11 +2216,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512398921.202293"
+            timestampString = "512492458.814903"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1111"
-            endingLineNumber = "1111"
+            startingLineNumber = "1113"
+            endingLineNumber = "1113"
             landmarkName = "device_draw_primitive()"
             landmarkType = "9">
          </BreakpointContent>
@@ -2253,7 +2253,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "897"
             endingLineNumber = "897"
-            landmarkName = "device_draw_scanline()"
+            landmarkName = "computeBarycentricCoords3d()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2285,7 +2285,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "880"
             endingLineNumber = "880"
-            landmarkName = "computeBarycentricCoords3d()"
+            landmarkName = "texture_read()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2301,7 +2301,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "879"
             endingLineNumber = "879"
-            landmarkName = "computeBarycentricCoords3d()"
+            landmarkName = "texture_read()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2317,7 +2317,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "877"
             endingLineNumber = "877"
-            landmarkName = "computeBarycentricCoords3d()"
+            landmarkName = "texture_read()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2333,7 +2333,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "878"
             endingLineNumber = "878"
-            landmarkName = "computeBarycentricCoords3d()"
+            landmarkName = "texture_read()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2445,7 +2445,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "929"
             endingLineNumber = "929"
-            landmarkName = "device_draw_scanline()"
+            landmarkName = "computeBarycentricCoords3d()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2477,7 +2477,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "738"
             endingLineNumber = "738"
-            landmarkName = "texture_value_read()"
+            landmarkName = "device_clear()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2493,7 +2493,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1051"
             endingLineNumber = "1051"
-            landmarkName = "device_draw_scanline()"
+            landmarkName = "device_draw_primitive()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2509,7 +2509,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1050"
             endingLineNumber = "1050"
-            landmarkName = "device_draw_scanline()"
+            landmarkName = "device_draw_primitive()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2525,7 +2525,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1015"
             endingLineNumber = "1015"
-            landmarkName = "device_draw_scanline()"
+            landmarkName = "device_render_trap()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2589,7 +2589,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1037"
             endingLineNumber = "1037"
-            landmarkName = "device_draw_scanline()"
+            landmarkName = "device_draw_primitive()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2861,7 +2861,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1029"
             endingLineNumber = "1029"
-            landmarkName = "device_draw_scanline()"
+            landmarkName = "computeTangentMatrix()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2876,9 +2876,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1032"
-            endingLineNumber = "1032"
-            landmarkName = "device_draw_scanline()"
-            landmarkType = "9">
+            endingLineNumber = "1032">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2909,7 +2907,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1016"
             endingLineNumber = "1016"
-            landmarkName = "device_draw_scanline()"
+            landmarkName = "device_render_trap()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2940,9 +2938,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "751"
-            endingLineNumber = "751"
-            landmarkName = "texture_read()"
-            landmarkType = "9">
+            endingLineNumber = "751">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -2973,7 +2969,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "721"
             endingLineNumber = "721"
-            landmarkName = "device_draw_line()"
+            landmarkName = "device_set_camera()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -2989,7 +2985,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "723"
             endingLineNumber = "723"
-            landmarkName = "device_draw_line()"
+            landmarkName = "device_set_camera()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -3005,7 +3001,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "724"
             endingLineNumber = "724"
-            landmarkName = "device_draw_line()"
+            landmarkName = "device_set_camera()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

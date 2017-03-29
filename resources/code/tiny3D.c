@@ -1079,7 +1079,9 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
         av->normal = vertex->normal; // 世界空间的normal
         av->color = vertex->color;
         av->texcoord = vertex->tc;
-        // v->tangent;
+        // http://blog.chinaunix.net/uid-26651460-id-3083223.html
+        // http://stackoverflow.com/questions/5255806/how-to-calculate-tangent-and-binormal
+        //color_t tangent =
         
         vert_shader(device, av, &v2fs[i]); // 顶点着色器
 //        vertex_rhw_init(vertex);
