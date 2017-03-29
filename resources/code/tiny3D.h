@@ -339,6 +339,7 @@ typedef struct {
     color_t color;
     vector_t normal;
     vector_t tangent;
+    vector_t binormal;
     texcoord_t texcoord;
 } a2v;
 

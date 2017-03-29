@@ -334,17 +334,17 @@ int main(int argc, char * argv[])
 
         // init object
         // ground
-//        object_t *ground = &objects[object_count++];
-//        ground->pos = (point_t){0, 0, 0, 1};
-//        ground->scale = (vector_t){20, 1, 20, 0};
-//        ground->axis = (vector_t){0, 0, 0, 1};
-//        ground->theta = 0.0f;
-//        ground->mesh = ground_mesh;
-//        ground->mesh_num = 6;
-//        ground->material_ids = NULL;
-//        ground->texture_id = 1;
-//        ground->shadow = false;
-//        ground->dirty = true;
+        object_t *ground = &objects[object_count++];
+        ground->pos = (point_t){0, 0, 0, 1};
+        ground->scale = (vector_t){20, 1, 20, 0};
+        ground->axis = (vector_t){0, 0, 0, 1};
+        ground->theta = 0.0f;
+        ground->mesh = ground_mesh;
+        ground->mesh_num = 6;
+        ground->material_ids = NULL;
+        ground->texture_id = 1;
+        ground->shadow = false;
+        ground->dirty = true;
         
         // box
         object_t *box = &objects[object_count++];
@@ -515,8 +515,8 @@ int main(int argc, char * argv[])
             box->dirty = true;
             
             // box auto rotate
-//            box1->theta += 0.04f;
-//            box1->dirty = true;
+            box1->theta += 0.04f;
+            box1->dirty = true;
             
             // Clear screen
             SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );

@@ -1023,14 +1023,55 @@ void device_render_trap(device_t *device, trapezoid_t *trap, point_t *points, v2
             break;
     }
 }
-
-void computeTangentMatrix(device_t *device, vertex_t *vertex, vector_t *worldPos) {
-    vector_t *worldNormal = &vertex->normal;
-//    vector_t *tangent = texture_read(&textures[device->material.bump_tex_id], vertex->tc
+// http://www.cnblogs.com/ThreeThousandBigWorld/archive/2012/07/16/2593892.html
+// http://blog.chinaunix.net/uid-26651460-id-3083223.html
+// http://stackoverflow.com/questions/5255806/how-to-calculate-tangent-and-binormal
+void calculate_tangent_and_binormal(vector_t *tangent, vector_t *binormal, const vector_t *position1, const vector_t *position2, const vector_t *position3,
+                                          float u1, float v1, float u2, float v2, float u3, float v3)
+{
+    //side0 is the vector along one side of the triangle of vertices passed in,
+    //and side1 is the vector along another side. Taking the cross product of these returns the normal.
+    vector_t side0 = {0.0f, 0.0f, 0.0f, 1.0f};
+    vector_sub(&side0, position1, position2);
+    vector_t side1 = {0.0f, 0.0f, 0.0f, 1.0f};
+    vector_sub(&side1, position3, position1);
+    //Calculate face normal
+    vector_t normal = {0.0f, 0.0f, 0.0f, 0.0f};
+    vector_crossproduct(&normal, &side1, &side0);
+    vector_normalize(&normal);
+    //Now we use a formula to calculate the tangent.
+    float deltaV0 = v1 - v2;
+    float deltaV1 = v3 - v1;
+    *tangent = side0;
+    vector_scale(tangent, deltaV1);
+    vector_t temp = side1;
+    vector_scale(&temp, deltaV0);
+    vector_sub(tangent, tangent, &temp);
+    vector_normalize(tangent);
+    //Calculate binormal
+    float deltaU0 = u1 - u2;
+    float deltaU1 = u3 - u1;
+    *binormal = side0;
+    vector_scale(binormal, deltaU1);
+    temp = side1;
+    vector_scale(&temp, deltaU0);
+    vector_sub(binormal, binormal, &temp);
+    vector_normalize(binormal);
+    //Now, we take the cross product of the tangents to get a vector which
+    //should point in the same direction as our normal calculated above.
+    //If it points in the opposite direction (the dot product between the normals is less than zero),
+    //then we need to reverse the s and t tangents.
+    //This is because the triangle has been mirrored when going from tangent space to object space.
+    //reverse tangents if necessary
+    vector_t tangentCross;
+    vector_crossproduct(&tangentCross, tangent, binormal);
+    if (vector_dotproduct(&tangentCross, &normal) < 0.0f)
+    {
+        vector_inverse(tangent);
+        vector_inverse(binormal);
+    }
 }
 
-
-                                     
 void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_t *t3) {
     vertex_t *vertice[3] = {t1, t2, t3};
     point_t points[3];
@@ -1071,6 +1112,11 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
         a2v *av = &a2vs[i];
         
         av->pos = vertex->pos; // 世界空间的pos
+        int a = 0, b = 0;
+        if(i == 0) a = 1, b = 2;
+        if(i == 1) a = 0, b = 2;
+        if(i == 2) a = 0, b = 1;
+        calculate_tangent_and_binormal(&av->tangent, &av->binormal, &vertex->pos, &vertice[a]->pos, &vertice[b]->pos, vertex->tc.u, vertex->tc.v, vertice[a]->tc.u, vertice[a]->tc.v, vertice[b]->tc.u, vertice[b]->tc.v);
         matrix_apply(&vertex->pos, &vertex->pos, &device->transform.vp);
         points[i] = vertex->pos; // 透视空间的pos
         
@@ -1079,9 +1125,8 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
         av->normal = vertex->normal; // 世界空间的normal
         av->color = vertex->color;
         av->texcoord = vertex->tc;
-        // http://blog.chinaunix.net/uid-26651460-id-3083223.html
-        // http://stackoverflow.com/questions/5255806/how-to-calculate-tangent-and-binormal
-        //color_t tangent =
+
+        
         
         vert_shader(device, av, &v2fs[i]); // 顶点着色器
 //        vertex_rhw_init(vertex);

@@ -520,11 +520,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512418586.349104"
+            timestampString = "512501280.534362"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1067"
-            endingLineNumber = "1067"
+            startingLineNumber = "1106"
+            endingLineNumber = "1106"
             landmarkName = "device_draw_primitive()"
             landmarkType = "9">
          </BreakpointContent>
@@ -536,11 +536,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512418586.349104"
+            timestampString = "512501280.534362"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1108"
-            endingLineNumber = "1108"
+            startingLineNumber = "1152"
+            endingLineNumber = "1152"
             landmarkName = "device_draw_primitive()"
             landmarkType = "9">
          </BreakpointContent>
@@ -616,11 +616,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512418586.349104"
+            timestampString = "512501280.534362"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1106"
-            endingLineNumber = "1106"
+            startingLineNumber = "1150"
+            endingLineNumber = "1150"
             landmarkName = "device_draw_primitive()"
             landmarkType = "9">
          </BreakpointContent>
@@ -632,11 +632,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/tiny3D.c"
-            timestampString = "512418586.349104"
+            timestampString = "512501280.534362"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1107"
-            endingLineNumber = "1107"
+            startingLineNumber = "1151"
+            endingLineNumber = "1151"
             landmarkName = "device_draw_primitive()"
             landmarkType = "9">
          </BreakpointContent>
@@ -734,6 +734,38 @@
             startingLineNumber = "973"
             endingLineNumber = "973"
             landmarkName = "device_draw_scanline()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../resources/code/tiny3D.c"
+            timestampString = "512501276.259348"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1117"
+            endingLineNumber = "1117"
+            landmarkName = "device_draw_primitive()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../resources/code/tiny3D.c"
+            timestampString = "512501457.319873"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1032"
+            endingLineNumber = "1032"
+            landmarkName = "calculate_tangent_and_binormal()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
