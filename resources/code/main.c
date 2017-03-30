@@ -244,7 +244,7 @@ int main(int argc, char * argv[])
         int kbhit = 0;
         
         init_texture();
-        materials[material_cnt++] = (material_t){"default", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, -1, "", 1, NULL, -1, NULL, -1, NULL, -1, NULL, -1, NULL, -1};
+        materials[material_cnt++] = (material_t){"default", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, -1, "", 2, NULL, -1, NULL, -1, NULL, -1, NULL, -1, NULL, -1};
 //        materials[material_cnt++] = (material_t){"mabu", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, -1, "", 1, NULL, -1, NULL, -1, NULL, -1, NULL, -1, NULL, -1};
         
         vertex_t *mesh_nan;
@@ -269,7 +269,7 @@ int main(int argc, char * argv[])
         memset(screen_keys, 0, sizeof(int) * 512);
   
         dirLight = (dirlight_t){{0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, false};
-        dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, false};
+        dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, true};
         if(dirLight.shadow == true)
         {
             // 影子摄像机
@@ -327,14 +327,14 @@ int main(int argc, char * argv[])
         device_set_zbuffer(&device, (float*)zbuffer);
         device_set_shadowbuffer(&device, (float*)shadowbuffer);
         
-        device_set_background(&device, 0x00000000);
+        device_set_background(&device, 0x55555555);
         
         device_set_camera(&device, camera);
         transform_update(&device.transform);
 
         // init object
         // ground
-        /*
+        
         object_t *ground = &objects[object_count++];
         ground->pos = (point_t){0, 0, 0, 1};
         ground->scale = (vector_t){20, 1, 20, 0};
@@ -346,7 +346,7 @@ int main(int argc, char * argv[])
         ground->texture_id = 1;
         ground->shadow = false;
         ground->dirty = true;
-         */
+        
         
         // box
         object_t *box = &objects[object_count++];

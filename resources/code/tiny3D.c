@@ -74,9 +74,9 @@ void v2f_interpolating(v2f *dest, const v2f *src1, const v2f *src2, const v2f *s
     color_interpolating(&dest->color, &src1->color, &src2->color, &src3->color, a, b, c);
     texcoord_interpolating(&dest->texcoord, &src1->texcoord, &src2->texcoord, &src3->texcoord, a, b, c);
     vector_interpolating(&dest->normal, &src1->normal, &src2->normal, &src3->normal, a, b, c);
-    storage_interpolating(&dest->storage0, &src1->storage0, &src2->storage0, &src3->storage0, a, b, c);
-    storage_interpolating(&dest->storage1, &src1->storage1, &src2->storage1, &src3->storage1, a, b, c);
-    storage_interpolating(&dest->storage2, &src1->storage2, &src2->storage2, &src3->storage2, a, b, c);
+    vector_interpolating(&dest->storage0, &src1->storage0, &src2->storage0, &src3->storage0, a, b, c);
+    vector_interpolating(&dest->storage1, &src1->storage1, &src2->storage1, &src3->storage1, a, b, c);
+    vector_interpolating(&dest->storage2, &src1->storage2, &src2->storage2, &src3->storage2, a, b, c);
 }
 
 int logbase2ofx(int n) {
@@ -1495,18 +1495,18 @@ void frag_shader(device_t *device, v2f *vf, color_t *color) {
     vector_inverse(&lightDir);
     vector_normalize(&lightDir);
     
-    if(material->bump_tex_id != -1) {
-        color_t color = texture_read(&textures[material->bump_tex_id], tex->u, tex->v, vf->pos.w, 15);
-        vector_t bump = {color.r, color.g, color.b, color.a};
-        bump.x = bump.x * 2 - 1.0f;
-        bump.y = bump.y * 2 - 1.0f;
-        vector_scale(&bump, 1.0f);
-        float n = bump.x * bump.x + bump.y * bump.y;
-        if( n < 0.0f ) n = 0.0f; if( n > 1.0f ) n = 1.0f;
-        bump.z = sqrtf(1.0f - n);
-        normal = (vector_t){vector_dotproduct(&vf->storage0, &bump), vector_dotproduct(&vf->storage1, &bump), vector_dotproduct(&vf->storage2, &bump)};
-        vector_normalize(&normal);
-    }
+//    if(material->bump_tex_id != -1) {
+//        color_t color = texture_read(&textures[material->bump_tex_id], tex->u, tex->v, vf->pos.w, 15);
+//        vector_t bump = {color.r, color.g, color.b, color.a};
+//        bump.x = bump.x * 2 - 1.0f;
+//        bump.y = bump.y * 2 - 1.0f;
+//        vector_scale(&bump, 1.0f);
+//        float n = bump.x * bump.x + bump.y * bump.y;
+//        if( n < 0.0f ) n = 0.0f; if( n > 1.0f ) n = 1.0f;
+//        bump.z = sqrtf(1.0f - n);
+//        normal = (vector_t){vector_dotproduct(&vf->storage0, &bump), vector_dotproduct(&vf->storage1, &bump), vector_dotproduct(&vf->storage2, &bump)};
+//        vector_normalize(&normal);
+//    }
     
     float diff = fmaxf(vector_dotproduct(&normal, &lightDir), 0.0f);
     lightDir = dirLight.dir;
@@ -1534,6 +1534,7 @@ void frag_shader(device_t *device, v2f *vf, color_t *color) {
     {
         // fragPos -> 灯的坐标系 -> 灯的透视矩阵 -> 求得z坐标比较
         point_t tempPos = vf->pos;
+        tempPos.w = 1.0f;
         camera_t *camera = &cameras[0];
         matrix_apply(&tempPos, &tempPos, &camera->view_matrix);
         matrix_apply(&tempPos, &tempPos, &camera->projection_matrix);
@@ -1541,7 +1542,7 @@ void frag_shader(device_t *device, v2f *vf, color_t *color) {
         int y = (int)(tempPos.y+0.5);
         int x = (int)(tempPos.x+0.5);
         
-        vector_t tempNormal = vf->pos;
+        vector_t tempNormal = vf->normal;
         matrix_apply(&tempNormal, &tempNormal, &camera->view_matrix);
         vector_inverse(&tempNormal);
         float dot = vector_dotproduct(&tempNormal, &camera->front);
