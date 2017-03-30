@@ -1023,6 +1023,30 @@ void device_render_trap(device_t *device, trapezoid_t *trap, point_t *points, v2
             break;
     }
 }
+/*
+void CalculateTangentArray(vector_t *tangent, vector_t *binormal, const vector_t *vec1, const vector_t *vec2, const vector_t *vec3, float u1, float v1, float u2, float v2, float u3, float v3)
+{
+    float x1 = vec2->x - vec1->x;
+    float x2 = vec3->x - vec1->x;
+    float y1 = vec2->y - vec1->y;
+    float y2 = vec3->y - vec1->y;
+    float z1 = vec2->z - vec1->z;
+    float z2 = vec3->z - vec1->z;
+    float s1 = u2 - u1;
+    float s2 = u3 - u1;
+    float t1 = v2 - v1;
+    float t2 = v3 - v1;
+    float r = 1.0f / (s1 * t2 - s2 * t1);
+    vector_t sdir = {(t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r};
+    vector_t tdir = {(s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r};
+
+    const Vector3D& n = normal[a]; const Vector3D& t = tan1[a];
+    // Gram-Schmidt orthogonalize.
+    tangent[a] = (t - n * Dot(n, t)).Normalize();
+    // Calculate handedness.
+    tangent[a].w = (Dot(Cross(n, t), tan2[a]) < 0.0F) ? -1.0F : 1.0F;
+}
+*/
 // http://www.cnblogs.com/ThreeThousandBigWorld/archive/2012/07/16/2593892.html
 // http://blog.chinaunix.net/uid-26651460-id-3083223.html
 // http://stackoverflow.com/questions/5255806/how-to-calculate-tangent-and-binormal
@@ -1067,9 +1091,12 @@ void calculate_tangent_and_binormal(vector_t *tangent, vector_t *binormal, const
     vector_crossproduct(&tangentCross, tangent, binormal);
     if (vector_dotproduct(&tangentCross, &normal) < 0.0f)
     {
-        vector_inverse(tangent);
-        vector_inverse(binormal);
+        tangent->w = -1;
+        //vector_inverse(tangent);
+        //vector_inverse(binormal);
     }
+    
+    //binormal->w = 0.0f;
 }
 
 void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_t *t3) {
@@ -1117,6 +1144,11 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
         if(i == 1) a = 0, b = 2;
         if(i == 2) a = 0, b = 1;
         calculate_tangent_and_binormal(&av->tangent, &av->binormal, &vertex->pos, &vertice[a]->pos, &vertice[b]->pos, vertex->tc.u, vertex->tc.v, vertice[a]->tc.u, vertice[a]->tc.v, vertice[b]->tc.u, vertice[b]->tc.v);
+  
+        matrix_apply(&av->tangent, &av->tangent, &device->transform.model);
+        vector_crossproduct(&av->binormal, &av->normal, &av->tangent);
+        vector_scale(&av->binormal, av->tangent.w);
+        //matrix_apply(&av->binormal, &av->binormal, &device->transform.model);
         matrix_apply(&vertex->pos, &vertex->pos, &device->transform.vp);
         points[i] = vertex->pos; // 透视空间的pos
         
@@ -1125,9 +1157,7 @@ void device_draw_primitive(device_t *device, vertex_t *t1, vertex_t *t2, vertex_
         av->normal = vertex->normal; // 世界空间的normal
         av->color = vertex->color;
         av->texcoord = vertex->tc;
-
-        
-        
+    
         vert_shader(device, av, &v2fs[i]); // 顶点着色器
 //        vertex_rhw_init(vertex);
         
@@ -1443,6 +1473,14 @@ void vert_shader(device_t *device, a2v *av, v2f *vf) {
     vf->normal = av->normal;
     vf->color = av->color;
     vf->texcoord = av->texcoord;
+    
+    vf->storage0 = (vector_t){av->tangent.x, av->binormal.x, av->normal.x};
+    vf->storage1 = (vector_t){av->tangent.y, av->binormal.y, av->normal.y};
+    vf->storage2 = (vector_t){av->tangent.z, av->binormal.z, av->normal.z};
+    
+    //vf->storage0 = av->tangent;
+    //vf->storage1 = av->binormal;
+    //vf->storage2 = av->normal;
 }
 
 void frag_shader(device_t *device, v2f *vf, color_t *color) {
@@ -1456,6 +1494,20 @@ void frag_shader(device_t *device, v2f *vf, color_t *color) {
     vector_t lightDir = dirLight.dir;
     vector_inverse(&lightDir);
     vector_normalize(&lightDir);
+    
+    if(material->bump_tex_id != -1) {
+        color_t color = texture_read(&textures[material->bump_tex_id], tex->u, tex->v, vf->pos.w, 15);
+        vector_t bump = {color.r, color.g, color.b, color.a};
+        bump.x = bump.x * 2 - 1.0f;
+        bump.y = bump.y * 2 - 1.0f;
+        vector_scale(&bump, 1.0f);
+        float n = bump.x * bump.x + bump.y * bump.y;
+        if( n < 0.0f ) n = 0.0f; if( n > 1.0f ) n = 1.0f;
+        bump.z = sqrtf(1.0f - n);
+        normal = (vector_t){vector_dotproduct(&vf->storage0, &bump), vector_dotproduct(&vf->storage1, &bump), vector_dotproduct(&vf->storage2, &bump)};
+        vector_normalize(&normal);
+    }
+    
     float diff = fmaxf(vector_dotproduct(&normal, &lightDir), 0.0f);
     lightDir = dirLight.dir;
     vector_normalize(&lightDir);

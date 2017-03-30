@@ -673,6 +673,13 @@ int tinyobj_parse_mtl_file(tinyobj_material_t **materials_out,
       material.bump_texname = my_strdup(token);
       continue;
     }
+      
+    /* bump texture */
+    if ((0 == strncmp(token, "map_Bump", 8)) && IS_SPACE(token[8])) {
+      token += 9;
+      material.bump_texname = my_strdup(token);
+      continue;
+    }
 
     /* alpha texture */
     if ((0 == strncmp(token, "map_d", 5)) && IS_SPACE(token[5])) {

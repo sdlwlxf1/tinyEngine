@@ -334,6 +334,7 @@ int main(int argc, char * argv[])
 
         // init object
         // ground
+        /*
         object_t *ground = &objects[object_count++];
         ground->pos = (point_t){0, 0, 0, 1};
         ground->scale = (vector_t){20, 1, 20, 0};
@@ -345,6 +346,7 @@ int main(int argc, char * argv[])
         ground->texture_id = 1;
         ground->shadow = false;
         ground->dirty = true;
+         */
         
         // box
         object_t *box = &objects[object_count++];

@@ -348,9 +348,9 @@ typedef struct {
     texcoord_t texcoord;
     color_t color;
     vector_t normal;
-    storage_t storage0;
-    storage_t storage1;
-    storage_t storage2;
+    vector_t storage0;
+    vector_t storage1;
+    vector_t storage2;
 } v2f;
 
 void vert_shader(device_t *device, a2v *av, v2f *vf);
