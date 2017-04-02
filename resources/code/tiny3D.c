@@ -515,6 +515,17 @@ int texture_count = 0;
 material_t materials[NUM_MATERIAL];
 int material_cnt;
 
+void free_material(material_t *material) {
+    free(material->name);
+    free(material->bump_texname);
+    free(material->alpha_texname);
+    free(material->ambient_texname);
+    free(material->diffuse_texname);
+    free(material->specular_texname);
+    free(material->displacement_texname);
+    free(material->specular_highlight_texname);
+}
+
 pointlight_t pointLights[NR_POINT_LIGHTS];
 int pointlight_cnt;
 

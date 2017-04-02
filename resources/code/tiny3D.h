@@ -170,7 +170,7 @@ typedef struct {
 extern material_t materials[NUM_MATERIAL];
 extern int material_cnt;
 
-
+void free_material(material_t *material);
 
 typedef struct {
     point_t pos;

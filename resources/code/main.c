@@ -155,7 +155,7 @@ void init_texture() {
     make_texture_by_png("dimian", true);
 }
 
-void free_texture() {
+void free_textures() {
     for(int i = 0; i < texture_count; i++) {
         texture_t *texture = &textures[i];
         for(int j = 0; j < texture->datas_len; j++) {
@@ -164,6 +164,12 @@ void free_texture() {
         }
         free(texture->datas);
         texture->datas = NULL;
+    }
+}
+
+void free_materials() {
+    for(int i = 0; i < material_cnt; i++) {
+        free_material(&materials[i]);
     }
 }
 
@@ -227,13 +233,16 @@ Uint32 lastFrame = 0;
 
 int main(int argc, char * argv[])
 {
+    bool sdl_ret = sdl_init(SCREEN_WIDTH, SCREEN_HEIGHT, "lixuefeng");
+    
     //Start up SDL and create window
-    if( !sdl_init(SCREEN_WIDTH, SCREEN_HEIGHT, "lixuefeng") )
+    if(sdl_ret == false)
     {
         printf( "Failed to initialize!\n" );
     }
     else
     {
+
         //Main loop flag
         bool quit = false;
         
@@ -243,6 +252,7 @@ int main(int argc, char * argv[])
         int indicator = 0;
         int kbhit = 0;
         
+        // 加载初始化纹理和网格和材质数据
         init_texture();
         materials[material_cnt++] = (material_t){"default", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, -1, "", 2, NULL, -1, NULL, -1, NULL, -1, NULL, -1, NULL, -1};
 //        materials[material_cnt++] = (material_t){"mabu", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, -1, "", 1, NULL, -1, NULL, -1, NULL, -1, NULL, -1, NULL, -1};
@@ -252,13 +262,13 @@ int main(int argc, char * argv[])
         int *material_ids_nan;
         unsigned long material_ids_num_nan;
         make_mesh_and_material_by_obj(&mesh_nan, &mesh_num_nan, &material_ids_nan, &material_ids_num_nan, "nanosuit");
-        
-        // 缓存
-        IUINT32 framebuffer[REAL_HEIGHT][REAL_WIDTH];
-        float zbuffer[REAL_HEIGHT][REAL_WIDTH];
-        float shadowbuffer[REAL_HEIGHT][REAL_WIDTH];
-        pshadowbuffer = (float*)shadowbuffer;
 
+        // 缓存
+        IUINT32 *framebuffer = (IUINT32*)malloc(REAL_WIDTH * REAL_HEIGHT * sizeof(IUINT32));
+        float *zbuffer = (float*)malloc(REAL_HEIGHT * REAL_WIDTH * sizeof(float));
+        float *shadowbuffer = (float*)malloc(REAL_HEIGHT * REAL_WIDTH * sizeof(float));
+        pshadowbuffer = shadowbuffer;
+ 
         float c_yaw = 0.0f;
         float c_pitch = 0.0f;
         float c_movementspeed = 2.0f;
@@ -267,7 +277,7 @@ int main(int argc, char * argv[])
         bool firstMouse = true;
         
         memset(screen_keys, 0, sizeof(int) * 512);
-  
+
         dirLight = (dirlight_t){{0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, false};
         dirLight = (dirlight_t){{0.0f, -1.0f, 1.0f, 0.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, {0.8f, 0.8f, 0.8f, 1.0f}, {0.3f, 0.3f, 0.3f, 1.0f}, true};
         if(dirLight.shadow == true)
@@ -305,7 +315,7 @@ int main(int argc, char * argv[])
         // 主摄像机
         camera_t *camera = &cameras[camera_count];
         camera->main = true;
-        camera->pos = (vector_t){0.0f, 2.0f, -3.0f, 1.0f};
+        camera->pos = (vector_t){0.0f, 2.0f, -2.5f, 1.0f};
         camera->front = (vector_t){0.0f, 0.0f, 1.0f, 0.0f};
         camera->worldup = (vector_t){0.0f, 1.0f, 0.0f, 0.0f};
         camera->fovy = 3.1415926 * 0.5f;
@@ -323,9 +333,9 @@ int main(int argc, char * argv[])
         camera->dirty = true;
         camera_count++;
         
-        device_set_framebuffer(&device, (IUINT32*)framebuffer);
-        device_set_zbuffer(&device, (float*)zbuffer);
-        device_set_shadowbuffer(&device, (float*)shadowbuffer);
+        device_set_framebuffer(&device, framebuffer);
+        device_set_zbuffer(&device, zbuffer);
+        device_set_shadowbuffer(&device, shadowbuffer);
         
         device_set_background(&device, 0x55555555);
         
@@ -334,7 +344,6 @@ int main(int argc, char * argv[])
 
         // init object
         // ground
-        
         object_t *ground = &objects[object_count++];
         ground->pos = (point_t){0, 0, 0, 1};
         ground->scale = (vector_t){20, 1, 20, 0};
@@ -347,10 +356,9 @@ int main(int argc, char * argv[])
         ground->shadow = false;
         ground->dirty = true;
         
-        
         // box
         object_t *box = &objects[object_count++];
-        box->pos = (point_t){0, 0, 0, 1};
+        box->pos = (point_t){-1, 0, 0, 1};
         box->scale = (vector_t){0.1, 0.1, 0.1, 0};
         box->axis = (vector_t){0, 1, 0, 1};
         box->theta = 0.0f;
@@ -525,7 +533,7 @@ int main(int argc, char * argv[])
             SDL_RenderClear( gRenderer );
             
             // shadowbuffer在这里设置是为了清空buffer
-            device_set_shadowbuffer(&device, (float*)shadowbuffer);
+            device_set_shadowbuffer(&device, shadowbuffer);
             
             device_clear(&device);
             
@@ -537,14 +545,14 @@ int main(int argc, char * argv[])
                 camera_t *camera = &cameras[i];
                 if(camera->main == true) {
                     device.cull = 1;
-                    device_set_framebuffer(&device, (IUINT32*)framebuffer);
-                    device_set_zbuffer(&device, (float*)zbuffer);
+                    device_set_framebuffer(&device, framebuffer);
+                    device_set_zbuffer(&device, zbuffer);
                     device_set_shadowbuffer(&device, NULL);
                 } else {
                     device.cull = 2;
                     device_set_framebuffer(&device, NULL);
                     device_set_zbuffer(&device, NULL);
-                    device_set_shadowbuffer(&device, (float*)shadowbuffer);
+                    device_set_shadowbuffer(&device, shadowbuffer);
                 }
                 
                 if(camera->dirty == true) {
@@ -564,11 +572,11 @@ int main(int argc, char * argv[])
             {
                 for(int x = 0; x < SCREEN_WIDTH; x++)
                 {
-                    IUINT32 color = framebuffer[y][x];
+                    IUINT32 color = framebuffer[y * REAL_WIDTH + x];
                     SDL_SetRenderDrawColor(gRenderer, (0xff<<16&color)>>16, (0xff<<8&color)>>8, 0xff&color, (0xff<<24&color)>>24);
                     SDL_RenderDrawPoint(gRenderer, x, y);
                     
-//                    float depth = shadowbuffer[y][x];
+//                    float depth = shadowbuffer[y * REAL_WIDTH + x];
 //                    SDL_SetRenderDrawColor(gRenderer, depth*255, depth*255, depth*255, 255);
 //                    SDL_RenderDrawPoint(gRenderer, x, y);
                 }
@@ -577,7 +585,13 @@ int main(int argc, char * argv[])
             //Update screen
             SDL_RenderPresent( gRenderer );
         }
-        free_texture();
+        free(mesh_nan);
+        free(material_ids_nan);
+        free_materials();
+        free_textures();
+        free(framebuffer);
+        free(zbuffer);
+        free(shadowbuffer);
 	}
 	sdl_close();
 	return 0;
