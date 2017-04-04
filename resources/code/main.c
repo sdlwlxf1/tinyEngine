@@ -254,7 +254,7 @@ int main(int argc, char * argv[])
         
         // 加载初始化纹理和网格和材质数据
         init_texture();
-        materials[material_cnt++] = (material_t){"default", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, -1, "", 2, NULL, -1, NULL, -1, NULL, -1, NULL, -1, NULL, -1};
+        materials[material_cnt++] = (material_t){NULL, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, -1, NULL, 2, NULL, -1, NULL, -1, NULL, -1, NULL, -1, NULL, -1};
 //        materials[material_cnt++] = (material_t){"mabu", {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.2f, 0.2f, 0.2f}, {0.5f, 0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, 32.0f, 1.0f, 1.0f, 1, 1, NULL, -1, "", 1, NULL, -1, NULL, -1, NULL, -1, NULL, -1, NULL, -1};
         
         vertex_t *mesh_nan;

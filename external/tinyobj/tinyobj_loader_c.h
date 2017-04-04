@@ -546,7 +546,8 @@ int tinyobj_parse_mtl_file(tinyobj_material_t **materials_out,
 #else
       sscanf(token, "%s", namebuf);
 #endif
-      material.name = my_strdup(namebuf);
+      unsigned int len = (unsigned int)length_until_newline(token, strlen(token));
+      material.name = my_strndup(namebuf, len);
       continue;
     }
 
@@ -642,63 +643,72 @@ int tinyobj_parse_mtl_file(tinyobj_material_t **materials_out,
     /* ambient texture */
     if ((0 == strncmp(token, "map_Ka", 6)) && IS_SPACE(token[6])) {
       token += 7;
-      material.ambient_texname = my_strdup(token);
+      unsigned int len = (unsigned int)length_until_newline(token, strlen(token));
+      material.ambient_texname = my_strndup(token, len);
       continue;
     }
 
     /* diffuse texture */
     if ((0 == strncmp(token, "map_Kd", 6)) && IS_SPACE(token[6])) {
       token += 7;
-      material.diffuse_texname = my_strdup(token);
+      unsigned int len = (unsigned int)length_until_newline(token, strlen(token));
+      material.diffuse_texname = my_strndup(token, len);
       continue;
     }
 
     /* specular texture */
     if ((0 == strncmp(token, "map_Ks", 6)) && IS_SPACE(token[6])) {
       token += 7;
-      material.specular_texname = my_strdup(token);
+      unsigned int len = (unsigned int)length_until_newline(token, strlen(token));
+      material.specular_texname = my_strndup(token, len);
       continue;
     }
 
     /* specular highlight texture */
     if ((0 == strncmp(token, "map_Ns", 6)) && IS_SPACE(token[6])) {
       token += 7;
-      material.specular_highlight_texname = my_strdup(token);
+      unsigned int len = (unsigned int)length_until_newline(token, strlen(token));
+      material.specular_highlight_texname = my_strndup(token, len);
       continue;
     }
 
     /* bump texture */
     if ((0 == strncmp(token, "map_bump", 8)) && IS_SPACE(token[8])) {
       token += 9;
-      material.bump_texname = my_strdup(token);
+      unsigned int len = (unsigned int)length_until_newline(token, strlen(token));
+      material.bump_texname = my_strndup(token, len);
       continue;
     }
       
     /* bump texture */
     if ((0 == strncmp(token, "map_Bump", 8)) && IS_SPACE(token[8])) {
       token += 9;
-      material.bump_texname = my_strdup(token);
+      unsigned int len = (unsigned int)length_until_newline(token, strlen(token));
+      material.bump_texname = my_strndup(token, len);
       continue;
     }
 
     /* alpha texture */
     if ((0 == strncmp(token, "map_d", 5)) && IS_SPACE(token[5])) {
       token += 6;
-      material.alpha_texname = my_strdup(token);
+      unsigned int len = (unsigned int)length_until_newline(token, strlen(token));
+      material.alpha_texname = my_strndup(token, len);
       continue;
     }
 
     /* bump texture */
     if ((0 == strncmp(token, "bump", 4)) && IS_SPACE(token[4])) {
       token += 5;
-      material.bump_texname = my_strdup(token);
+      unsigned int len = (unsigned int)length_until_newline(token, strlen(token));
+      material.bump_texname = my_strndup(token, len);
       continue;
     }
 
     /* displacement texture */
     if ((0 == strncmp(token, "disp", 4)) && IS_SPACE(token[4])) {
       token += 5;
-      material.displacement_texname = my_strdup(token);
+      unsigned int len = (unsigned int)length_until_newline(token, strlen(token));
+      material.displacement_texname = my_strndup(token, len);
       continue;
     }
 

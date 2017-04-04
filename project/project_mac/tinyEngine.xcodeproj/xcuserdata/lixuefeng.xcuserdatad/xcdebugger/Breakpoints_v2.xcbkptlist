@@ -360,11 +360,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../external/tinyobj/tinyobj_loader_c.h"
-            timestampString = "512218086.400326"
+            timestampString = "512988768.888344"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1044"
-            endingLineNumber = "1044"
+            startingLineNumber = "1054"
+            endingLineNumber = "1054"
             landmarkName = "tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes, size_t *num_shapes, tinyobj_material_t **materials_out, size_t *num_materials_out, const char *buf, size_t len, unsigned int flags, const char *prefix_path)"
             landmarkType = "9">
          </BreakpointContent>
@@ -376,11 +376,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../external/tinyobj/tinyobj_loader_c.h"
-            timestampString = "512216180.378208"
+            timestampString = "512988768.888344"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1040"
-            endingLineNumber = "1040"
+            startingLineNumber = "1050"
+            endingLineNumber = "1050"
             landmarkName = "tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes, size_t *num_shapes, tinyobj_material_t **materials_out, size_t *num_materials_out, const char *buf, size_t len, unsigned int flags, const char *prefix_path)"
             landmarkType = "9">
          </BreakpointContent>
@@ -392,11 +392,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/utils.c"
-            timestampString = "512242197.598541"
+            timestampString = "512989103.198378"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "238"
-            endingLineNumber = "238"
+            startingLineNumber = "246"
+            endingLineNumber = "246"
             landmarkName = "make_mesh_and_material_by_obj()"
             landmarkType = "9">
          </BreakpointContent>
@@ -424,11 +424,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/utils.c"
-            timestampString = "512242197.598541"
+            timestampString = "512989103.198378"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "280"
-            endingLineNumber = "280"
+            startingLineNumber = "288"
+            endingLineNumber = "288"
             landmarkName = "make_mesh_and_material_by_obj()"
             landmarkType = "9">
          </BreakpointContent>
@@ -440,11 +440,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/utils.c"
-            timestampString = "512242197.598541"
+            timestampString = "512989103.198378"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "277"
-            endingLineNumber = "277"
+            startingLineNumber = "285"
+            endingLineNumber = "285"
             landmarkName = "make_mesh_and_material_by_obj()"
             landmarkType = "9">
          </BreakpointContent>
@@ -456,11 +456,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/utils.c"
-            timestampString = "512242197.598541"
+            timestampString = "512989103.198378"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "278"
-            endingLineNumber = "278"
+            startingLineNumber = "286"
+            endingLineNumber = "286"
             landmarkName = "make_mesh_and_material_by_obj()"
             landmarkType = "9">
          </BreakpointContent>
@@ -504,11 +504,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../../resources/code/utils.c"
-            timestampString = "512242197.598541"
+            timestampString = "512989103.198378"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "166"
-            endingLineNumber = "166"
+            startingLineNumber = "174"
+            endingLineNumber = "174"
             landmarkName = "make_mesh_and_material_by_obj()"
             landmarkType = "9">
          </BreakpointContent>
@@ -525,7 +525,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1106"
             endingLineNumber = "1106"
-            landmarkName = "device_draw_primitive()"
+            landmarkName = "calculate_tangent_and_binormal()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -556,9 +556,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1020"
-            endingLineNumber = "1020"
-            landmarkName = "device_render_trap()"
-            landmarkType = "9">
+            endingLineNumber = "1020">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -605,7 +603,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1018"
             endingLineNumber = "1018"
-            landmarkName = "device_render_trap()"
+            landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -685,7 +683,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1019"
             endingLineNumber = "1019"
-            landmarkName = "device_render_trap()"
+            landmarkName = "device_draw_scanline()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -701,7 +699,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "670"
             endingLineNumber = "670"
-            landmarkName = "trapezoid_edge_interp()"
+            landmarkName = "trapezoid_init_triangle()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -716,9 +714,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "567"
-            endingLineNumber = "567"
-            landmarkName = "vertex_interp()"
-            landmarkType = "9">
+            endingLineNumber = "567">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -764,7 +760,9 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1032"
-            endingLineNumber = "1032">
+            endingLineNumber = "1032"
+            landmarkName = "device_render_trap()"
+            landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -828,6 +826,150 @@
             startingLineNumber = "1548"
             endingLineNumber = "1548"
             landmarkName = "frag_shader()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../resources/code/utils.c"
+            timestampString = "512989103.198378"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "151"
+            endingLineNumber = "151"
+            landmarkName = "make_mesh_and_material_by_obj()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../resources/code/utils.c"
+            timestampString = "512989103.198378"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "150"
+            endingLineNumber = "150"
+            landmarkName = "make_mesh_and_material_by_obj()"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../external/tinyobj/tinyobj_loader_c.h"
+            timestampString = "512988768.888344"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "676"
+            endingLineNumber = "676"
+            landmarkName = "tinyobj_parse_mtl_file(tinyobj_material_t **materials_out, size_t *num_materials_out, const char *filename)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../external/tinyobj/tinyobj_loader_c.h"
+            timestampString = "512988768.888344"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "652"
+            endingLineNumber = "652"
+            landmarkName = "tinyobj_parse_mtl_file(tinyobj_material_t **materials_out, size_t *num_materials_out, const char *filename)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../external/tinyobj/tinyobj_loader_c.h"
+            timestampString = "512988768.888344"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "654"
+            endingLineNumber = "654"
+            landmarkName = "tinyobj_parse_mtl_file(tinyobj_material_t **materials_out, size_t *num_materials_out, const char *filename)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../external/tinyobj/tinyobj_loader_c.h"
+            timestampString = "512988854.707897"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "670"
+            endingLineNumber = "670"
+            landmarkName = "tinyobj_parse_mtl_file(tinyobj_material_t **materials_out, size_t *num_materials_out, const char *filename)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../external/tinyobj/tinyobj_loader_c.h"
+            timestampString = "512988910.989725"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "668"
+            endingLineNumber = "668"
+            landmarkName = "tinyobj_parse_mtl_file(tinyobj_material_t **materials_out, size_t *num_materials_out, const char *filename)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../external/tinyobj/tinyobj_loader_c.h"
+            timestampString = "512988937.03849"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "671"
+            endingLineNumber = "671"
+            landmarkName = "tinyobj_parse_mtl_file(tinyobj_material_t **materials_out, size_t *num_materials_out, const char *filename)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../../resources/code/utils.c"
+            timestampString = "512989103.198378"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "166"
+            endingLineNumber = "166"
+            landmarkName = "make_mesh_and_material_by_obj()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

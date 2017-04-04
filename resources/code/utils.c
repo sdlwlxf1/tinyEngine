@@ -139,6 +139,14 @@ int make_mesh_and_material_by_obj(vertex_t **mesh, unsigned long *mesh_num, int 
             m.displacement_tex_id = -1;
             m.alpha_tex_id = -1;
             
+            m.ambient_texname = NULL;
+            m.diffuse_texname = NULL;
+            m.specular_texname = NULL;
+            m.specular_highlight_texname = NULL;
+            m.bump_texname = NULL;
+            m.displacement_texname = NULL;
+            m.alpha_texname = NULL;
+            
             if(tm.ambient_texname != NULL) {
                 m.ambient_texname = (char*)malloc(sizeof(char) * strlen(tm.ambient_texname));
                 strcpy(m.ambient_texname, tm.ambient_texname);
