@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\sdl2\include;$(SolutionDir)..\..\external\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\sdl2\include;$(SolutionDir)..\..\external\libpng\include;$(SolutionDir)..\..\external\tinyobj;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -99,7 +99,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\sdl2\include;$(SolutionDir)..\..\external\libpng\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\sdl2\include;$(SolutionDir)..\..\external\libpng\include;$(SolutionDir)..\..\external\tinyobj;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -123,12 +123,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\external\tinyobj\tinyobj_loader_c.h" />
     <ClInclude Include="..\..\..\resources\code\tiny3D.h" />
     <ClInclude Include="..\..\..\resources\code\utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\resources\code\main.c" />
-    <ClCompile Include="utils.c" />
+    <ClCompile Include="..\..\..\resources\code\tiny3D.c" />
+    <ClCompile Include="..\..\..\resources\code\utils.c" />
+    <ClCompile Include="utils_other.c" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\resources\image\dimian.png" />

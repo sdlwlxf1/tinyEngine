@@ -21,12 +21,21 @@
     <ClInclude Include="..\..\..\resources\code\utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\external\tinyobj\tinyobj_loader_c.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\resources\code\main.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="utils.c">
+    <ClCompile Include="..\..\..\resources\code\tiny3D.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\resources\code\utils.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="utils_other.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

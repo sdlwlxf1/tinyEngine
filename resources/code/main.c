@@ -5,6 +5,7 @@ and may not be redistributed without written permission.*/
 #include "SDL.h"
 #include "utils.h"
 #include "tiny3D.h"
+#include <stdio.h>
 
 //Screen dimension constants
 const int SCREEN_WIDTH = 600;
@@ -196,7 +197,7 @@ void draw_object(device_t *device, object_t *objects, int obj_cnt) {
         }  
     }
 }
-
+/*
 void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
     for(int i = 0; i < pointlight_cnt; i++) {
         vector_t pl = pointLights[i].pos;
@@ -225,7 +226,7 @@ void draw_shadow(device_t *device, object_t *objects, int obj_cnt) {
         }
     }
 }
-
+*/
 
 int screen_keys[512];	// 当前键盘按下状态
 float deltaTime = 0.0f;
