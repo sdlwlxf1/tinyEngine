@@ -506,8 +506,8 @@ int tinyobj_parse_mtl_file(tinyobj_material_t **materials_out,
   (*materials_out) = NULL;
   (*num_materials_out) = 0;
 
-  fp = fopen(filename, "r");
-  if (!fp) {
+  errno_t err = fopen_s(&fp, filename, "r");
+  if (err != 0) {
     return TINYOBJ_ERROR_FILE_OPERATION;
   }
 
@@ -1057,7 +1057,7 @@ int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
     char *filename = my_strndup(commands[mtllib_line_index].mtllib_name,
                                 commands[mtllib_line_index].mtllib_name_len);
       char path[1000];
-      sprintf(path, "%s%s", prefix_path, filename);
+      sprintf_s(path, sizeof(path), "%s%s", prefix_path, filename);
     int ret = tinyobj_parse_mtl_file(&materials, &num_materials, path);
 
     if (ret != TINYOBJ_SUCCESS) {
@@ -1101,7 +1101,7 @@ int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
         if (commands[i].material_name && commands[i].material_name_len > 0) {
             material_id = -1;
             char name[100];
-            strncpy(name, commands[i].material_name, commands[i].material_name_len);
+            strncpy_s(name, sizeof(name), commands[i].material_name, commands[i].material_name_len);
             name[commands[i].material_name_len] = '\0';
             for(m_count = 0; m_count < num_materials; m_count++) {
                 if(strcmp(name, materials[m_count].name) == 0) {
